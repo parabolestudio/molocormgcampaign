@@ -44,31 +44,43 @@ export function Map() {
 
   const colors = d3.scaleOrdinal(d3.schemeBlues[9]);
 
-  return html`<svg
-    viewBox="0 0 ${width} ${height}"
-    style="background: #D9D9D933; max-width: 100%; height: auto;"
+  return html`<div
+    style="display: flex; flex-direction: column; align-items: flex-end;"
   >
-    <g stroke-linejoin="round" stroke-linecap="round">
-      ${states.map(
-        (d) => html`<path
-          d="${geoPath(d)}"
-          fill="${colors(Math.random())}"
-          data-state-id="${d.properties.name}"
-          onmouseover="${(e) => {
-            const stateId = e.target.dataset.stateId;
-            console.log("Hovered state ID:", stateId);
-          }}"
-          class="map-state"
-        ></path>`
-      )}
-      <path
-        d="${geoPath(
-          topojson.mesh(usGeoData, usGeoData.objects.states, (a, b) => a !== b)
-        )}"
-        stroke="white"
-        fill="none"
-        border-width="4"
-      />
-    </g>
-  </svg>`;
+    <svg
+      viewBox="0 0 ${width} ${height}"
+      style="max-width: 1122px;margin: 0 auto; height: auto;"
+    >
+      <g stroke-linejoin="round" stroke-linecap="round">
+        ${states.map(
+          (d) => html`<path
+            d="${geoPath(d)}"
+            fill="${colors(Math.random())}"
+            data-state-id="${d.properties.name}"
+            onmouseover="${(e) => {
+              const stateId = e.target.dataset.stateId;
+              console.log("Hovered state ID:", stateId);
+            }}"
+            class="map-state"
+          ></path>`
+        )}
+        <path
+          d="${geoPath(
+            topojson.mesh(
+              usGeoData,
+              usGeoData.objects.states,
+              (a, b) => a !== b
+            )
+          )}"
+          stroke="white"
+          fill="none"
+          border-width="4"
+        />
+      </g>
+    </svg>
+    <div>
+      <div class="rmg-filter-label">Value legend</div>
+      <div>...</div>
+    </div>
+  </div>`;
 }
