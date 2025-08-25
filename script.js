@@ -6,6 +6,7 @@ import { AdvertiserTrends } from "./js/advertiserTrends.js";
 import { ConsumerTrends } from "./js/consumerTrends.js";
 import { Map } from "./js/map.js";
 import { populateGeneralDropdowns } from "./js/populateGeneralDropdowns.js";
+import renderButtonGroup from "./js/renderButtonGroup.js";
 
 const Vis = async (props) => {
   console.log("Rendering Vis component with props:", props);
@@ -47,3 +48,5 @@ visList.forEach((vis) => {
 });
 
 populateGeneralDropdowns();
+const items = ["Button 1", "Button 2", "Button 3"];
+renderButtonGroup("vis-consumer-trends-button-group", items);
