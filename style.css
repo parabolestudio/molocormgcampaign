@@ -33,3 +33,14 @@
     }
   }
 }
+
+#vis-map {
+  & .map-state {
+    cursor: pointer;
+    transition: fill 0.3s ease;
+
+    &:hover {
+      fill: orange !important;
+    }
+  }
+}
