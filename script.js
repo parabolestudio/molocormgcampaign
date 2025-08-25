@@ -47,6 +47,22 @@ visList.forEach((vis) => {
   }
 });
 
+// add options to the general dropdowns
 populateGeneralDropdowns();
-const items = ["Button 1", "Button 2", "Button 3"];
-renderButtonGroup("vis-consumer-trends-button-group", items);
+
+// render button groups
+const itemsConsumer = ["Button 1", "Button 2", "Button 3"];
+renderButtonGroup(
+  "vis-consumer-trends-button-group",
+  itemsConsumer,
+  "Button 2"
+);
+
+const itemsAdvertiser = ["Button 1", "Button 2", "Button 3"];
+renderButtonGroup(
+  "vis-advertiser-trends-button-group",
+  itemsAdvertiser,
+  "Button 2"
+);
+const itemsMap = ["Button 1", "Button 2", "Button 3"];
+renderButtonGroup("vis-map-button-group", itemsMap, "Button 2");
