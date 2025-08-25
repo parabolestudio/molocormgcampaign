@@ -34,7 +34,7 @@ function ButtonGroup(props) {
     ${props.items.map(
       (item) =>
         html`<button
-          class="${item === selected ? "selected" : ""}"
+          class="${item === selected ? "selected" : ""} charts-text-body"
           onClick=${() => {
             setSelected(item);
             // Dispatch custom event to notify other components
