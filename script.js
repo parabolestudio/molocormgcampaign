@@ -2,7 +2,7 @@ import { html, renderComponent } from "./js/utils/preact-htm.js";
 
 import { AdvertiserTrends } from "./js/advertiserTrends.js";
 import { ConsumerTrends } from "./js/consumerTrends.js";
-import { Map } from "./js/map.js";
+import { Map, MapTimeSelector } from "./js/map.js";
 import { Leaderboard } from "./js/leaderboard.js";
 import { populateGeneralDropdowns } from "./js/populateGeneralDropdowns.js";
 import renderButtonGroup from "./js/renderButtonGroup.js";
@@ -27,6 +27,10 @@ const visList = [
   {
     id: "vis-map",
     component: Map,
+  },
+  {
+    id: "vis-map-time-selector",
+    component: MapTimeSelector,
   },
   {
     id: "vis-leaderboard",

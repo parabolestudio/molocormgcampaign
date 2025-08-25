@@ -76,3 +76,72 @@
     line-height: 1.4;
   }
 }
+
+/* Make the range slider handle (thumb) black */
+.myRange {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 11px;
+  background: #e5e5e5;
+  border-radius: 20px;
+  outline: none;
+}
+
+/* Webkit browsers */
+.myRange::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #000;
+  border: 2px solid #000;
+  cursor: pointer;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s;
+}
+
+/* Firefox */
+.myRange::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #000;
+  border: 2px solid #000;
+  cursor: pointer;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s;
+}
+.myRange::-moz-range-track {
+  background: #e5e5e5;
+  height: 11px;
+  border-radius: 20px;
+}
+
+/* IE */
+.myRange::-ms-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #000;
+  border: 2px solid #000;
+  cursor: pointer;
+  box-shadow: 0 0 2px rgba(0, 0, 0, 0.2);
+  transition: background 0.3s;
+}
+.myRange::-ms-fill-lower,
+.myRange::-ms-fill-upper {
+  background: #e5e5e5;
+  border-radius: 20px;
+}
+
+/* Remove outline on focus for all browsers */
+.myRange:focus {
+  outline: none;
+}
+
+/* Remove border for Firefox */
+.myRange::-moz-focus-outer {
+  border: 0;
+}
