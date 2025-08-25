@@ -44,3 +44,35 @@
     }
   }
 }
+
+#vis-leaderboard {
+  background-color: #040078;
+
+  .header-cell {
+    color: white;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.25;
+    align-self: center;
+    padding: 0 10px;
+  }
+  .row-rank {
+    font-family: "Spacegrotesk", "Space Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 35px;
+  }
+  .row-name {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+    font-size: 21.5px;
+    line-height: 1.4;
+  }
+  .row-value {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-size: 21.5px;
+    line-height: 1.4;
+  }
+}
