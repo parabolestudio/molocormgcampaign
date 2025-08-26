@@ -5,18 +5,53 @@ export function populateGeneralDropdowns() {
   let countryDropdown = document.querySelector("#vis-general-dropdown-country");
   let systemDropdown = document.querySelector("#vis-general-dropdown-system");
 
-  const fields = ["field A", "field B", "field C"];
-  const countries = ["country A", "country B", "country C"];
-  const systems = ["system A", "system B", "system C"];
+  const fields = [
+    {
+      text: "RMG",
+      value: "RMG",
+    },
+    {
+      text: "Sportsbetting",
+      value: "Sportsbetting",
+    },
+  ];
+  const fieldDefault = fields[0];
+  const countries = [
+    {
+      text: "U.S.",
+      value: "U.S.",
+    },
+    {
+      text: "Country B",
+      value: "Country B",
+    },
+  ];
+  const countryDefault = countries[0];
+  const systems = [
+    // {
+    //   text: "All systems",
+    //   value: "ALL",
+    // },
+    {
+      text: "iOS",
+      value: "IOS",
+    },
+    {
+      text: "Android",
+      value: "ANDROID",
+    },
+  ];
+  const systemDefault = systems[0];
 
   if (fieldDropdown) {
     if (fieldDropdown) fieldDropdown.innerHTML = "";
     fields.forEach((field) => {
       let option = document.createElement("option");
-      option.text = field;
+      option.value = field.value;
+      option.text = field.text;
       fieldDropdown.add(option);
     });
-    fieldDropdown.value = fields[0];
+    fieldDropdown.value = fieldDefault.value;
     fieldDropdown.addEventListener("change", (e) => {
       console.log("Selected field:", e.target.value);
       // Dispatch custom event to notify other components
@@ -32,10 +67,11 @@ export function populateGeneralDropdowns() {
     if (countryDropdown) countryDropdown.innerHTML = "";
     countries.forEach((country) => {
       let option = document.createElement("option");
-      option.text = country;
+      option.value = country.value;
+      option.text = country.text;
       countryDropdown.add(option);
     });
-    countryDropdown.value = countries[0];
+    countryDropdown.value = countryDefault.value;
     countryDropdown.addEventListener("change", (e) => {
       console.log("Selected country:", e.target.value);
       // Dispatch custom event to notify other components
@@ -51,10 +87,11 @@ export function populateGeneralDropdowns() {
     if (systemDropdown) systemDropdown.innerHTML = "";
     systems.forEach((system) => {
       let option = document.createElement("option");
-      option.text = system;
+      option.text = system.text;
+      option.value = system.value;
       systemDropdown.add(option);
     });
-    systemDropdown.value = systems[0];
+    systemDropdown.value = systemDefault.value;
     systemDropdown.addEventListener("change", (e) => {
       console.log("Selected system:", e.target.value);
       // Dispatch custom event to notify other components
@@ -65,4 +102,10 @@ export function populateGeneralDropdowns() {
       );
     });
   }
+}
+
+export function getDropdownValue(setting = "system") {
+  // find out selected value of dropdown with id vis-general-dropdown-system
+  const dropdown = document.querySelector(`#vis-general-dropdown-${setting}`);
+  return dropdown ? dropdown.value : null;
 }

@@ -1,20 +1,48 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
 const geoPath = d3.geoPath();
+import { getDropdownValue } from "./populateGeneralDropdowns.js";
 
 export function Map() {
   const [selectedVariable, setSelectedVariable] = useState("Button 2");
   const [usGeoData, setUsGeoData] = useState(null);
+  const [system, setSystem] = useState(getDropdownValue("system"));
+  const [field, setField] = useState(getDropdownValue("field"));
 
-  // fetch US Geo data
+  // listen to change in general system dropdown
   useEffect(() => {
-    fetch(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/states-albers-10m.json"
-    )
-      .then((res) => res.json())
-      .then(setUsGeoData);
+    const handleSystemChange = (e) => {
+      setSystem(e.detail.selectedSystem);
+    };
+    document.addEventListener(
+      "vis-general-dropdown-system-changed",
+      handleSystemChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "vis-general-dropdown-system-changed",
+        handleSystemChange
+      );
+    };
   }, []);
 
-  if (!usGeoData) return html`<div>Loading map data...</div>`;
+  // listen to change in general field dropdown
+  useEffect(() => {
+    const handleFieldChange = (e) => {
+      setField(e.detail.selectedField);
+    };
+    document.addEventListener(
+      "vis-general-dropdown-field-changed",
+      handleFieldChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "vis-general-dropdown-field-changed",
+        handleFieldChange
+      );
+    };
+  }, []);
 
   // Listen for custom change event in button group
   useEffect(() => {
@@ -35,7 +63,20 @@ export function Map() {
       );
     };
   }, [selectedVariable]);
-  console.log("Selected variable in Map:", selectedVariable);
+
+  // fetch US Geo data
+  useEffect(() => {
+    fetch(
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/states-albers-10m.json"
+    )
+      .then((res) => res.json())
+      .then(setUsGeoData);
+  }, []);
+
+  if (!usGeoData) {
+    console.error("Failed to load US Geo data");
+    return null;
+  }
 
   const width = 975;
   const height = 610;
