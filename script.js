@@ -6,6 +6,10 @@ import { Map, MapTimeSelector } from "./js/map.js";
 import { Leaderboard } from "./js/leaderboard.js";
 import { populateGeneralDropdowns } from "./js/populateGeneralDropdowns.js";
 import renderButtonGroup from "./js/renderButtonGroup.js";
+import { renderCreativeFormats } from "./js/creativeFormat.js";
+
+// add options to the general dropdowns
+populateGeneralDropdowns();
 
 const Vis = async (props) => {
   console.log("Rendering Vis component with props:", props);
@@ -54,9 +58,6 @@ visList.forEach((vis) => {
   }
 });
 
-// add options to the general dropdowns
-populateGeneralDropdowns();
-
 // render button groups
 const itemsConsumer = ["MAU", "CFTD", "Spend"];
 renderButtonGroup(
@@ -71,8 +72,17 @@ renderButtonGroup(
   itemsAdvertiser,
   itemsAdvertiser[0]
 );
+const itemsFormats = ["CPM", "CPI", "CFTD"];
+renderButtonGroup(
+  "vis-creative-formats-button-group",
+  itemsFormats,
+  itemsFormats[0]
+);
+
 const itemsMap = ["CPM", "CPI", "Spend Share"];
 renderButtonGroup("vis-map-button-group", itemsMap, itemsMap[0]);
+
+renderCreativeFormats();
 
 // // fetch data from a public Google sheet without the API directly from the URL
 // async function fetchGoogleSheetCSV(sheetUrl) {
