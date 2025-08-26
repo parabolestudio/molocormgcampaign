@@ -60,7 +60,6 @@ export function renderCreativeFormats() {
         // Render ButtonGroup as a component so hooks work
         renderComponent(
           html`<${CreativeFormat}
-            formatName=${name}
             containerId=${containerId}
             data=${fullData.filter((d) => d["format"] === name)}
             color=${color}
@@ -76,12 +75,7 @@ export function renderCreativeFormats() {
   });
 }
 
-export function CreativeFormat({
-  formatName = "Video",
-  containerId,
-  data = [],
-  color = "black",
-}) {
+export function CreativeFormat({ containerId, data = [], color = "black" }) {
   const [selectedVariable, setSelectedVariable] = useState("CPM");
   const [system, setSystem] = useState(getDropdownValue("system"));
   const [country, setCountry] = useState(getDropdownValue("country"));
@@ -194,11 +188,11 @@ export function CreativeFormat({
 
   const margin = {
     allLeft: 50,
-    allRight: 20,
-    costTop: 50,
+    allRight: 5,
+    costTop: 30,
     costBottom: 50,
     spendTop: 30,
-    spendBottom: 60,
+    spendBottom: 30,
   };
 
   const heightCost = 300;
@@ -265,7 +259,7 @@ export function CreativeFormat({
 
   return html`<svg
     viewBox="0 0 ${width} ${totalHeight}"
-    style="border: 1px solid gray; width: 100%; height: 100%;"
+    style="width: 100%; height: 100%;"
   >
     <g transform="translate(${margin.allLeft}, ${margin.costTop})">
       <line x1="0" y1="0" x2="0" y2="${heightCost}" stroke="black" />
