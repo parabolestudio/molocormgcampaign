@@ -1,7 +1,7 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
 
 export function ConsumerTrends() {
-  const [selectedVariable, setSelectedVariable] = useState("Button 2");
+  const [selectedVariable, setSelectedVariable] = useState("MAU");
 
   const visContainer = document.querySelector("#vis-consumer-trends");
   const width =

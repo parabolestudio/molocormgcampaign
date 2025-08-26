@@ -58,18 +58,18 @@ visList.forEach((vis) => {
 populateGeneralDropdowns();
 
 // render button groups
-const itemsConsumer = ["Button 1", "Button 2", "Button 3"];
+const itemsConsumer = ["MAU", "CFTD", "Spend"];
 renderButtonGroup(
   "vis-consumer-trends-button-group",
   itemsConsumer,
-  "Button 2"
+  itemsConsumer[0]
 );
 
-const itemsAdvertiser = ["Button 1", "Button 2", "Button 3"];
+const itemsAdvertiser = ["CPM", "CPI", "CFTD"];
 renderButtonGroup(
   "vis-advertiser-trends-button-group",
   itemsAdvertiser,
-  "Button 2"
+  itemsAdvertiser[0]
 );
 const itemsMap = ["CPM", "CPI", "Spend Share"];
 renderButtonGroup("vis-map-button-group", itemsMap, itemsMap[0]);
