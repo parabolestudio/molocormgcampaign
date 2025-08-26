@@ -71,3 +71,23 @@ export const prevTimeScale = d3.scaleTime().domain([
 export const currentTimeScale = d3
   .scaleTime()
   .domain([new Date(currentYear, 7, 1), new Date(currentYear + 1, 6, 31)]);
+
+// get all days between two dates
+function getDaysBetween(startDate, endDate) {
+  const dates = [];
+  let currentDate = new Date(startDate);
+  while (currentDate <= endDate) {
+    dates.push(new Date(currentDate).toISOString().split("T")[0]); // format as YYYY-MM-DD
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  return dates;
+}
+
+export const allDaysPrev = getDaysBetween(
+  prevTimeScale.domain()[0],
+  prevTimeScale.domain()[1]
+);
+export const allDaysCurrent = getDaysBetween(
+  currentTimeScale.domain()[0],
+  currentTimeScale.domain()[1]
+);

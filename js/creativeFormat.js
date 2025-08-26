@@ -9,6 +9,8 @@ import {
   buttonToVariableMapping,
   prevTimeScale,
   currentTimeScale,
+  allDaysPrev,
+  allDaysCurrent,
 } from "./helpers.js";
 
 export function renderCreativeFormats() {
@@ -36,8 +38,6 @@ export function renderCreativeFormats() {
   d3.csv(
     "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data.csv"
   ).then((fullData) => {
-    console.log("Loaded formats data:", fullData);
-
     fullData.forEach((d) => {
       d["system"] = d["os"];
       d["field"] = d["subgenre"];
@@ -45,6 +45,7 @@ export function renderCreativeFormats() {
       d["date"] = d["date"];
       d["cpm"] = +d["avg_cpm"];
       d["cpi"] = +d["avg_cpi"];
+      d["spend_share"] = +d["avg_spend_share"];
     });
 
     for (let i = 0; i < formats.length; i++) {
@@ -168,20 +169,21 @@ export function CreativeFormat({
   const datapoints = filteredData.map((d) => {
     return {
       date: d["date"],
-      value: d[buttonToVariableMapping[selectedVariable]],
+      cost: d[buttonToVariableMapping[selectedVariable]],
+      spend_share: d["spend_share"],
     };
   });
 
-  console.log(
-    "Rendering CreativeFormat component for format:",
-    formatName,
-    filteredData,
-    system,
-    country,
-    field,
-    selectedVariable,
-    datapoints
-  );
+  //   console.log(
+  //     "Rendering CreativeFormat component for format:",
+  //     formatName,
+  //     filteredData,
+  //     system,
+  //     country,
+  //     field,
+  //     selectedVariable,
+  //     datapoints
+  //   );
 
   // set up vis dimensions
   const visContainer = document.querySelector(`#${containerId}`);
@@ -214,27 +216,22 @@ export function CreativeFormat({
   // scales
   const costScale = d3
     .scaleLinear()
-    .domain([0, d3.max(datapoints, (d) => d.value)])
+    .domain([0, d3.max(datapoints, (d) => d.cost)])
     .range([heightCost, 0])
     .nice();
-  console.log("Cost scale domain:", costScale.domain());
-
   const spendScale = d3.scaleLinear().domain([0, 1]).range([heightSpend, 0]);
-
   const prevTime = prevTimeScale.range([0, chartWidth]);
   const currentTime = currentTimeScale.range([0, chartWidth]);
 
-  console.log("Time scale start and end dates:", prevTime.domain());
-
   const prevLine = d3
     .line()
-    .y((d) => costScale(d.value))
+    .y((d) => costScale(d.cost))
     .x((d) => prevTime(new Date(d.date)))
     .curve(d3.curveCatmullRom);
 
   const currentLine = d3
     .line()
-    .y((d) => costScale(d.value))
+    .y((d) => costScale(d.cost))
     .x((d) => currentTime(new Date(d.date)))
     .curve(d3.curveCatmullRom);
 
@@ -246,6 +243,17 @@ export function CreativeFormat({
     const date = new Date(d.date);
     return date >= currentTime.domain()[0] && date <= currentTime.domain()[1];
   });
+
+  const barsScalePrev = d3
+    .scaleBand()
+    .domain(allDaysPrev)
+    .range([0, chartWidth])
+    .padding(0.1);
+  const barsScaleCurrent = d3
+    .scaleBand()
+    .domain(allDaysCurrent)
+    .range([0, chartWidth])
+    .padding(0.1);
 
   // y axis ticks
   const yAxisTicks = costScale.ticks(4);
@@ -339,7 +347,7 @@ export function CreativeFormat({
           y="0"
           width="${chartWidth}"
           height="${heightSpend}"
-          fill="#D9D9D933"
+          fill="white"
         />
         <g class="y-axis">
           <text
@@ -363,7 +371,7 @@ export function CreativeFormat({
             100%
           </text>
           <text
-            x="${-axisOffsetX - 30}"
+            x="${-axisOffsetX - 40}"
             y="${-margin.spendTop / 2}"
             dominant-baseline="middle"
             text-anchor="start"
@@ -391,6 +399,27 @@ export function CreativeFormat({
           >
             ${d3.timeFormat("%B")(currentTime.domain()[1])}
           </text>
+        </g>
+
+        <g>
+          ${datapointsPrev.map((d) => {
+            return html`<rect
+              x="${barsScalePrev(d.date)}"
+              y="${heightSpend - spendScale(d.spend_share)}"
+              width="${barsScalePrev.bandwidth() / 2}"
+              height="${spendScale(d.spend_share)}"
+              fill="#D9D9D9"
+            />`;
+          })}
+          ${datapointsCurrent.map((d) => {
+            return html`<rect
+              x="${barsScaleCurrent(d.date) + barsScaleCurrent.bandwidth() / 2}"
+              y="${heightSpend - spendScale(d.spend_share)}"
+              width="${barsScaleCurrent.bandwidth() / 2}"
+              height="${spendScale(d.spend_share)}"
+              fill="${color}"
+            />`;
+          })}
         </g>
       </g>
     </g>
