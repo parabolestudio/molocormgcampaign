@@ -164,6 +164,7 @@ export function CreativeFormat({
       d["system"] === system && d["country"] === country && d["field"] === field
     );
   });
+
   const datapoints = filteredData.map((d) => {
     return {
       date: d["date"],
@@ -188,9 +189,9 @@ export function CreativeFormat({
     visContainer && visContainer.offsetWidth ? visContainer.offsetWidth : 600;
 
   const margin = {
-    allLeft: 10,
+    allLeft: 50,
     allRight: 10,
-    costTop: 10,
+    costTop: 50,
     costBottom: 10,
     spendTop: 10,
     spendBottom: 10,
@@ -214,9 +215,11 @@ export function CreativeFormat({
   const costScale = d3
     .scaleLinear()
     .domain([0, d3.max(datapoints, (d) => d.value)])
-    .range([heightCost, 0]);
+    .range([heightCost, 0])
+    .nice();
+  console.log("Cost scale domain:", costScale.domain());
 
-  const spendScale = d3.scaleLinear().domain([0, 1]).range([heightSpend, 0]);
+  //   const spendScale = d3.scaleLinear().domain([0, 1]).range([heightSpend, 0]);
 
   const prevTime = prevTimeScale.range([0, chartWidth]);
   const currentTime = currentTimeScale.range([0, chartWidth]);
@@ -226,11 +229,13 @@ export function CreativeFormat({
   const prevLine = d3
     .line()
     .y((d) => costScale(d.value))
-    .x((d) => prevTime(new Date(d.date)));
+    .x((d) => prevTime(new Date(d.date)))
+    .curve(d3.curveCatmullRom);
   const currentLine = d3
     .line()
     .y((d) => costScale(d.value))
-    .x((d) => currentTime(new Date(d.date)));
+    .x((d) => currentTime(new Date(d.date)))
+    .curve(d3.curveCatmullRom);
 
   const datapointsPrev = datapoints.filter((d) => {
     const date = new Date(d.date);
@@ -240,6 +245,9 @@ export function CreativeFormat({
     const date = new Date(d.date);
     return date >= currentTime.domain()[0] && date <= currentTime.domain()[1];
   });
+
+  // y axis ticks
+  const yAxisTicks = costScale.ticks(4);
 
   return html`<svg
     viewBox="0 0 ${width} ${totalHeight}"
@@ -255,17 +263,44 @@ export function CreativeFormat({
           height="${heightCost}"
           fill="#D9D9D933"
         />
+        <g class="y-axis">
+          ${yAxisTicks.map((tick) => {
+            return html`<g class="y-axis-tick">
+              <text
+                x="${-axisOffsetX}"
+                dx="-6"
+                y="${costScale(tick)}"
+                dominant-baseline="middle"
+                text-anchor="end"
+                class="charts-text-body"
+              >
+                $${tick}
+              </text>
+            </g>`;
+          })}
+          <text
+            x="${-axisOffsetX}"
+            y="${-margin.costTop / 2}"
+            dominant-baseline="middle"
+            text-anchor="end"
+            class="charts-text-body-bold"
+          >
+            Cost
+          </text>
+        </g>
         <path
           d="${prevLine(datapointsPrev)}"
           fill="none"
           stroke="#C3C3C3"
           stroke-width="2"
+          style="transition: all ease 0.3s"
         />
         <path
           d="${currentLine(datapointsCurrent)}"
           fill="none"
           stroke="${color}"
           stroke-width="2"
+          style="transition: all ease 0.3s"
         />
       </g>
     </g>
