@@ -52,3 +52,22 @@ export const stateMapping = {
   Wyoming: "WY",
   "District of Columbia": "DC",
 };
+
+export const buttonToVariableMapping = {
+  CPM: "cpm",
+  CPI: "cpi",
+  "Spend Share": "spend_share",
+};
+
+// time scales
+const prevYear = new Date().getFullYear() - 1;
+const currentYear = new Date().getFullYear();
+
+// Create a time scale from Aug 1 to end of July the following year
+export const prevTimeScale = d3.scaleTime().domain([
+  new Date(prevYear, 7, 1), // Aug is month 7 (0-based)
+  new Date(currentYear, 6, 31), // July is month 6, day 31
+]);
+export const currentTimeScale = d3
+  .scaleTime()
+  .domain([new Date(currentYear, 7, 1), new Date(currentYear + 1, 6, 31)]);

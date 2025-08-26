@@ -72,7 +72,7 @@ renderButtonGroup(
   itemsAdvertiser,
   itemsAdvertiser[0]
 );
-const itemsFormats = ["CPM", "CPI", "CFTD"];
+const itemsFormats = ["CPM", "CPI"];
 renderButtonGroup(
   "vis-creative-formats-button-group",
   itemsFormats,

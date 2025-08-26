@@ -1,49 +1,188 @@
-import { html, renderComponent } from "./utils/preact-htm.js";
+import {
+  html,
+  renderComponent,
+  useState,
+  useEffect,
+} from "./utils/preact-htm.js";
+import { getDropdownValue } from "./populateGeneralDropdowns.js";
+import {
+  buttonToVariableMapping,
+  prevTimeScale,
+  currentTimeScale,
+} from "./helpers.js";
 
 export function renderCreativeFormats() {
   console.log("Rendering Creative Formats");
 
   const formats = [
     {
-      name: "video",
+      name: "Video",
       containerId: "vis-creative-format-video",
+      color: "#C368F9",
     },
     {
-      name: "statics",
+      name: "Statics",
       containerId: "vis-creative-format-statics",
+      color: "#0280FB",
     },
     {
-      name: "playables",
+      name: "Playables",
       containerId: "vis-creative-format-playables",
+      color: "#37BF92",
     },
   ];
 
-  for (let i = 0; i < formats.length; i++) {
-    const { name, containerId } = formats[i];
-    const containerElement = document.getElementById(containerId);
-    if (containerElement) {
-      // clear existing content before rendering
-      containerElement.innerHTML = "";
+  // load data from creative-formats-data.csv file
+  d3.csv(
+    "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data.csv"
+  ).then((fullData) => {
+    console.log("Loaded formats data:", fullData);
 
-      // Render ButtonGroup as a component so hooks work
-      renderComponent(
-        html`<${CreativeFormat}
-          formatName=${name}
-          containerId=${containerId}
-        />`,
-        containerElement
-      );
-    } else {
-      console.error(
-        `Could not find container element for creative format with id ${containerId}`
-      );
+    fullData.forEach((d) => {
+      d["system"] = d["os"];
+      d["field"] = d["subgenre"];
+      d["country"] = d["country"];
+      d["date"] = d["date"];
+      d["cpm"] = +d["avg_cpm"];
+      d["cpi"] = +d["avg_cpi"];
+    });
+
+    for (let i = 0; i < formats.length; i++) {
+      const { name, containerId, color } = formats[i];
+      const containerElement = document.getElementById(containerId);
+      if (containerElement) {
+        // clear existing content before rendering
+        containerElement.innerHTML = "";
+
+        // Render ButtonGroup as a component so hooks work
+        renderComponent(
+          html`<${CreativeFormat}
+            formatName=${name}
+            containerId=${containerId}
+            data=${fullData.filter((d) => d["format"] === name)}
+            color=${color}
+          />`,
+          containerElement
+        );
+      } else {
+        console.error(
+          `Could not find container element for creative format with id ${containerId}`
+        );
+      }
     }
-  }
+  });
 }
 
-export function CreativeFormat({ formatName = "Video", containerId }) {
-  console.log("Rendering CreativeFormat component for format:", formatName);
+export function CreativeFormat({
+  formatName = "Video",
+  containerId,
+  data = [],
+  color = "black",
+}) {
+  const [selectedVariable, setSelectedVariable] = useState("CPM");
+  const [system, setSystem] = useState(getDropdownValue("system"));
+  const [country, setCountry] = useState(getDropdownValue("country"));
+  const [field, setField] = useState(getDropdownValue("field"));
 
+  // listen to change in general system dropdown
+  useEffect(() => {
+    const handleSystemChange = (e) => {
+      setSystem(e.detail.selectedSystem);
+    };
+    document.addEventListener(
+      "vis-general-dropdown-system-changed",
+      handleSystemChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "vis-general-dropdown-system-changed",
+        handleSystemChange
+      );
+    };
+  }, []);
+
+  // listen to change in general field dropdown
+  useEffect(() => {
+    const handleFieldChange = (e) => {
+      setField(e.detail.selectedField);
+    };
+    document.addEventListener(
+      "vis-general-dropdown-field-changed",
+      handleFieldChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "vis-general-dropdown-field-changed",
+        handleFieldChange
+      );
+    };
+  }, []);
+
+  // listen to change in general country dropdown
+  useEffect(() => {
+    const handleCountryChange = (e) => {
+      setCountry(e.detail.selectedCountry);
+    };
+    document.addEventListener(
+      "vis-general-dropdown-country-changed",
+      handleCountryChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "vis-general-dropdown-country-changed",
+        handleCountryChange
+      );
+    };
+  }, []);
+
+  // Listen for custom change event in button group
+  useEffect(() => {
+    const handleButtonChange = (e) => {
+      const newButton = e.detail.selectedButton;
+      if (newButton && newButton !== selectedVariable)
+        setSelectedVariable(newButton);
+    };
+    document.addEventListener(
+      "vis-creative-formats-button-group-changed",
+      handleButtonChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "vis-creative-formats-button-group-changed",
+        handleButtonChange
+      );
+    };
+  }, [selectedVariable]);
+
+  // filtering data
+  const filteredData = data.filter((d) => {
+    return (
+      d["system"] === system && d["country"] === country && d["field"] === field
+    );
+  });
+  const datapoints = filteredData.map((d) => {
+    return {
+      date: d["date"],
+      value: d[buttonToVariableMapping[selectedVariable]],
+    };
+  });
+
+  console.log(
+    "Rendering CreativeFormat component for format:",
+    formatName,
+    filteredData,
+    system,
+    country,
+    field,
+    selectedVariable,
+    datapoints
+  );
+
+  // set up vis dimensions
   const visContainer = document.querySelector(`#${containerId}`);
   const width =
     visContainer && visContainer.offsetWidth ? visContainer.offsetWidth : 600;
@@ -71,14 +210,36 @@ export function CreativeFormat({ formatName = "Video", containerId }) {
     margin.spendTop +
     margin.spendBottom;
 
+  // scales
   const costScale = d3
     .scaleLinear()
-    //   .domain([0, d3.max(data, d => d.cost)])
+    .domain([0, d3.max(datapoints, (d) => d.value)])
     .range([heightCost, 0]);
 
   const spendScale = d3.scaleLinear().domain([0, 1]).range([heightSpend, 0]);
 
-  const timeScale = d3.scaleLinear().domain([0, 1]).range([0, innerWidth]);
+  const prevTime = prevTimeScale.range([0, chartWidth]);
+  const currentTime = currentTimeScale.range([0, chartWidth]);
+
+  console.log("Time scale start and end dates:", prevTime.domain());
+
+  const prevLine = d3
+    .line()
+    .y((d) => costScale(d.value))
+    .x((d) => prevTime(new Date(d.date)));
+  const currentLine = d3
+    .line()
+    .y((d) => costScale(d.value))
+    .x((d) => currentTime(new Date(d.date)));
+
+  const datapointsPrev = datapoints.filter((d) => {
+    const date = new Date(d.date);
+    return date >= prevTime.domain()[0] && date <= prevTime.domain()[1];
+  });
+  const datapointsCurrent = datapoints.filter((d) => {
+    const date = new Date(d.date);
+    return date >= currentTime.domain()[0] && date <= currentTime.domain()[1];
+  });
 
   return html`<svg
     viewBox="0 0 ${width} ${totalHeight}"
@@ -93,6 +254,18 @@ export function CreativeFormat({ formatName = "Video", containerId }) {
           width="${chartWidth}"
           height="${heightCost}"
           fill="#D9D9D933"
+        />
+        <path
+          d="${prevLine(datapointsPrev)}"
+          fill="none"
+          stroke="#C3C3C3"
+          stroke-width="2"
+        />
+        <path
+          d="${currentLine(datapointsCurrent)}"
+          fill="none"
+          stroke="${color}"
+          stroke-width="2"
         />
       </g>
     </g>
@@ -110,7 +283,7 @@ export function CreativeFormat({ formatName = "Video", containerId }) {
           y="0"
           width="${chartWidth}"
           height="${heightSpend}"
-          fill="pink"
+          fill="#D9D9D933"
         />
       </g>
     </g>

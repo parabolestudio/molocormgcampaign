@@ -1,13 +1,7 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
 const geoPath = d3.geoPath();
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
-import { stateMapping } from "./helpers.js";
-
-const buttonToVariableMapping = {
-  CPM: "cpm",
-  CPI: "cpi",
-  "Spend Share": "spend_share",
-};
+import { stateMapping, buttonToVariableMapping } from "./helpers.js";
 
 export function Map() {
   const [selectedVariable, setSelectedVariable] = useState("CPM");
