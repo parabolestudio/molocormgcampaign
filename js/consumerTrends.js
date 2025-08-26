@@ -1,8 +1,93 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
 import { prevTimeScale, currentTimeScale } from "./helpers.js";
+import { getDropdownValue } from "./populateGeneralDropdowns.js";
 
 export function ConsumerTrends() {
   const [selectedVariable, setSelectedVariable] = useState("MAU");
+  const [system, setSystem] = useState(getDropdownValue("system"));
+  const [country, setCountry] = useState(getDropdownValue("country"));
+  const [field, setField] = useState(getDropdownValue("field"));
+
+  // listen to change in general system dropdown
+  useEffect(() => {
+    const handleSystemChange = (e) => {
+      setSystem(e.detail.selectedSystem);
+    };
+    document.addEventListener(
+      "vis-general-dropdown-system-changed",
+      handleSystemChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "vis-general-dropdown-system-changed",
+        handleSystemChange
+      );
+    };
+  }, []);
+
+  // listen to change in general field dropdown
+  useEffect(() => {
+    const handleFieldChange = (e) => {
+      setField(e.detail.selectedField);
+    };
+    document.addEventListener(
+      "vis-general-dropdown-field-changed",
+      handleFieldChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "vis-general-dropdown-field-changed",
+        handleFieldChange
+      );
+    };
+  }, []);
+
+  // listen to change in general country dropdown
+  useEffect(() => {
+    const handleCountryChange = (e) => {
+      setCountry(e.detail.selectedCountry);
+    };
+    document.addEventListener(
+      "vis-general-dropdown-country-changed",
+      handleCountryChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "vis-general-dropdown-country-changed",
+        handleCountryChange
+      );
+    };
+  }, []);
+
+  // Listen for custom change event in button group
+  useEffect(() => {
+    const handleButtonChange = (e) => {
+      const newButton = e.detail.selectedButton;
+      if (newButton && newButton !== selectedVariable)
+        setSelectedVariable(newButton);
+    };
+    document.addEventListener(
+      "vis-consumer-trends-button-group-changed",
+      handleButtonChange
+    );
+
+    return () => {
+      document.removeEventListener(
+        "vis-consumer-trends-button-group-changed",
+        handleButtonChange
+      );
+    };
+  }, [selectedVariable]);
+
+  console.log("Rendering consumer trends with", {
+    selectedVariable,
+    system,
+    country,
+    field,
+  });
 
   // set up dimensions
   const visContainer = document.querySelector("#vis-consumer-trends");
@@ -25,30 +110,7 @@ export function ConsumerTrends() {
   // const currentTime = currentTimeScale.range([0, chartWidth]);
 
   const xAxisTicks = prevTime.ticks(12);
-  console.log("X Axis Ticks:", xAxisTicks);
   let xAxisTicksWidth = prevTime(xAxisTicks[1]) - prevTime(xAxisTicks[0]);
-
-  // Listen for custom change event in button group
-  useEffect(() => {
-    const handleButtonChange = (e) => {
-      const newButton = e.detail.selectedButton;
-      if (newButton && newButton !== selectedVariable)
-        setSelectedVariable(newButton);
-    };
-    document.addEventListener(
-      "vis-consumer-trends-button-group-changed",
-      handleButtonChange
-    );
-
-    return () => {
-      document.removeEventListener(
-        "vis-consumer-trends-button-group-changed",
-        handleButtonChange
-      );
-    };
-  }, [selectedVariable]);
-
-  console.log("Selected variable in ConsumerTrends:", selectedVariable);
 
   return html`<svg
     viewBox="0 0 ${width} ${height}"
