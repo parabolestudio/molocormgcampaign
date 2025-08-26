@@ -7,12 +7,12 @@ export function populateGeneralDropdowns() {
 
   const fields = [
     {
-      text: "RMG",
-      value: "RMG",
-    },
-    {
       text: "Sportsbetting",
       value: "Sportsbetting",
+    },
+    {
+      text: "RMG",
+      value: "RMG",
     },
   ];
   const fieldDefault = fields[0];

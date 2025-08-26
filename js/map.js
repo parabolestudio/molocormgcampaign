@@ -1,9 +1,16 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
 const geoPath = d3.geoPath();
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
+import { stateMapping } from "./helpers.js";
+
+const buttonToVariableMapping = {
+  CPM: "cpm",
+  CPI: "cpi",
+  "Spend Share": "spend_share",
+};
 
 export function Map() {
-  const [selectedVariable, setSelectedVariable] = useState("Button 2");
+  const [selectedVariable, setSelectedVariable] = useState("CPM");
   const [system, setSystem] = useState(getDropdownValue("system"));
   const [field, setField] = useState(getDropdownValue("field"));
   const [usGeoData, setUsGeoData] = useState(null);
@@ -128,8 +135,6 @@ export function Map() {
     })
     .sort((a, b) => new Date(a["date_utc"]) - new Date(b["date_utc"]));
 
-  console.log("Filtered Data:", filteredData);
-
   // get all unique dates
   const uniqueDates = Array.from(
     new Set(filteredData.map((d) => d["date_utc"]))
@@ -179,12 +184,16 @@ export function Map() {
     };
   }, []);
 
-  console.log("Unique Dates:", uniqueDates, startDate, endDate);
-  console.log("Selected Date in map:", selectedDate);
-
   // filter for daily data
   const dailyData = filteredData.filter((d) => d["date_utc"] === selectedDate);
-  console.log("Daily Data:", dailyData);
+  console.log(
+    "Daily Data:",
+    dailyData,
+    "for",
+    selectedDate,
+    " and ",
+    selectedVariable
+  );
   if (dailyData.length === 0) {
     return html`<div>No data available for selected date.</div>`;
   }
@@ -194,7 +203,34 @@ export function Map() {
 
   const states = topojson.feature(usGeoData, usGeoData.objects.states).features;
 
-  const colors = d3.scaleOrdinal(d3.schemeBlues[9]);
+  const maxValue = d3.max(
+    filteredData.filter((d) => d["state"] !== "ON"),
+    (d) => d[buttonToVariableMapping[selectedVariable]]
+  );
+  const maxItem = filteredData.find(
+    (d) => d[buttonToVariableMapping[selectedVariable]] === maxValue
+  );
+  console.log("Max Item:", maxItem);
+  const colorScale = d3
+    .scaleSequential(["#16D2FF", "#040078"])
+    .domain([0, maxValue])
+    .nice();
+
+  function getStateFill(state) {
+    const stateId = stateMapping[state];
+
+    if (stateId === undefined) {
+      console.error("cannot find state id");
+      return "red";
+    }
+    // find item in daily data
+    const dailyItem = dailyData.find((d) => d.state === stateId);
+    if (dailyItem) {
+      return colorScale(dailyItem[buttonToVariableMapping[selectedVariable]]);
+    } else {
+      return "#D9D9D9";
+    }
+  }
 
   return html`<div
     style="display: flex; flex-direction: column; align-items: flex-end;"
@@ -207,11 +243,11 @@ export function Map() {
         ${states.map(
           (d) => html`<path
             d="${geoPath(d)}"
-            fill="${colors(Math.random())}"
-            data-state-id="${d.properties.name}"
+            fill="${getStateFill(d.properties.name)}"
+            data-state-name="${d.properties.name}"
             onmouseover="${(e) => {
-              const stateName = e.target.dataset.stateId;
-              console.log("Hovered state Name:", stateName);
+              const stateName = e.target.dataset.stateName;
+              // console.log("Hovered state Name:", stateName);
             }}"
             class="map-state"
           ></path>`
@@ -232,7 +268,15 @@ export function Map() {
     </svg>
     <div>
       <div class="rmg-filter-label">Value legend</div>
-      <div>...</div>
+      <div
+        style="width: 300px; height: 20px;   background: linear-gradient(90deg, ${colorScale(
+          0
+        )} 0%, ${colorScale(maxValue)} 100%);
+"
+      ></div>
+      <div>min: ${colorScale.domain()[0]}</div>
+      <div>max: ${colorScale.domain()[1]}</div>
+      <div>Date for max value: ${maxItem ? maxItem["date_utc"] : "N/A"}</div>
     </div>
   </div>`;
 }
@@ -291,7 +335,6 @@ export function MapTimeSelector() {
     Math.floor(
       (new Date(endDateRaw) - new Date(startDateRaw)) / (1000 * 60 * 60 * 24)
     ) + 1;
-  console.log("Slider Value:", sliderValue);
 
   const getDateString = (offset) => {
     const d = new Date(startDateRaw);
@@ -339,10 +382,3 @@ export function MapTimeSelector() {
     />
   </div>`;
 }
-
-// <div
-//   style="display: flex; justify-content: space-between; width: 100%; font-size: 0.9em;"
-// >
-//   <span>${getDateString(0)}</span>
-//   <span>${getDateString(numDays - 1)}</span>
-// </div>
