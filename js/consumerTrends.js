@@ -1,12 +1,32 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
+import { prevTimeScale, currentTimeScale } from "./helpers.js";
 
 export function ConsumerTrends() {
   const [selectedVariable, setSelectedVariable] = useState("MAU");
 
+  // set up dimensions
   const visContainer = document.querySelector("#vis-consumer-trends");
   const width =
     visContainer && visContainer.offsetWidth ? visContainer.offsetWidth : 600;
   const height = 500;
+  const axisOffsetX = 20;
+  const margin = {
+    top: 20,
+    right: 20,
+    bottom: 60,
+    left: 50,
+  };
+  const innerWidth = width - margin.left - margin.right;
+  const innerHeight = height - margin.top - margin.bottom;
+  const chartWidth = innerWidth - axisOffsetX;
+
+  // scales
+  const prevTime = prevTimeScale.range([0, chartWidth]);
+  // const currentTime = currentTimeScale.range([0, chartWidth]);
+
+  const xAxisTicks = prevTime.ticks(12);
+  console.log("X Axis Ticks:", xAxisTicks);
+  let xAxisTicksWidth = prevTime(xAxisTicks[1]) - prevTime(xAxisTicks[0]);
 
   // Listen for custom change event in button group
   useEffect(() => {
@@ -32,6 +52,51 @@ export function ConsumerTrends() {
 
   return html`<svg
     viewBox="0 0 ${width} ${height}"
-    style="background: #D9D9D933;"
-  ></svg>`;
+    style="border: 1px solid gray;"
+  >
+    <g transform="translate(${margin.left}, ${margin.top})">
+      <line y2="${innerHeight}" stroke="black" />
+      <g transform="translate(${axisOffsetX}, 0)">
+        <g class="x-axis">
+          ${xAxisTicks.map((tick, index) => {
+            if (index < xAxisTicks.length - 1) {
+              xAxisTicksWidth =
+                prevTime(xAxisTicks[index + 1]) - prevTime(xAxisTicks[index]);
+            }
+            return html`
+              <g transform="translate(${prevTime(tick)}, 0)">
+                <rect
+                  x="${0}"
+                  y="${0}"
+                  width="${xAxisTicksWidth}"
+                  height="${innerHeight}"
+                  fill="#D9D9D933"
+                  stroke="white"
+                  stroke-width="5"
+                />
+                <rect
+                  x="${0}"
+                  y="${innerHeight + 5}"
+                  width="${xAxisTicksWidth}"
+                  height="${40}"
+                  fill="#D3F5FF"
+                  stroke="white"
+                  stroke-width="5"
+                />
+                <text
+                  x="${xAxisTicksWidth / 2}"
+                  y="${innerHeight + 5 + 20}"
+                  dominant-baseline="middle"
+                  text-anchor="middle"
+                  class="charts-text-body"
+                >
+                  ${d3.timeFormat("%B")(tick)}
+                </text></g
+              >
+            `;
+          })}
+        </g>
+      </g>
+    </g>
+  </svg>`;
 }
