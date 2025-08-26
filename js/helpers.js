@@ -91,3 +91,52 @@ export const allDaysCurrent = getDaysBetween(
   currentTimeScale.domain()[0],
   currentTimeScale.domain()[1]
 );
+
+function addNonExistingDates(dataArray, startDate, endDate) {
+  const allDates = getDaysBetween(startDate, endDate);
+  const existingDates = dataArray.map((d) => d.date);
+  const missingDates = allDates.filter((date) => !existingDates.includes(date));
+
+  const filledData = dataArray.concat(
+    missingDates.map((date) => ({
+      date,
+      cost: null,
+      spend_share: null,
+    }))
+  );
+
+  return filledData;
+}
+
+// export function addMissingDates(dataArray) {
+//   const filledData = addNonExistingDates(
+//     dataArray,
+//     prevTimeScale.domain()[0],
+//     currentTimeScale.domain()[1]
+//   );
+//   // sort by date
+//   filledData.sort((a, b) => new Date(a.date) - new Date(b.date));
+//   return filledData;
+// }
+
+export function addMissingDatesPrev(dataArray) {
+  const filledData = addNonExistingDates(
+    dataArray,
+    prevTimeScale.domain()[0],
+    prevTimeScale.domain()[1]
+  );
+  // sort by date
+  filledData.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return filledData;
+}
+
+export function addMissingDatesCurrent(dataArray) {
+  const filledData = addNonExistingDates(
+    dataArray,
+    currentTimeScale.domain()[0],
+    currentTimeScale.domain()[1]
+  );
+  // sort by date
+  filledData.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return filledData;
+}

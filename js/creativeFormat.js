@@ -11,6 +11,8 @@ import {
   currentTimeScale,
   allDaysPrev,
   allDaysCurrent,
+  addMissingDatesPrev,
+  addMissingDatesCurrent,
 } from "./helpers.js";
 
 export function renderCreativeFormats() {
@@ -166,7 +168,7 @@ export function CreativeFormat({
     );
   });
 
-  const datapoints = filteredData.map((d) => {
+  let datapoints = filteredData.map((d) => {
     return {
       date: d["date"],
       cost: d[buttonToVariableMapping[selectedVariable]],
@@ -177,12 +179,12 @@ export function CreativeFormat({
   //   console.log(
   //     "Rendering CreativeFormat component for format:",
   //     formatName,
-  //     filteredData,
+  //     // filteredData,
   //     system,
   //     country,
   //     field,
-  //     selectedVariable,
-  //     datapoints
+  //     selectedVariable
+  //     //   datapoints
   //   );
 
   // set up vis dimensions
@@ -227,18 +229,21 @@ export function CreativeFormat({
     .line()
     .y((d) => costScale(d.cost))
     .x((d) => prevTime(new Date(d.date)))
-    .curve(d3.curveCatmullRom);
+    .defined((d) => d.cost !== null);
+  // .curve(d3.curveBasis);
 
   const currentLine = d3
     .line()
     .y((d) => costScale(d.cost))
     .x((d) => currentTime(new Date(d.date)))
-    .curve(d3.curveCatmullRom);
+    .defined((d) => d.cost !== null);
+  // .curve(d3.curveCatmullRom);
 
   const datapointsPrev = datapoints.filter((d) => {
     const date = new Date(d.date);
     return date >= prevTime.domain()[0] && date <= prevTime.domain()[1];
   });
+
   const datapointsCurrent = datapoints.filter((d) => {
     const date = new Date(d.date);
     return date >= currentTime.domain()[0] && date <= currentTime.domain()[1];
@@ -318,14 +323,14 @@ export function CreativeFormat({
           </text>
         </g>
         <path
-          d="${prevLine(datapointsPrev)}"
+          d="${prevLine(addMissingDatesPrev(datapointsPrev))}"
           fill="none"
           stroke="#C3C3C3"
           stroke-width="2"
           style="transition: all ease 0.3s"
         />
         <path
-          d="${currentLine(datapointsCurrent)}"
+          d="${currentLine(addMissingDatesCurrent(datapointsCurrent))}"
           fill="none"
           stroke="${color}"
           stroke-width="2"
@@ -405,18 +410,18 @@ export function CreativeFormat({
           ${datapointsPrev.map((d) => {
             return html`<rect
               x="${barsScalePrev(d.date)}"
-              y="${heightSpend - spendScale(d.spend_share)}"
+              y="${spendScale(d.spend_share)}"
               width="${barsScalePrev.bandwidth() / 2}"
-              height="${spendScale(d.spend_share)}"
+              height="${heightSpend - spendScale(d.spend_share)}"
               fill="#D9D9D9"
             />`;
           })}
           ${datapointsCurrent.map((d) => {
             return html`<rect
               x="${barsScaleCurrent(d.date) + barsScaleCurrent.bandwidth() / 2}"
-              y="${heightSpend - spendScale(d.spend_share)}"
+              y="${spendScale(d.spend_share)}"
               width="${barsScaleCurrent.bandwidth() / 2}"
-              height="${spendScale(d.spend_share)}"
+              height="${heightSpend - spendScale(d.spend_share)}"
               fill="${color}"
             />`;
           })}
