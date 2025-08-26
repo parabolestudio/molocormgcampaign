@@ -190,11 +190,11 @@ export function CreativeFormat({
 
   const margin = {
     allLeft: 50,
-    allRight: 10,
+    allRight: 20,
     costTop: 50,
-    costBottom: 10,
-    spendTop: 10,
-    spendBottom: 10,
+    costBottom: 50,
+    spendTop: 30,
+    spendBottom: 60,
   };
 
   const heightCost = 300;
@@ -219,7 +219,7 @@ export function CreativeFormat({
     .nice();
   console.log("Cost scale domain:", costScale.domain());
 
-  //   const spendScale = d3.scaleLinear().domain([0, 1]).range([heightSpend, 0]);
+  const spendScale = d3.scaleLinear().domain([0, 1]).range([heightSpend, 0]);
 
   const prevTime = prevTimeScale.range([0, chartWidth]);
   const currentTime = currentTimeScale.range([0, chartWidth]);
@@ -231,6 +231,7 @@ export function CreativeFormat({
     .y((d) => costScale(d.value))
     .x((d) => prevTime(new Date(d.date)))
     .curve(d3.curveCatmullRom);
+
   const currentLine = d3
     .line()
     .y((d) => costScale(d.value))
@@ -288,6 +289,26 @@ export function CreativeFormat({
             Cost
           </text>
         </g>
+        <g class="x-axis">
+          <text
+            x="${prevTime.range()[0]}"
+            y="${heightCost + 20}"
+            dominant-baseline="middle"
+            text-anchor="start"
+            class="charts-text-body"
+          >
+            ${d3.timeFormat("%B")(prevTime.domain()[0])}
+          </text>
+          <text
+            x="${currentTime.range()[1]}"
+            y="${heightCost + 20}"
+            dominant-baseline="middle"
+            text-anchor="end"
+            class="charts-text-body"
+          >
+            ${d3.timeFormat("%B")(currentTime.domain()[1])}
+          </text>
+        </g>
         <path
           d="${prevLine(datapointsPrev)}"
           fill="none"
@@ -320,6 +341,57 @@ export function CreativeFormat({
           height="${heightSpend}"
           fill="#D9D9D933"
         />
+        <g class="y-axis">
+          <text
+            x="${-axisOffsetX}"
+            dx="-6"
+            y="${spendScale(0)}"
+            dominant-baseline="alphabetic"
+            text-anchor="end"
+            class="charts-text-body"
+          >
+            0%
+          </text>
+          <text
+            x="${-axisOffsetX}"
+            dx="-6"
+            y="${spendScale(1)}"
+            dominant-baseline="hanging"
+            text-anchor="end"
+            class="charts-text-body"
+          >
+            100%
+          </text>
+          <text
+            x="${-axisOffsetX - 30}"
+            y="${-margin.spendTop / 2}"
+            dominant-baseline="middle"
+            text-anchor="start"
+            class="charts-text-body-bold"
+          >
+            Spend Share
+          </text>
+        </g>
+        <g class="x-axis">
+          <text
+            x="${prevTime.range()[0]}"
+            y="${heightSpend + 20}"
+            dominant-baseline="middle"
+            text-anchor="start"
+            class="charts-text-body"
+          >
+            ${d3.timeFormat("%B")(prevTime.domain()[0])}
+          </text>
+          <text
+            x="${currentTime.range()[1]}"
+            y="${heightSpend + 20}"
+            dominant-baseline="middle"
+            text-anchor="end"
+            class="charts-text-body"
+          >
+            ${d3.timeFormat("%B")(currentTime.domain()[1])}
+          </text>
+        </g>
       </g>
     </g>
   </svg>`;
