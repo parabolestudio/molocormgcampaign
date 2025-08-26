@@ -1,12 +1,19 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
-import { prevTimeScale, currentTimeScale } from "./helpers.js";
+import {
+  prevTimeScale,
+  currentTimeScale,
+  buttonToVariableMapping,
+  addMissingDatesPrev,
+  addMissingDatesCurrent,
+} from "./helpers.js";
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
 
 export function ConsumerTrends() {
-  const [selectedVariable, setSelectedVariable] = useState("MAU");
+  const [selectedVariable, setSelectedVariable] = useState("DAU");
   const [system, setSystem] = useState(getDropdownValue("system"));
   const [country, setCountry] = useState(getDropdownValue("country"));
   const [field, setField] = useState(getDropdownValue("field"));
+  const [data, setData] = useState([]);
 
   // listen to change in general system dropdown
   useEffect(() => {
@@ -89,6 +96,44 @@ export function ConsumerTrends() {
     field,
   });
 
+  // fetch data from file, later from live sheet
+  useEffect(() => {
+    d3.csv(
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/consumer-trends-data.csv"
+    ).then((data) => {
+      data.forEach((d) => {
+        d["system"] = d["os"];
+        d["field"] = d["grouped_category"];
+        d["date"] = d["date"];
+        d["country"] = d["country"];
+        d["dau"] = +d["DAU"];
+      });
+
+      setData(data);
+    });
+  }, []);
+
+  if (data.length === 0) {
+    return html`<div>Data loading...</div>`;
+  }
+
+  // filtering data
+  const filteredData = data.filter((d) => {
+    return (
+      d["system"] === system && d["country"] === country && d["field"] === field
+    );
+  });
+  let datapoints = filteredData.map((d) => {
+    return {
+      date: d["date"],
+      [buttonToVariableMapping[selectedVariable]]:
+        d[buttonToVariableMapping[selectedVariable]],
+    };
+  });
+  console.log("datapoints before adding missing dates", datapoints);
+
+  console.log("filteredData", filteredData);
+
   // set up dimensions
   const visContainer = document.querySelector("#vis-consumer-trends");
   const width =
@@ -97,27 +142,76 @@ export function ConsumerTrends() {
   const axisOffsetX = 20;
   const margin = {
     top: 20,
-    right: 20,
-    bottom: 60,
-    left: 50,
+    right: 1,
+    bottom: 50,
+    left: 60,
   };
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
   const chartWidth = innerWidth - axisOffsetX;
 
   // scales
+  const valueScale = d3
+    .scaleLinear()
+    .domain([
+      0,
+      d3.max(datapoints, (d) => d[buttonToVariableMapping[selectedVariable]]),
+    ])
+    .range([innerHeight, 0])
+    .nice();
   const prevTime = prevTimeScale.range([0, chartWidth]);
-  // const currentTime = currentTimeScale.range([0, chartWidth]);
+  const currentTime = currentTimeScale.range([0, chartWidth]);
 
+  // lines
+  const prevLine = d3
+    .line()
+    .y((d) => valueScale(d[buttonToVariableMapping[selectedVariable]]))
+    .x((d) => prevTime(new Date(d.date)))
+    .defined((d) => d[buttonToVariableMapping[selectedVariable]] !== null);
+
+  const currentLine = d3
+    .line()
+    .y((d) => valueScale(d[buttonToVariableMapping[selectedVariable]]))
+    .x((d) => currentTime(new Date(d.date)))
+    .defined((d) => d[buttonToVariableMapping[selectedVariable]] !== null);
+
+  // data points
+  const datapointsPrev = datapoints.filter((d) => {
+    const date = new Date(d.date);
+    return date >= prevTime.domain()[0] && date <= prevTime.domain()[1];
+  });
+  const datapointsCurrent = datapoints.filter((d) => {
+    const date = new Date(d.date);
+    return date >= currentTime.domain()[0] && date <= currentTime.domain()[1];
+  });
+
+  // ticks
   const xAxisTicks = prevTime.ticks(12);
   let xAxisTicksWidth = prevTime(xAxisTicks[1]) - prevTime(xAxisTicks[0]);
 
-  return html`<svg
-    viewBox="0 0 ${width} ${height}"
-    style="border: 1px solid gray;"
-  >
+  const yAxisTicks = valueScale.ticks(4);
+  console.log("yAxisTicks", yAxisTicks);
+
+  return html`<svg viewBox="0 0 ${width} ${height}">
     <g transform="translate(${margin.left}, ${margin.top})">
       <line y2="${innerHeight}" stroke="black" />
+      <g class="y-axis">
+        ${yAxisTicks.map((tick) => {
+          return html`
+            <g transform="translate(0, ${valueScale(tick)})">
+              <text
+                x="${-10}"
+                y="${0}"
+                dominant-baseline="middle"
+                text-anchor="end"
+                class="charts-text-body"
+              >
+                ${tick >= 1000 ? tick / 1000 + "k" : tick}
+              </text>
+            </g>
+          `;
+        })}
+      </g>
       <g transform="translate(${axisOffsetX}, 0)">
         <g class="x-axis">
           ${xAxisTicks.map((tick, index) => {
@@ -158,7 +252,33 @@ export function ConsumerTrends() {
             `;
           })}
         </g>
+
+        <path
+          d="${prevLine(addMissingDatesPrev(datapointsPrev))}"
+          fill="none"
+          stroke="#0280FB"
+          stroke-width="3"
+          stroke-dasharray="0.10000000149011612, 10"
+          stroke-joint="round"
+          stroke-linecap="round"
+          style="transition: all ease 0.3s"
+        />
+        <path
+          d="${currentLine(addMissingDatesCurrent(datapointsCurrent))}"
+          fill="none"
+          stroke="#0280FB"
+          stroke-width="3"
+          style="transition: all ease 0.3s"
+        />
       </g>
     </g>
   </svg>`;
 }
+
+//  <line
+//           x1=${prevTime(new Date("2025-07-01"))}
+//           x2=${prevTime(new Date("2025-07-01"))}
+//           y1=${0}
+//           y2=${innerHeight}
+//           stroke="red"
+//         />
