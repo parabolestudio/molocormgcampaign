@@ -16,8 +16,6 @@ import {
 } from "./helpers.js";
 
 export function renderCreativeFormats() {
-  console.log("Rendering Creative Formats");
-
   const formats = [
     {
       name: "Video",
@@ -38,16 +36,18 @@ export function renderCreativeFormats() {
 
   // load data from creative-formats-data.csv file
   d3.csv(
-    "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data.csv"
+    "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data2-usa.csv"
   ).then((fullData) => {
     fullData.forEach((d) => {
       d["system"] = d["os"];
-      d["field"] = d["subgenre"];
+      d["field"] = d["vertical"];
       d["country"] = d["country"];
-      d["date"] = d["date"];
-      d["cpm"] = +d["avg_cpm"];
-      d["cpi"] = +d["avg_cpi"];
-      d["spend_share"] = +d["avg_spend_share"];
+      d["format"] = d["creative_format"];
+      d["date"] = d["date"] || d["utc_week"];
+      d["cpm"] = +d["cpm"];
+      d["cpi"] = +d["cpi"];
+      d["cftd"] = +d["cftd"];
+      d["spend_share"] = 0.5; // +d["avg_user_spend"];
     });
 
     for (let i = 0; i < formats.length; i++) {
@@ -152,7 +152,6 @@ export function CreativeFormat({
       "vis-creative-formats-button-group-changed",
       handleButtonChange
     );
-
     return () => {
       document.removeEventListener(
         "vis-creative-formats-button-group-changed",
@@ -195,7 +194,7 @@ export function CreativeFormat({
   const margin = {
     allLeft: 50,
     allRight: 5,
-    costTop: 30,
+    costTop: 50,
     costBottom: 50,
     spendTop: 30,
     spendBottom: 30,
@@ -241,12 +240,20 @@ export function CreativeFormat({
 
   const datapointsPrev = datapoints.filter((d) => {
     const date = new Date(d.date);
-    return date >= prevTime.domain()[0] && date <= prevTime.domain()[1];
+    return (
+      date >= prevTime.domain()[0] &&
+      date <= prevTime.domain()[1] &&
+      !isNaN(d.cost)
+    );
   });
 
   const datapointsCurrent = datapoints.filter((d) => {
     const date = new Date(d.date);
-    return date >= currentTime.domain()[0] && date <= currentTime.domain()[1];
+    return (
+      date >= currentTime.domain()[0] &&
+      date <= currentTime.domain()[1] &&
+      !isNaN(d.cost)
+    );
   });
 
   const barsScalePrev = d3
@@ -267,6 +274,11 @@ export function CreativeFormat({
     viewBox="0 0 ${width} ${totalHeight}"
     style="width: 100%; height: 100%;"
   >
+    <text dy="15" style="fill: orange; font-size: 12px;">
+      ${selectedVariable} | ${field} | ${system} | ${country} || #datapoints
+      prev: ${datapointsPrev.length} || #datapoints current:
+      ${datapointsCurrent.length}
+    </text>
     <g transform="translate(${margin.allLeft}, ${margin.costTop})">
       <line x1="0" y1="0" x2="0" y2="${heightCost}" stroke="black" />
       <g transform="translate(${axisOffsetX},0)">
@@ -382,7 +394,7 @@ export function CreativeFormat({
             text-anchor="start"
             class="charts-text-body-bold"
           >
-            Spend Share
+            Spend Share (Not real data atm)
           </text>
         </g>
         <g class="x-axis">
