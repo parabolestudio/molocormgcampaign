@@ -63,6 +63,12 @@ export const buttonToVariableMapping = {
   Spend: "spend",
 };
 
+export const variableFormatting = {
+  cpm: (value) => `$${value.toFixed(2)}`,
+  cpi: (value) => `$${value.toFixed(2)}`,
+  spend_share: (value) => `${(value * 100).toFixed(2)}%`,
+};
+
 // time scales
 const prevYear = new Date().getFullYear() - 1;
 const currentYear = new Date().getFullYear();
@@ -191,4 +197,13 @@ export function addMissingWeeksCurrent(dataArray) {
   // sort by date
   filledData.sort((a, b) => new Date(a.date) - new Date(b.date));
   return filledData;
+}
+
+// from YYYY-MM-DD to September 25, 2024
+export function formatDate(dateString) {
+  const date = new Date(dateString);
+  const month = date.toLocaleString("en-US", { month: "long" });
+  const day = date.getDate();
+  const year = date.getFullYear();
+  return `${month} ${day}, ${year}`;
 }

@@ -1,7 +1,12 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
 const geoPath = d3.geoPath();
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
-import { stateMapping, buttonToVariableMapping } from "./helpers.js";
+import {
+  stateMapping,
+  buttonToVariableMapping,
+  formatDate,
+  variableFormatting,
+} from "./helpers.js";
 
 export function Map() {
   const [selectedVariable, setSelectedVariable] = useState("CPM");
@@ -10,7 +15,7 @@ export function Map() {
   const [usGeoData, setUsGeoData] = useState(null);
   const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
-  const [tooltipData, setTooltipData] = useState(null);
+  const [hoveredItem, setHoveredItem] = useState(null);
 
   // listen to change in general system dropdown
   useEffect(() => {
@@ -250,11 +255,10 @@ export function Map() {
     }
   }
 
-  console.log("Tooltip Data:", tooltipData);
-
   return html`<div
-    style="display: flex; flex-direction: column; align-items: flex-end;"
+    style="display: flex; flex-direction: column; align-items: flex-end; position: relative;"
   >
+    <${Tooltip} hoveredItem=${hoveredItem} />
     <svg
       viewBox="0 0 ${width} ${height}"
       style="max-width: 1122px;margin: 0 auto; height: auto;"
@@ -266,9 +270,11 @@ export function Map() {
             fill="${d.fillColor}"
             data-state-name="${d.name}"
             data-state-value=${d.value}
-            onmouseenter="${() => {
+            onmouseenter="${(event) => {
               d.value
-                ? setTooltipData({
+                ? setHoveredItem({
+                    x: d3.pointer(event)[0],
+                    y: d3.pointer(event)[1],
                     date: selectedDate,
                     name: d.name,
                     value: d.value,
@@ -277,7 +283,7 @@ export function Map() {
                 : null;
             }}"
             onmouseleave="${() => {
-              setTooltipData(null);
+              setHoveredItem(null);
             }}"
             class="map-state ${d.value ? "map-state-filled" : ""}"
           ></path>`
@@ -409,5 +415,28 @@ export function MapTimeSelector() {
       oninput="${(e) => setSliderValue(Number(e.target.value))}"
       style="margin-right:20px;"
     />
+  </div>`;
+}
+
+function Tooltip({ hoveredItem }) {
+  if (!hoveredItem) return null;
+
+  return html`<div
+    class="tooltip"
+    style="left: ${hoveredItem.x}px; top: ${hoveredItem.y}px;"
+  >
+    <p class="tooltip-title">
+      ${hoveredItem.name}<br />${formatDate(hoveredItem.date)}
+    </p>
+    <div>
+      <p class="tooltip-label">${hoveredItem.variable}</p>
+      <p class="tooltip-value">
+        ${variableFormatting[buttonToVariableMapping[hoveredItem.variable]]
+          ? variableFormatting[buttonToVariableMapping[hoveredItem.variable]](
+              hoveredItem.value
+            )
+          : hoveredItem.value}
+      </p>
+    </div>
   </div>`;
 }
