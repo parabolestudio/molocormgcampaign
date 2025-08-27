@@ -60,6 +60,7 @@ export function renderCreativeFormats() {
         // Render ButtonGroup as a component so hooks work
         renderComponent(
           html`<${CreativeFormat}
+            formatName=${name}
             containerId=${containerId}
             data=${fullData.filter((d) => d["format"] === name)}
             color=${color}
@@ -75,7 +76,12 @@ export function renderCreativeFormats() {
   });
 }
 
-export function CreativeFormat({ containerId, data = [], color = "black" }) {
+export function CreativeFormat({
+  formatName,
+  containerId,
+  data = [],
+  color = "black",
+}) {
   const [selectedVariable, setSelectedVariable] = useState("CPM");
   const [system, setSystem] = useState(getDropdownValue("system"));
   const [country, setCountry] = useState(getDropdownValue("country"));
@@ -170,16 +176,16 @@ export function CreativeFormat({ containerId, data = [], color = "black" }) {
     };
   });
 
-  //   console.log(
-  //     "Rendering CreativeFormat component for format:",
-  //     formatName,
-  //     // filteredData,
-  //     system,
-  //     country,
-  //     field,
-  //     selectedVariable
-  //     //   datapoints
-  //   );
+  console.log(
+    "Rendering CreativeFormat component for format:",
+    formatName,
+    filteredData,
+    system,
+    country,
+    field,
+    selectedVariable
+    //   datapoints
+  );
 
   // set up vis dimensions
   const visContainer = document.querySelector(`#${containerId}`);
