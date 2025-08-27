@@ -28,8 +28,6 @@ export function AdvertiserTrends() {
     };
   }, [selectedVariable]);
 
-  console.log("Selected variable in AdvertiserTrends:", selectedVariable);
-
   return html`<svg
     viewBox="0 0 ${width} ${height}"
     style="background: #D9D9D933;"

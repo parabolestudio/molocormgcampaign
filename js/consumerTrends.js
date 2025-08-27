@@ -101,8 +101,6 @@ export function ConsumerTrends() {
         d["spend"] = +d[" avg_user_spend"].replace("$", "");
       });
 
-      console.log("Fetched consumer trends data", data);
-
       setData(data);
     });
   }, []);
