@@ -527,7 +527,7 @@ export function CreativeFormat({
         </g>
       </g>
     </svg>
-    <${Tooltip} hoveredItem=${hoveredItem} />
+    <${Tooltip} hoveredItem=${isDaily ? hoveredItem : null} />
   </div> `;
 }
 
