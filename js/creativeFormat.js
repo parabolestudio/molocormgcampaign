@@ -275,9 +275,8 @@ export function CreativeFormat({
     style="width: 100%; height: 100%;"
   >
     <text dy="15" style="fill: orange; font-size: 12px;">
-      ${selectedVariable} | ${field} | ${system} | ${country} || #datapoints
-      prev: ${datapointsPrev.length} || #datapoints current:
-      ${datapointsCurrent.length}
+      ${selectedVariable} | ${field} | ${system} | ${country} || #prev:
+      ${datapointsPrev.length} || #current: ${datapointsCurrent.length}
     </text>
     <g transform="translate(${margin.allLeft}, ${margin.costTop})">
       <line x1="0" y1="0" x2="0" y2="${heightCost}" stroke="black" />

@@ -83,7 +83,7 @@ export function Map() {
   // fetch data from file, later from live sheet
   useEffect(() => {
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/map-data.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/map-data2.csv"
     ).then((data) => {
       data.forEach((d) => {
         d["system"] = d["os"];
@@ -128,18 +128,21 @@ export function Map() {
       return d["field"] === field && d["system"] === system;
     })
     .sort((a, b) => new Date(a["date_utc"]) - new Date(b["date_utc"]));
+  console.log("Filtered Data:", filteredData);
 
   // get all unique dates
   const uniqueDates = Array.from(
     new Set(filteredData.map((d) => d["date_utc"]))
   ).sort((a, b) => new Date(a) - new Date(b));
+  console.log("Unique Dates:", uniqueDates);
 
   const [startDate, setStartDate] = useState(uniqueDates[0]);
   const [endDate, setEndDate] = useState(uniqueDates[uniqueDates.length - 1]);
 
   useEffect(() => {
-    if (!selectedDate) setSelectedDate(uniqueDates[0]);
-    if (startDate !== uniqueDates[0]) setStartDate(uniqueDates[0]);
+    if (!selectedDate) setSelectedDate(uniqueDates[uniqueDates.length - 1]);
+    if (startDate !== uniqueDates[0])
+      setStartDate(uniqueDates[uniqueDates.length - 1]);
     if (endDate !== uniqueDates[uniqueDates.length - 1])
       setEndDate(uniqueDates[uniqueDates.length - 1]);
   }, [uniqueDates]);
@@ -178,25 +181,6 @@ export function Map() {
     };
   }, []);
 
-  // filter for daily data
-  const dailyData = filteredData.filter((d) => d["date_utc"] === selectedDate);
-  console.log(
-    "Daily Data:",
-    dailyData,
-    "for",
-    selectedDate,
-    " and ",
-    selectedVariable
-  );
-  if (dailyData.length === 0) {
-    return html`<div>No data available for selected date.</div>`;
-  }
-
-  const width = 975;
-  const height = 610;
-
-  const states = topojson.feature(usGeoData, usGeoData.objects.states).features;
-
   const maxValue = d3.max(
     filteredData.filter((d) => d["state"] !== "ON"),
     (d) => d[buttonToVariableMapping[selectedVariable]]
@@ -209,6 +193,26 @@ export function Map() {
     .scaleSequential(["#16D2FF", "#040078"])
     .domain([0, maxValue])
     .nice();
+
+  // filter for daily data
+  const dailyData = filteredData.filter((d) => d["date_utc"] === selectedDate);
+  console.log(
+    "Daily Data:",
+    dailyData,
+    "for",
+    selectedDate,
+    " and ",
+    selectedVariable
+  );
+
+  // if (dailyData.length === 0) {
+  //   return html`<div>No data available for selected date.</div>`;
+  // }
+
+  const width = 975;
+  const height = 610;
+
+  const states = topojson.feature(usGeoData, usGeoData.objects.states).features;
 
   function getStateFill(state) {
     const stateId = stateMapping[state];
@@ -278,7 +282,13 @@ export function Map() {
 export function MapTimeSelector() {
   const [startDateRaw, setStartDateRaw] = useState("2024-08-01");
   const [endDateRaw, setEndDateRaw] = useState("2025-08-25");
-  const [sliderValue, setSliderValue] = useState(0);
+
+  const numDays =
+    Math.floor(
+      (new Date(endDateRaw) - new Date(startDateRaw)) / (1000 * 60 * 60 * 24)
+    ) + 1;
+
+  const [sliderValue, setSliderValue] = useState(numDays);
 
   // listen to change in start date from new data
   useEffect(() => {
@@ -290,7 +300,6 @@ export function MapTimeSelector() {
       "vis-map-start-date-changed-from-data",
       handleStartDateChangeFromData
     );
-
     return () => {
       document.removeEventListener(
         "vis-map-start-date-changed-from-data",
@@ -302,13 +311,12 @@ export function MapTimeSelector() {
   useEffect(() => {
     const handleEndDateChangeFromData = (e) => {
       setEndDateRaw(e.detail.endDate);
-      setSliderValue(0);
+      setSliderValue(numDays);
     };
     document.addEventListener(
       "vis-map-end-date-changed-from-data",
       handleEndDateChangeFromData
     );
-
     return () => {
       document.removeEventListener(
         "vis-map-end-date-changed-from-data",
@@ -325,23 +333,18 @@ export function MapTimeSelector() {
     );
   }, [sliderValue]);
 
-  const numDays =
-    Math.floor(
-      (new Date(endDateRaw) - new Date(startDateRaw)) / (1000 * 60 * 60 * 24)
-    ) + 1;
-
   const getDateString = (offset) => {
     const d = new Date(startDateRaw);
     d.setDate(d.getDate() + offset);
     return d.toISOString().slice(0, 10); // YYYY-MM-DD
   };
 
+  // onclick="${() => setSliderValue(sliderValue + 1)}"
   return html`<div
     style="display: flex; flex-direction: row; align-items: center; border: 1px solid black; border-radius: 20px;"
   >
     <div
       style="padding:  12.5px 12.5px 12.5px 20px; border-right: 1px solid black; cursor: pointer;"
-      onclick="${() => setSliderValue(sliderValue + 1)}"
     >
       <svg
         width="11"
