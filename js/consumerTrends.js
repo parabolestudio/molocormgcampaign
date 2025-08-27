@@ -97,6 +97,7 @@ export function ConsumerTrends() {
         d["date"] = d["date"];
         d["country"] = d["country"];
         d["mau"] = +d[" mau"];
+        d["dau"] = +d["dau"];
         d["cftd"] = +d["cftd"].replace("$", "");
         d["spend"] = +d[" avg_user_spend"].replace("$", "");
       });
@@ -209,7 +210,11 @@ export function ConsumerTrends() {
                 text-anchor="end"
                 class="charts-text-body"
               >
-                ${tick >= 1000 ? tick / 1000 + "k" : tick}
+                ${tick >= 1_000_000
+                  ? (tick / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"
+                  : tick >= 1_000
+                  ? (tick / 1_000).toFixed(1).replace(/\.0$/, "") + "k"
+                  : tick}
               </text>
             </g>
           `;

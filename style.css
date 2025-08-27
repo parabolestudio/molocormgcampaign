@@ -77,6 +77,10 @@
   }
 }
 
+.vis-container svg {
+  overflow: visible;
+}
+
 /*
 Tooltip for multiple visualizations
 */
