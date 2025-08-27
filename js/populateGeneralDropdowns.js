@@ -22,8 +22,16 @@ export function populateGeneralDropdowns() {
       value: "USA",
     },
     {
-      text: "Country B",
-      value: "Country B",
+      text: "Canada",
+      value: "CAN",
+    },
+    {
+      text: "Great Britain",
+      value: "GBR",
+    },
+    {
+      text: "Germany",
+      value: "DEU",
     },
   ];
   const countryDefault = countries[0];
@@ -53,7 +61,6 @@ export function populateGeneralDropdowns() {
     });
     fieldDropdown.value = fieldDefault.value;
     fieldDropdown.addEventListener("change", (e) => {
-      console.log("Selected field:", e.target.value);
       // Dispatch custom event to notify other components
       document.dispatchEvent(
         new CustomEvent("vis-general-dropdown-field-changed", {
@@ -73,7 +80,6 @@ export function populateGeneralDropdowns() {
     });
     countryDropdown.value = countryDefault.value;
     countryDropdown.addEventListener("change", (e) => {
-      console.log("Selected country:", e.target.value);
       // Dispatch custom event to notify other components
       document.dispatchEvent(
         new CustomEvent("vis-general-dropdown-country-changed", {
@@ -93,7 +99,6 @@ export function populateGeneralDropdowns() {
     });
     systemDropdown.value = systemDefault.value;
     systemDropdown.addEventListener("change", (e) => {
-      console.log("Selected system:", e.target.value);
       // Dispatch custom event to notify other components
       document.dispatchEvent(
         new CustomEvent("vis-general-dropdown-system-changed", {

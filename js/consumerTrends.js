@@ -3,8 +3,8 @@ import {
   prevTimeScale,
   currentTimeScale,
   buttonToVariableMapping,
-  addMissingDatesPrev,
-  addMissingDatesCurrent,
+  addMissingDaysPrev,
+  addMissingDaysCurrent,
 } from "./helpers.js";
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
 
@@ -256,7 +256,7 @@ export function ConsumerTrends() {
           })}
         </g>
         <path
-          d="${prevLine(addMissingDatesPrev(datapointsPrev))}"
+          d="${prevLine(addMissingDaysPrev(datapointsPrev))}"
           fill="none"
           stroke="#C3C3C3"
           stroke-width="3"
@@ -265,7 +265,7 @@ export function ConsumerTrends() {
           style="transition: all ease 0.3s"
         />
         <path
-          d="${currentLine(addMissingDatesCurrent(datapointsCurrent))}"
+          d="${currentLine(addMissingDaysCurrent(datapointsCurrent))}"
           fill="none"
           stroke="#0280FB"
           stroke-width="3"

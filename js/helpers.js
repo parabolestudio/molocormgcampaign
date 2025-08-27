@@ -96,7 +96,7 @@ export const allDaysCurrent = getDaysBetween(
   currentTimeScale.domain()[1]
 );
 
-function addNonExistingDates(dataArray, startDate, endDate) {
+function addNonExistingDays(dataArray, startDate, endDate) {
   const allDates = getDaysBetween(startDate, endDate);
   const existingDates = dataArray.map((d) => d.date);
   const missingDates = allDates.filter((date) => !existingDates.includes(date));
@@ -116,19 +116,41 @@ function addNonExistingDates(dataArray, startDate, endDate) {
   return filledData;
 }
 
-// export function addMissingDates(dataArray) {
-//   const filledData = addNonExistingDates(
-//     dataArray,
-//     prevTimeScale.domain()[0],
-//     currentTimeScale.domain()[1]
-//   );
-//   // sort by date
-//   filledData.sort((a, b) => new Date(a.date) - new Date(b.date));
-//   return filledData;
-// }
+// Helper to get all weeks between two dates (returns array of YYYY-MM-DD for each week's Monday)
+function getWeeksBetween(startDate, endDate) {
+  const weeks = [];
+  let current = new Date(startDate);
+  // Set to nearest Monday
+  current.setDate(current.getDate() - ((current.getDay() + 6) % 7));
+  while (current <= endDate) {
+    weeks.push(new Date(current).toISOString().split("T")[0]);
+    current.setDate(current.getDate() + 7);
+  }
+  return weeks;
+}
 
-export function addMissingDatesPrev(dataArray) {
-  const filledData = addNonExistingDates(
+function addNonExistingWeeks(dataArray, startDate, endDate) {
+  const allWeeks = getWeeksBetween(startDate, endDate);
+  const existingWeeks = dataArray.map((d) => d.date);
+  const missingWeeks = allWeeks.filter((week) => !existingWeeks.includes(week));
+
+  const filledData = dataArray.concat(
+    missingWeeks.map((week) => ({
+      date: week,
+      cost: null,
+      spend_share: null,
+      dau: null,
+      mau: null,
+      cftd: null,
+      spend: null,
+    }))
+  );
+
+  return filledData;
+}
+
+export function addMissingDaysPrev(dataArray) {
+  const filledData = addNonExistingDays(
     dataArray,
     prevTimeScale.domain()[0],
     prevTimeScale.domain()[1]
@@ -138,8 +160,30 @@ export function addMissingDatesPrev(dataArray) {
   return filledData;
 }
 
-export function addMissingDatesCurrent(dataArray) {
-  const filledData = addNonExistingDates(
+export function addMissingDaysCurrent(dataArray) {
+  const filledData = addNonExistingDays(
+    dataArray,
+    currentTimeScale.domain()[0],
+    currentTimeScale.domain()[1]
+  );
+  // sort by date
+  filledData.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return filledData;
+}
+
+export function addMissingWeeksPrev(dataArray) {
+  const filledData = addNonExistingWeeks(
+    dataArray,
+    prevTimeScale.domain()[0],
+    prevTimeScale.domain()[1]
+  );
+  // sort by date
+  filledData.sort((a, b) => new Date(a.date) - new Date(b.date));
+  return filledData;
+}
+
+export function addMissingWeeksCurrent(dataArray) {
+  const filledData = addNonExistingWeeks(
     dataArray,
     currentTimeScale.domain()[0],
     currentTimeScale.domain()[1]

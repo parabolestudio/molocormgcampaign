@@ -128,13 +128,13 @@ export function Map() {
       return d["field"] === field && d["system"] === system;
     })
     .sort((a, b) => new Date(a["date_utc"]) - new Date(b["date_utc"]));
-  console.log("Filtered Data:", filteredData);
+  // console.log("Filtered Data:", filteredData);
 
   // get all unique dates
   const uniqueDates = Array.from(
     new Set(filteredData.map((d) => d["date_utc"]))
   ).sort((a, b) => new Date(a) - new Date(b));
-  console.log("Unique Dates:", uniqueDates);
+  // console.log("Unique Dates:", uniqueDates);
 
   const [startDate, setStartDate] = useState(uniqueDates[0]);
   const [endDate, setEndDate] = useState(uniqueDates[uniqueDates.length - 1]);
@@ -188,7 +188,7 @@ export function Map() {
   const maxItem = filteredData.find(
     (d) => d[buttonToVariableMapping[selectedVariable]] === maxValue
   );
-  console.log("Max Item:", maxItem);
+  // console.log("Max Item:", maxItem);
   const colorScale = d3
     .scaleSequential(["#16D2FF", "#040078"])
     .domain([0, maxValue])
@@ -196,14 +196,14 @@ export function Map() {
 
   // filter for daily data
   const dailyData = filteredData.filter((d) => d["date_utc"] === selectedDate);
-  console.log(
-    "Daily Data:",
-    dailyData,
-    "for",
-    selectedDate,
-    " and ",
-    selectedVariable
-  );
+  // console.log(
+  //   "Daily Data:",
+  //   dailyData,
+  //   "for",
+  //   selectedDate,
+  //   " and ",
+  //   selectedVariable
+  // );
 
   // if (dailyData.length === 0) {
   //   return html`<div>No data available for selected date.</div>`;

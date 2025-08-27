@@ -11,8 +11,10 @@ import {
   currentTimeScale,
   allDaysPrev,
   allDaysCurrent,
-  addMissingDatesPrev,
-  addMissingDatesCurrent,
+  addMissingDaysPrev,
+  addMissingDaysCurrent,
+  addMissingWeeksPrev,
+  addMissingWeeksCurrent,
 } from "./helpers.js";
 
 export function renderCreativeFormats() {
@@ -34,69 +36,94 @@ export function renderCreativeFormats() {
     },
   ];
 
-  // load data from creative-formats-data.csv file
-  d3.csv(
-    "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data2-usa.csv"
-  ).then((fullData) => {
-    fullData.forEach((d) => {
-      d["system"] = d["os"];
-      d["field"] = d["vertical"];
-      d["country"] = d["country"];
-      d["format"] = d["creative_format"];
-      d["date"] = d["date"] || d["utc_week"];
-      d["cpm"] = +d["cpm"];
-      d["cpi"] = +d["cpi"];
-      d["cftd"] = +d["cftd"];
-      d["spend_share"] = 0.5; // +d["avg_user_spend"];
-    });
+  Promise.all([
+    d3.csv(
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data2-usa.csv"
+    ),
+    d3.csv(
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data2-world.csv"
+    ),
+  ])
+    .then((files) => {
+      const usData = files[0];
+      const worldData = files[1];
 
-    for (let i = 0; i < formats.length; i++) {
-      const { name, containerId, color } = formats[i];
-      const containerElement = document.getElementById(containerId);
-      if (containerElement) {
-        // clear existing content before rendering
-        containerElement.innerHTML = "";
+      // daily
+      usData.forEach((d) => {
+        d["system"] = d["os"];
+        d["field"] = d["vertical"];
+        d["country"] = d["country"];
+        d["format"] = d["creative_format"];
+        d["date"] = d["date"];
+        d["cpm"] = +d["cpm"];
+        d["cpi"] = +d["cpi"];
+        d["cftd"] = +d["cftd"];
+        d["spend_share"] = 0.5; // +d["avg_user_spend"];
+      });
 
-        // Render ButtonGroup as a component so hooks work
-        renderComponent(
-          html`<${CreativeFormat}
-            formatName=${name}
-            containerId=${containerId}
-            data=${fullData.filter((d) => d["format"] === name)}
-            color=${color}
-          />`,
-          containerElement
-        );
-      } else {
-        console.error(
-          `Could not find container element for creative format with id ${containerId}`
-        );
+      // weekly
+      worldData.forEach((d) => {
+        d["system"] = d["os"];
+        d["field"] = d["vertical"];
+        d["country"] = d["country"];
+        d["format"] = d["creative_format"];
+        d["date"] = d["utc_week"];
+        d["cpm"] = +d["cpm"];
+        d["cpi"] = +d["cpi"];
+        d["cftd"] = +d["cftd"];
+        d["spend_share"] = 0.5; // +d["avg_user_spend"];
+      });
+
+      for (let i = 0; i < formats.length; i++) {
+        const { name, containerId, color } = formats[i];
+        const containerElement = document.getElementById(containerId);
+        if (containerElement) {
+          // clear existing content before rendering
+          containerElement.innerHTML = "";
+
+          // Render ButtonGroup as a component so hooks work
+          renderComponent(
+            html`<${CreativeFormat}
+              formatName=${name}
+              containerId=${containerId}
+              usData=${usData.filter((d) => d["format"] === name)}
+              worldData=${worldData.filter((d) => d["format"] === name)}
+              color=${color}
+            />`,
+            containerElement
+          );
+        } else {
+          console.error(
+            `Could not find container element for creative format with id ${containerId}`
+          );
+        }
       }
-    }
-  });
+    })
+    .catch((err) => {
+      console.error("Error loading creative formats data:", err);
+    });
 }
 
 export function CreativeFormat({
   formatName,
   containerId,
-  data = [],
+  usData = [],
+  worldData = [],
   color = "black",
 }) {
   const [selectedVariable, setSelectedVariable] = useState("CPM");
   const [system, setSystem] = useState(getDropdownValue("system"));
-  const [country, setCountry] = useState(getDropdownValue("country"));
   const [field, setField] = useState(getDropdownValue("field"));
+  const [country, setCountry] = useState(getDropdownValue("country"));
+  const isDaily = country === "USA";
 
   // listen to change in general system dropdown
   useEffect(() => {
-    const handleSystemChange = (e) => {
-      setSystem(e.detail.selectedSystem);
-    };
+    const handleSystemChange = (e) => setSystem(e.detail.selectedSystem);
     document.addEventListener(
       "vis-general-dropdown-system-changed",
       handleSystemChange
     );
-
     return () => {
       document.removeEventListener(
         "vis-general-dropdown-system-changed",
@@ -107,14 +134,11 @@ export function CreativeFormat({
 
   // listen to change in general field dropdown
   useEffect(() => {
-    const handleFieldChange = (e) => {
-      setField(e.detail.selectedField);
-    };
+    const handleFieldChange = (e) => setField(e.detail.selectedField);
     document.addEventListener(
       "vis-general-dropdown-field-changed",
       handleFieldChange
     );
-
     return () => {
       document.removeEventListener(
         "vis-general-dropdown-field-changed",
@@ -125,14 +149,11 @@ export function CreativeFormat({
 
   // listen to change in general country dropdown
   useEffect(() => {
-    const handleCountryChange = (e) => {
-      setCountry(e.detail.selectedCountry);
-    };
+    const handleCountryChange = (e) => setCountry(e.detail.selectedCountry);
     document.addEventListener(
       "vis-general-dropdown-country-changed",
       handleCountryChange
     );
-
     return () => {
       document.removeEventListener(
         "vis-general-dropdown-country-changed",
@@ -160,11 +181,15 @@ export function CreativeFormat({
     };
   }, [selectedVariable]);
 
+  const dataset = isDaily
+    ? usData
+    : worldData.filter((d) => d["country"] === country);
+
   // filtering data
-  const filteredData = data.filter((d) => {
-    return (
-      d["system"] === system && d["country"] === country && d["field"] === field
-    );
+  const filteredData = dataset.filter((d) => {
+    // console.log("Filtering data:", d);
+    // return true;
+    return d["system"] === system && d["field"] === field;
   });
 
   let datapoints = filteredData.map((d) => {
@@ -175,16 +200,16 @@ export function CreativeFormat({
     };
   });
 
-  console.log(
-    "Rendering CreativeFormat component for format:",
-    formatName,
-    filteredData,
-    system,
-    country,
-    field,
-    selectedVariable
-    //   datapoints
-  );
+  //   console.log(
+  //     "Rendering CreativeFormat component for:",
+  //     formatName,
+  //     filteredData,
+  //     system,
+  //     country,
+  //     field,
+  //     selectedVariable,
+  //     datapoints
+  //   );
 
   // set up vis dimensions
   const visContainer = document.querySelector(`#${containerId}`);
@@ -224,37 +249,50 @@ export function CreativeFormat({
   const prevTime = prevTimeScale.range([0, chartWidth]);
   const currentTime = currentTimeScale.range([0, chartWidth]);
 
-  const prevLine = d3
+  const prevLineGen = d3
     .line()
     .y((d) => costScale(d.cost))
     .x((d) => prevTime(new Date(d.date)))
     .defined((d) => d.cost !== null);
   // .curve(d3.curveBasis);
 
-  const currentLine = d3
+  const currentLineGen = d3
     .line()
     .y((d) => costScale(d.cost))
     .x((d) => currentTime(new Date(d.date)))
     .defined((d) => d.cost !== null);
   // .curve(d3.curveCatmullRom);
 
-  const datapointsPrev = datapoints.filter((d) => {
-    const date = new Date(d.date);
-    return (
-      date >= prevTime.domain()[0] &&
-      date <= prevTime.domain()[1] &&
-      !isNaN(d.cost)
-    );
-  });
+  const datapointsPrev = datapoints
+    .filter((d) => {
+      const date = new Date(d.date);
+      return (
+        date >= prevTime.domain()[0] &&
+        date <= prevTime.domain()[1] &&
+        !isNaN(d.cost)
+      );
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
-  const datapointsCurrent = datapoints.filter((d) => {
-    const date = new Date(d.date);
-    return (
-      date >= currentTime.domain()[0] &&
-      date <= currentTime.domain()[1] &&
-      !isNaN(d.cost)
-    );
-  });
+  const datapointsCurrent = datapoints
+    .filter((d) => {
+      const date = new Date(d.date);
+      return (
+        date >= currentTime.domain()[0] &&
+        date <= currentTime.domain()[1] &&
+        !isNaN(d.cost)
+      );
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+  const prevLine = prevLineGen(
+    isDaily ? addMissingDaysPrev(datapointsPrev) : datapointsPrev
+    //   : addMissingWeeksPrev(datapointsPrev)
+  );
+  const currentLine = currentLineGen(
+    isDaily ? addMissingDaysCurrent(datapointsCurrent) : datapointsCurrent
+    //   : addMissingWeeksCurrent(datapointsCurrent)
+  );
 
   const barsScalePrev = d3
     .scaleBand()
@@ -334,14 +372,14 @@ export function CreativeFormat({
           </text>
         </g>
         <path
-          d="${prevLine(addMissingDatesPrev(datapointsPrev))}"
+          d="${prevLine}"
           fill="none"
           stroke="#C3C3C3"
           stroke-width="2"
           style="transition: all ease 0.3s"
         />
         <path
-          d="${currentLine(addMissingDatesCurrent(datapointsCurrent))}"
+          d="${currentLine}"
           fill="none"
           stroke="${color}"
           stroke-width="2"
