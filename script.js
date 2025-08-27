@@ -59,7 +59,7 @@ visList.forEach((vis) => {
 });
 
 // render button groups
-const itemsConsumer = ["DAU", "CFTD", "Spend"];
+const itemsConsumer = ["DAU", "MAU", "CFTD", "Spend"];
 renderButtonGroup(
   "vis-consumer-trends-button-group",
   itemsConsumer,

@@ -96,7 +96,7 @@ export function ConsumerTrends() {
         d["field"] = d["vertical"];
         d["date"] = d["date"];
         d["country"] = d["country"];
-        d["dau"] = +d["dau"];
+        d["mau"] = +d[" mau"];
         d["cftd"] = +d["cftd"].replace("$", "");
         d["spend"] = +d[" avg_user_spend"].replace("$", "");
       });

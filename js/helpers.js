@@ -58,6 +58,7 @@ export const buttonToVariableMapping = {
   CPI: "cpi",
   "Spend Share": "spend_share",
   DAU: "dau",
+  MAU: "mau",
   CFTD: "cftd",
   Spend: "spend",
 };
@@ -106,6 +107,7 @@ function addNonExistingDates(dataArray, startDate, endDate) {
       cost: null,
       spend_share: null,
       dau: null,
+      mau: null,
       cftd: null,
       spend: null,
     }))
