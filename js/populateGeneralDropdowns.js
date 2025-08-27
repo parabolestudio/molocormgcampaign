@@ -19,7 +19,7 @@ export function populateGeneralDropdowns() {
   const countries = [
     {
       text: "U.S.",
-      value: "U.S.",
+      value: "USA",
     },
     {
       text: "Country B",

@@ -17,14 +17,11 @@ export function ConsumerTrends() {
 
   // listen to change in general system dropdown
   useEffect(() => {
-    const handleSystemChange = (e) => {
-      setSystem(e.detail.selectedSystem);
-    };
+    const handleSystemChange = (e) => setSystem(e.detail.selectedSystem);
     document.addEventListener(
       "vis-general-dropdown-system-changed",
       handleSystemChange
     );
-
     return () => {
       document.removeEventListener(
         "vis-general-dropdown-system-changed",
@@ -35,14 +32,11 @@ export function ConsumerTrends() {
 
   // listen to change in general field dropdown
   useEffect(() => {
-    const handleFieldChange = (e) => {
-      setField(e.detail.selectedField);
-    };
+    const handleFieldChange = (e) => setField(e.detail.selectedField);
     document.addEventListener(
       "vis-general-dropdown-field-changed",
       handleFieldChange
     );
-
     return () => {
       document.removeEventListener(
         "vis-general-dropdown-field-changed",
@@ -53,14 +47,11 @@ export function ConsumerTrends() {
 
   // listen to change in general country dropdown
   useEffect(() => {
-    const handleCountryChange = (e) => {
-      setCountry(e.detail.selectedCountry);
-    };
+    const handleCountryChange = (e) => setCountry(e.detail.selectedCountry);
     document.addEventListener(
       "vis-general-dropdown-country-changed",
       handleCountryChange
     );
-
     return () => {
       document.removeEventListener(
         "vis-general-dropdown-country-changed",
@@ -80,7 +71,6 @@ export function ConsumerTrends() {
       "vis-consumer-trends-button-group-changed",
       handleButtonChange
     );
-
     return () => {
       document.removeEventListener(
         "vis-consumer-trends-button-group-changed",
@@ -89,25 +79,29 @@ export function ConsumerTrends() {
     };
   }, [selectedVariable]);
 
-  console.log("Rendering consumer trends with", {
-    selectedVariable,
-    system,
-    country,
-    field,
-  });
+  // console.log("Rendering consumer trends with", {
+  //   selectedVariable,
+  //   system,
+  //   country,
+  //   field,
+  // });
 
   // fetch data from file, later from live sheet
   useEffect(() => {
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/consumer-trends-data.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/consumer-trends-data2.csv"
     ).then((data) => {
       data.forEach((d) => {
         d["system"] = d["os"];
-        d["field"] = d["grouped_category"];
+        d["field"] = d["vertical"];
         d["date"] = d["date"];
         d["country"] = d["country"];
-        d["dau"] = +d["DAU"];
+        d["dau"] = +d["dau"];
+        d["cftd"] = +d["cftd"].replace("$", "");
+        d["spend"] = +d[" avg_user_spend"].replace("$", "");
       });
+
+      console.log("Fetched consumer trends data", data);
 
       setData(data);
     });
@@ -123,6 +117,7 @@ export function ConsumerTrends() {
       d["system"] === system && d["country"] === country && d["field"] === field
     );
   });
+
   let datapoints = filteredData.map((d) => {
     return {
       date: d["date"],
@@ -130,9 +125,6 @@ export function ConsumerTrends() {
         d[buttonToVariableMapping[selectedVariable]],
     };
   });
-  console.log("datapoints before adding missing dates", datapoints);
-
-  console.log("filteredData", filteredData);
 
   // set up dimensions
   const visContainer = document.querySelector("#vis-consumer-trends");
@@ -141,7 +133,7 @@ export function ConsumerTrends() {
   const height = 500;
   const axisOffsetX = 20;
   const margin = {
-    top: 20,
+    top: 30,
     right: 1,
     bottom: 50,
     left: 60,
@@ -178,11 +170,19 @@ export function ConsumerTrends() {
   // data points
   const datapointsPrev = datapoints.filter((d) => {
     const date = new Date(d.date);
-    return date >= prevTime.domain()[0] && date <= prevTime.domain()[1];
+    return (
+      date >= prevTime.domain()[0] &&
+      date <= prevTime.domain()[1] &&
+      !isNaN(d[buttonToVariableMapping[selectedVariable]])
+    );
   });
   const datapointsCurrent = datapoints.filter((d) => {
     const date = new Date(d.date);
-    return date >= currentTime.domain()[0] && date <= currentTime.domain()[1];
+    return (
+      date >= currentTime.domain()[0] &&
+      date <= currentTime.domain()[1] &&
+      !isNaN(d[buttonToVariableMapping[selectedVariable]])
+    );
   });
 
   // ticks
@@ -190,9 +190,14 @@ export function ConsumerTrends() {
   let xAxisTicksWidth = prevTime(xAxisTicks[1]) - prevTime(xAxisTicks[0]);
 
   const yAxisTicks = valueScale.ticks(4);
-  console.log("yAxisTicks", yAxisTicks);
 
+  // stroke-dasharray="0.10000000149011612, 10"
   return html`<svg viewBox="0 0 ${width} ${height}">
+    <text dy="15" style="fill: orange; font-size: 12px;">
+      Debug: ${selectedVariable} | ${field} | ${system} | ${country} ||
+      #datapoints prev year: ${datapointsPrev.length} || #datapoints current
+      year: ${datapointsCurrent.length}
+    </text>
     <g transform="translate(${margin.left}, ${margin.top})">
       <line y2="${innerHeight}" stroke="black" />
       <g class="y-axis">
@@ -252,13 +257,11 @@ export function ConsumerTrends() {
             `;
           })}
         </g>
-
         <path
           d="${prevLine(addMissingDatesPrev(datapointsPrev))}"
           fill="none"
-          stroke="#0280FB"
+          stroke="#C3C3C3"
           stroke-width="3"
-          stroke-dasharray="0.10000000149011612, 10"
           stroke-joint="round"
           stroke-linecap="round"
           style="transition: all ease 0.3s"
@@ -274,11 +277,3 @@ export function ConsumerTrends() {
     </g>
   </svg>`;
 }
-
-//  <line
-//           x1=${prevTime(new Date("2025-07-01"))}
-//           x2=${prevTime(new Date("2025-07-01"))}
-//           y1=${0}
-//           y2=${innerHeight}
-//           stroke="red"
-//         />

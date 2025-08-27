@@ -58,6 +58,8 @@ export const buttonToVariableMapping = {
   CPI: "cpi",
   "Spend Share": "spend_share",
   DAU: "dau",
+  CFTD: "cftd",
+  Spend: "spend",
 };
 
 // time scales
@@ -104,6 +106,8 @@ function addNonExistingDates(dataArray, startDate, endDate) {
       cost: null,
       spend_share: null,
       dau: null,
+      cftd: null,
+      spend: null,
     }))
   );
 
