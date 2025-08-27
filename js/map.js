@@ -95,7 +95,7 @@ export function Map() {
         d["system"] = d["os"];
         d["field"] = d["subgenre"];
         d["state"] = d["state"];
-        d["date_utc"] = d["date_utc"];
+        d["date"] = d["date_utc"];
         d["cpm"] = +d["cpm"];
         d["cpi"] = +d["cpi"];
         d["spend_share"] = +(
@@ -112,7 +112,7 @@ export function Map() {
               "cpi",
               "spend_share",
               "state",
-              "date_utc",
+              "date",
             ].includes(key)
           ) {
             delete d[key];
@@ -133,12 +133,12 @@ export function Map() {
     .filter((d) => {
       return d["field"] === field && d["system"] === system;
     })
-    .sort((a, b) => new Date(a["date_utc"]) - new Date(b["date_utc"]));
+    .sort((a, b) => new Date(a["date"]) - new Date(b["date"]));
   // console.log("Filtered Data:", filteredData);
 
   // get all unique dates
   const uniqueDates = Array.from(
-    new Set(filteredData.map((d) => d["date_utc"]))
+    new Set(filteredData.map((d) => d["date"]))
   ).sort((a, b) => new Date(a) - new Date(b));
   // console.log("Unique Dates:", uniqueDates);
 
@@ -201,7 +201,7 @@ export function Map() {
     .nice();
 
   // filter for daily data
-  const dailyData = filteredData.filter((d) => d["date_utc"] === selectedDate);
+  const dailyData = filteredData.filter((d) => d["date"] === selectedDate);
   // console.log(
   //   "Daily Data:",
   //   dailyData,
@@ -263,6 +263,9 @@ export function Map() {
       viewBox="0 0 ${width} ${height}"
       style="max-width: 1122px;margin: 0 auto; height: auto;"
     >
+      <text dy="20" style="fill: orange; font-size: 12px;">
+        Date for max value: ${maxItem ? maxItem["date"] : "N/A"}
+      </text>
       <g stroke-linejoin="round" stroke-linecap="round">
         ${statesArray.map(
           (d) => html`<path
@@ -302,17 +305,35 @@ export function Map() {
         />
       </g>
     </svg>
-    <div>
+    <div style="margin-top:40px;">
       <div class="rmg-filter-label">Value legend</div>
-      <div
-        style="width: 300px; height: 20px;   background: linear-gradient(90deg, ${colorScale(
-          0
-        )} 0%, ${colorScale(maxValue)} 100%);
-"
-      ></div>
-      <div>min: ${colorScale.domain()[0]}</div>
-      <div>max: ${colorScale.domain()[1]}</div>
-      <div>Date for max value: ${maxItem ? maxItem["date_utc"] : "N/A"}</div>
+      <div style="display: flex; gap: 16px; align-items:  center;">
+        <div style="display: flex; gap: 8px; align-items:  center;">
+          <div style="width:19px; height: 19px; background-color: #D9D9D9" />
+          <span class="charts-text-body">No data</span>
+        </div>
+
+        <div style="display: flex; gap: 8px; align-items:  center;">
+          <span class="charts-text-body"
+            >${variableFormatting[buttonToVariableMapping[selectedVariable]](
+              colorScale.domain()[0],
+              0
+            )}</span
+          >
+          <div
+            style="width: 300px; height: 20px;   background: linear-gradient(90deg, ${colorScale(
+              0
+            )} 0%, ${colorScale(maxValue)} 100%);
+        "
+          ></div>
+          <span class="charts-text-body"
+            >${variableFormatting[buttonToVariableMapping[selectedVariable]](
+              colorScale.domain()[1],
+              0
+            )}</span
+          >
+        </div>
+      </div>
     </div>
   </div>`;
 }
@@ -433,7 +454,8 @@ function Tooltip({ hoveredItem }) {
       <p class="tooltip-value">
         ${variableFormatting[buttonToVariableMapping[hoveredItem.variable]]
           ? variableFormatting[buttonToVariableMapping[hoveredItem.variable]](
-              hoveredItem.value
+              hoveredItem.value,
+              2
             )
           : hoveredItem.value}
       </p>

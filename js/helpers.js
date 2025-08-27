@@ -64,9 +64,9 @@ export const buttonToVariableMapping = {
 };
 
 export const variableFormatting = {
-  cpm: (value) => `$${value.toFixed(2)}`,
-  cpi: (value) => `$${value.toFixed(2)}`,
-  spend_share: (value) => `${(value * 100).toFixed(2)}%`,
+  cpm: (value, precision = 2) => `$${value.toFixed(precision)}`,
+  cpi: (value, precision = 2) => `$${value.toFixed(precision)}`,
+  spend_share: (value, precision = 2) => `${(value * 100).toFixed(precision)}%`,
 };
 
 // time scales
