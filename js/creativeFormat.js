@@ -15,6 +15,8 @@ import {
   addMissingDaysCurrent,
   addMissingWeeksPrev,
   addMissingWeeksCurrent,
+  formatDate,
+  variableFormatting,
 } from "./helpers.js";
 
 export function renderCreativeFormats() {
@@ -116,6 +118,7 @@ export function CreativeFormat({
   const [field, setField] = useState(getDropdownValue("field"));
   const [country, setCountry] = useState(getDropdownValue("country"));
   const isDaily = country === "USA";
+  const [hoveredItem, setHoveredItem] = useState(null);
 
   // listen to change in general system dropdown
   useEffect(() => {
@@ -308,174 +311,288 @@ export function CreativeFormat({
   // y axis ticks
   const yAxisTicks = costScale.ticks(4);
 
-  return html`<svg
-    viewBox="0 0 ${width} ${totalHeight}"
-    style="width: 100%; height: 100%;"
-  >
-    <text dy="15" style="fill: orange; font-size: 12px;">
-      ${selectedVariable} | ${field} | ${system} | ${country} || #prev:
-      ${datapointsPrev.length} || #current: ${datapointsCurrent.length}
-    </text>
-    <g transform="translate(${margin.allLeft}, ${margin.costTop})">
-      <line x1="0" y1="0" x2="0" y2="${heightCost}" stroke="black" />
-      <g transform="translate(${axisOffsetX},0)">
-        <rect
-          x="0"
-          y="0"
-          width="${chartWidth}"
-          height="${heightCost}"
-          fill="#D9D9D933"
-        />
-        <g class="y-axis">
-          ${yAxisTicks.map((tick) => {
-            return html`<g class="y-axis-tick">
-              <text
-                x="${-axisOffsetX}"
-                dx="-6"
-                y="${costScale(tick)}"
-                dominant-baseline="middle"
-                text-anchor="end"
-                class="charts-text-body"
-              >
-                $${tick}
-              </text>
-            </g>`;
-          })}
-          <text
-            x="${-axisOffsetX}"
-            y="${-margin.costTop / 2}"
-            dominant-baseline="middle"
-            text-anchor="end"
-            class="charts-text-body-bold"
-          >
-            Cost
-          </text>
-        </g>
-        <g class="x-axis">
-          <text
-            x="${prevTime.range()[0]}"
-            y="${heightCost + 20}"
-            dominant-baseline="middle"
-            text-anchor="start"
-            class="charts-text-body"
-          >
-            ${d3.timeFormat("%B")(prevTime.domain()[0])}
-          </text>
-          <text
-            x="${currentTime.range()[1]}"
-            y="${heightCost + 20}"
-            dominant-baseline="middle"
-            text-anchor="end"
-            class="charts-text-body"
-          >
-            ${d3.timeFormat("%B")(currentTime.domain()[1])}
-          </text>
-        </g>
-        <path
-          d="${prevLine}"
-          fill="none"
-          stroke="#C3C3C3"
-          stroke-width="2"
-          style="transition: all ease 0.3s"
-        />
-        <path
-          d="${currentLine}"
-          fill="none"
-          stroke="${color}"
-          stroke-width="2"
-          style="transition: all ease 0.3s"
-        />
-      </g>
-    </g>
-    <g
-      transform="translate(${margin.allLeft}, ${margin.costTop +
-      heightCost +
-      margin.costBottom +
-      margin.spendTop})"
+  return html`<div style="position: relative">
+    <svg
+      viewBox="0 0 ${width} ${totalHeight}"
+      style="width: 100%; height: 100%;"
+      onmouseleave="${() => setHoveredItem(null)}"
+      onmousemove="${(event) => {
+        const pointer = d3.pointer(event);
+
+        const leftSide = margin.allLeft + axisOffsetX;
+        const rightSide = leftSide + chartWidth;
+
+        if (pointer[0] >= leftSide && pointer[0] <= rightSide) {
+          const innerX = pointer[0] - margin.allLeft - axisOffsetX;
+          const datePrev = prevTime.invert(innerX).toISOString().slice(0, 10);
+          const dateCurrent = currentTime
+            .invert(innerX)
+            .toISOString()
+            .slice(0, 10);
+
+          // get value for hoveredItem
+          const datapointPrev =
+            datapointsPrev.find((d) => d.date === datePrev) || {};
+          const datapointCurrent =
+            datapointsCurrent.find((d) => d.date === dateCurrent) || {};
+
+          setHoveredItem({
+            x: innerX,
+            tooltipX: innerX + margin.allLeft + axisOffsetX,
+            tooltipY: margin.costTop,
+            datePrev,
+            dateCurrent,
+            variable1: selectedVariable,
+            costPrev: datapointPrev.cost || null,
+            costCurrent: datapointCurrent.cost || null,
+            variable2: "Spend Share",
+            spendPrev: datapointPrev.spend_share || null,
+            spendCurrent: datapointCurrent.spend_share || null,
+          });
+        } else {
+          setHoveredItem(null);
+        }
+      }}"
     >
-      <line x1="0" y1="0" x2="0" y2="${heightSpend}" stroke="black" />
-
-      <g transform="translate(${axisOffsetX},0)">
-        <rect
-          x="0"
-          y="0"
-          width="${chartWidth}"
-          height="${heightSpend}"
-          fill="white"
-        />
-        <g class="y-axis">
-          <text
-            x="${-axisOffsetX}"
-            dx="-6"
-            y="${spendScale(0)}"
-            dominant-baseline="alphabetic"
-            text-anchor="end"
-            class="charts-text-body"
-          >
-            0%
-          </text>
-          <text
-            x="${-axisOffsetX}"
-            dx="-6"
-            y="${spendScale(1)}"
-            dominant-baseline="hanging"
-            text-anchor="end"
-            class="charts-text-body"
-          >
-            100%
-          </text>
-          <text
-            x="${-axisOffsetX - 40}"
-            y="${-margin.spendTop / 2}"
-            dominant-baseline="middle"
-            text-anchor="start"
-            class="charts-text-body-bold"
-          >
-            Spend Share (Not real data atm)
-          </text>
-        </g>
-        <g class="x-axis">
-          <text
-            x="${prevTime.range()[0]}"
-            y="${heightSpend + 20}"
-            dominant-baseline="middle"
-            text-anchor="start"
-            class="charts-text-body"
-          >
-            ${d3.timeFormat("%B")(prevTime.domain()[0])}
-          </text>
-          <text
-            x="${currentTime.range()[1]}"
-            y="${heightSpend + 20}"
-            dominant-baseline="middle"
-            text-anchor="end"
-            class="charts-text-body"
-          >
-            ${d3.timeFormat("%B")(currentTime.domain()[1])}
-          </text>
-        </g>
-
-        <g>
-          ${datapointsPrev.map((d) => {
-            return html`<rect
-              x="${barsScalePrev(d.date)}"
-              y="${spendScale(d.spend_share)}"
-              width="${barsScalePrev.bandwidth() / 2}"
-              height="${heightSpend - spendScale(d.spend_share)}"
-              fill="#D9D9D9"
-            />`;
-          })}
-          ${datapointsCurrent.map((d) => {
-            return html`<rect
-              x="${barsScaleCurrent(d.date) + barsScaleCurrent.bandwidth() / 2}"
-              y="${spendScale(d.spend_share)}"
-              width="${barsScaleCurrent.bandwidth() / 2}"
-              height="${heightSpend - spendScale(d.spend_share)}"
-              fill="${color}"
-            />`;
-          })}
+      <text dy="15" style="fill: orange; font-size: 12px;">
+        ${selectedVariable} | ${field} | ${system} | ${country} || #prev:
+        ${datapointsPrev.length} || #current: ${datapointsCurrent.length}
+      </text>
+      <g transform="translate(${margin.allLeft}, ${margin.costTop})">
+        ${hoveredItem
+          ? html`<line
+              x1="${hoveredItem.x}"
+              x2="${hoveredItem.x}"
+              y1="0"
+              y2="${heightCost +
+              margin.costBottom +
+              margin.spendTop +
+              heightSpend}"
+              stroke="black"
+              stroke-dasharray="2,2"
+            />`
+          : null}
+        <line x1="0" y1="0" x2="0" y2="${heightCost}" stroke="black" />
+        <g transform="translate(${axisOffsetX},0)">
+          <rect
+            x="0"
+            y="0"
+            width="${chartWidth}"
+            height="${heightCost}"
+            fill="#D9D9D933"
+          />
+          <g class="y-axis">
+            ${yAxisTicks.map((tick) => {
+              return html`<g class="y-axis-tick">
+                <text
+                  x="${-axisOffsetX}"
+                  dx="-6"
+                  y="${costScale(tick)}"
+                  dominant-baseline="middle"
+                  text-anchor="end"
+                  class="charts-text-body"
+                >
+                  $${tick}
+                </text>
+              </g>`;
+            })}
+            <text
+              x="${-axisOffsetX}"
+              y="${-margin.costTop / 2}"
+              dominant-baseline="middle"
+              text-anchor="end"
+              class="charts-text-body-bold"
+            >
+              Cost
+            </text>
+          </g>
+          <g class="x-axis">
+            <text
+              x="${prevTime.range()[0]}"
+              y="${heightCost + 20}"
+              dominant-baseline="middle"
+              text-anchor="start"
+              class="charts-text-body"
+            >
+              ${d3.timeFormat("%B")(prevTime.domain()[0])}
+            </text>
+            <text
+              x="${currentTime.range()[1]}"
+              y="${heightCost + 20}"
+              dominant-baseline="middle"
+              text-anchor="end"
+              class="charts-text-body"
+            >
+              ${d3.timeFormat("%B")(currentTime.domain()[1])}
+            </text>
+          </g>
+          <path
+            d="${prevLine}"
+            fill="none"
+            stroke="#C3C3C3"
+            stroke-width="2"
+            style="transition: all ease 0.3s"
+          />
+          <path
+            d="${currentLine}"
+            fill="none"
+            stroke="${color}"
+            stroke-width="2"
+            style="transition: all ease 0.3s"
+          />
         </g>
       </g>
-    </g>
-  </svg>`;
+      <g
+        transform="translate(${margin.allLeft}, ${margin.costTop +
+        heightCost +
+        margin.costBottom +
+        margin.spendTop})"
+      >
+        <line x1="0" y1="0" x2="0" y2="${heightSpend}" stroke="black" />
+
+        <g transform="translate(${axisOffsetX},0)">
+          <g class="y-axis">
+            <text
+              x="${-axisOffsetX}"
+              dx="-6"
+              y="${spendScale(0)}"
+              dominant-baseline="alphabetic"
+              text-anchor="end"
+              class="charts-text-body"
+            >
+              0%
+            </text>
+            <text
+              x="${-axisOffsetX}"
+              dx="-6"
+              y="${spendScale(1)}"
+              dominant-baseline="hanging"
+              text-anchor="end"
+              class="charts-text-body"
+            >
+              100%
+            </text>
+            <text
+              x="${-axisOffsetX - 40}"
+              y="${-margin.spendTop / 2}"
+              dominant-baseline="middle"
+              text-anchor="start"
+              class="charts-text-body-bold"
+            >
+              Spend Share (Not real data atm)
+            </text>
+          </g>
+          <g class="x-axis">
+            <text
+              x="${prevTime.range()[0]}"
+              y="${heightSpend + 20}"
+              dominant-baseline="middle"
+              text-anchor="start"
+              class="charts-text-body"
+            >
+              ${d3.timeFormat("%B")(prevTime.domain()[0])}
+            </text>
+            <text
+              x="${currentTime.range()[1]}"
+              y="${heightSpend + 20}"
+              dominant-baseline="middle"
+              text-anchor="end"
+              class="charts-text-body"
+            >
+              ${d3.timeFormat("%B")(currentTime.domain()[1])}
+            </text>
+          </g>
+
+          <g>
+            ${datapointsPrev.map((d) => {
+              return html`<rect
+                x="${barsScalePrev(d.date)}"
+                y="${spendScale(d.spend_share)}"
+                width="${barsScalePrev.bandwidth() / 2}"
+                height="${heightSpend - spendScale(d.spend_share)}"
+                fill="#D9D9D9"
+              />`;
+            })}
+            ${datapointsCurrent.map((d) => {
+              return html`<rect
+                x="${barsScaleCurrent(d.date) +
+                barsScaleCurrent.bandwidth() / 2}"
+                y="${spendScale(d.spend_share)}"
+                width="${barsScaleCurrent.bandwidth() / 2}"
+                height="${heightSpend - spendScale(d.spend_share)}"
+                fill="${color}"
+              />`;
+            })}
+          </g>
+        </g>
+      </g>
+    </svg>
+    <${Tooltip} hoveredItem=${hoveredItem} />
+  </div> `;
 }
+
+function Tooltip({ hoveredItem }) {
+  if (!hoveredItem) return null;
+
+  return html`<div
+    class="tooltip"
+    style="left: ${hoveredItem.tooltipX}px; top: ${hoveredItem.tooltipY}px;"
+  >
+    <p class="tooltip-title">${formatDate(hoveredItem.datePrev)}</p>
+    <div>
+      <p class="tooltip-label">${hoveredItem.variable1}</p>
+      <p class="tooltip-value">
+        ${hoveredItem.costPrev
+          ? variableFormatting[buttonToVariableMapping[hoveredItem.variable1]](
+              hoveredItem.costPrev,
+              2
+            )
+          : "-"}
+      </p>
+    </div>
+    <div>
+      <p class="tooltip-label">${hoveredItem.variable2}</p>
+      <p class="tooltip-value">
+        ${hoveredItem.spendPrev
+          ? variableFormatting[buttonToVariableMapping[hoveredItem.variable2]](
+              hoveredItem.spendPrev,
+              0
+            )
+          : "-"}
+      </p>
+    </div>
+    <div style="border-top: 1px solid #D9D9D9; width: 100%;" />
+    <p class="tooltip-title">${formatDate(hoveredItem.dateCurrent)}</p>
+    <div>
+      <p class="tooltip-label">${hoveredItem.variable1}</p>
+      <p class="tooltip-value">
+        ${hoveredItem.costCurrent
+          ? variableFormatting[buttonToVariableMapping[hoveredItem.variable1]](
+              hoveredItem.costCurrent,
+              2
+            )
+          : "-"}
+      </p>
+    </div>
+    <div>
+      <p class="tooltip-label">${hoveredItem.variable2}</p>
+      <p class="tooltip-value">
+        ${hoveredItem.spendCurrent
+          ? variableFormatting[buttonToVariableMapping[hoveredItem.variable2]](
+              hoveredItem.spendCurrent,
+              0
+            )
+          : "-"}
+      </p>
+    </div>
+  </div>`;
+}
+
+// <p class="tooltip-value">
+//       ${variableFormatting[buttonToVariableMapping[hoveredItem.variable]]
+//         ? variableFormatting[buttonToVariableMapping[hoveredItem.variable]](
+//             hoveredItem.value,
+//             2
+//           )
+//         : hoveredItem.value}
+//     </p>
