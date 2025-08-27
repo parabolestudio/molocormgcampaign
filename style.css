@@ -39,8 +39,8 @@
     cursor: pointer;
     transition: fill 0.3s ease;
 
-    &:hover {
-      fill: orange !important;
+    &.map-state-filled:hover {
+      fill: #c368f9;
     }
   }
 }

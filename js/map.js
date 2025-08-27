@@ -10,6 +10,7 @@ export function Map() {
   const [usGeoData, setUsGeoData] = useState(null);
   const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [tooltipData, setTooltipData] = useState(null);
 
   // listen to change in general system dropdown
   useEffect(() => {
@@ -214,21 +215,42 @@ export function Map() {
 
   const states = topojson.feature(usGeoData, usGeoData.objects.states).features;
 
-  function getStateFill(state) {
+  const statesArray = states.map((d) => {
+    const value = getStateValue(d.properties.name);
+    return {
+      name: d.properties.name,
+      id: stateMapping[d.properties.name],
+      value,
+      path: geoPath(d),
+      fillColor: getStateFill(value),
+    };
+  });
+
+  function getStateValue(state) {
     const stateId = stateMapping[state];
 
     if (stateId === undefined) {
       console.error("cannot find state id");
-      return "red";
+      return null;
     }
     // find item in daily data
     const dailyItem = dailyData.find((d) => d.state === stateId);
     if (dailyItem) {
-      return colorScale(dailyItem[buttonToVariableMapping[selectedVariable]]);
+      return dailyItem[buttonToVariableMapping[selectedVariable]];
+    } else {
+      return null;
+    }
+  }
+
+  function getStateFill(value) {
+    if (value !== null) {
+      return colorScale(value);
     } else {
       return "#D9D9D9";
     }
   }
+
+  console.log("Tooltip Data:", tooltipData);
 
   return html`<div
     style="display: flex; flex-direction: column; align-items: flex-end;"
@@ -238,16 +260,26 @@ export function Map() {
       style="max-width: 1122px;margin: 0 auto; height: auto;"
     >
       <g stroke-linejoin="round" stroke-linecap="round">
-        ${states.map(
+        ${statesArray.map(
           (d) => html`<path
-            d="${geoPath(d)}"
-            fill="${getStateFill(d.properties.name)}"
-            data-state-name="${d.properties.name}"
-            onmouseover="${(e) => {
-              const stateName = e.target.dataset.stateName;
-              // console.log("Hovered state Name:", stateName);
+            d="${d.path}"
+            fill="${d.fillColor}"
+            data-state-name="${d.name}"
+            data-state-value=${d.value}
+            onmouseenter="${() => {
+              d.value
+                ? setTooltipData({
+                    date: selectedDate,
+                    name: d.name,
+                    value: d.value,
+                    variable: selectedVariable,
+                  })
+                : null;
             }}"
-            class="map-state"
+            onmouseleave="${() => {
+              setTooltipData(null);
+            }}"
+            class="map-state ${d.value ? "map-state-filled" : ""}"
           ></path>`
         )}
         <path
