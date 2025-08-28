@@ -1,10 +1,15 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
+import { variableFormatting } from "./helpers.js";
+
+const INITIAL_VISIBLE = 5;
+const MAX_VISIBLE = 10;
 
 export function Leaderboard() {
   const [data, setData] = useState([]);
   const [system, setSystem] = useState(getDropdownValue("system"));
   const [field, setField] = useState(getDropdownValue("field"));
+  const [showMore, setShowMore] = useState(false);
 
   // listen to change in general system dropdown
   useEffect(() => {
@@ -46,7 +51,6 @@ export function Leaderboard() {
         d["field"] = d["vertical"];
         d["date"] = d["utc_week"];
         d["country"] = d["country"];
-        d["dau"] = +d["dau"];
         d["cpm"] = +d["cpm"];
         d["cpi"] = +d["cpi"];
         d["ftd_rate"] = +d["ftd_rate"];
@@ -57,95 +61,71 @@ export function Leaderboard() {
     });
   }, []);
 
-  const filteredData = data.filter((d) => {
-    return (
-      d["system"] === system && d["field"] === field && d["country"] === "USA"
-    );
-  });
+  const filteredData = data
+    .filter((d) => {
+      return (
+        d["system"] === system && d["field"] === field && d["country"] === "USA"
+      );
+    })
+    .sort((a, b) => a.rnk - b.rnk);
   console.log("Leaderboard data:", filteredData);
 
-  const fakeData = [
-    {
-      name: "Name of Advertiser 1",
-      value1: "$100",
-      value2: "$200",
-      value3: "$300",
-    },
-    {
-      name: "Name of Advertiser 2",
-      value1: "$150",
-      value2: "$250",
-      value3: "$350",
-    },
-    {
-      name: "Name of Advertiser 3",
-      value1: "$200",
-      value2: "$300",
-      value3: "$400",
-    },
-    {
-      name: "Name of Advertiser 4",
-      value1: "$250",
-      value2: "$350",
-      value3: "$450",
-    },
-    {
-      name: "Name of Advertiser 5",
-      value1: "$300",
-      value2: "$400",
-      value3: "$500",
-    },
-  ];
+  const visibleRows = showMore
+    ? filteredData.slice(0, MAX_VISIBLE)
+    : filteredData.slice(0, INITIAL_VISIBLE);
 
-  const rows = fakeData.map((d, i) => {
-    i = i + 1;
+  const rows = visibleRows.map((d) => {
     return html`
       <div
-        style="grid-area: ${i + 1} / 1 / ${i + 2} / 6; background: ${i === 1
+        style="grid-area: ${d.rnk + 1} / 1 / ${d.rnk +
+        2} / 6; background: ${d.rnk === 1
           ? "#60E2B7"
           : "#CCF5E8"}; border-radius: 10px;"
       ></div>
       <div
         class="row-rank"
-        style="grid-area: ${i + 1} / 1 / ${i +
+        style="grid-area: ${d.rnk + 1} / 1 / ${d.rnk +
         2} / 2; padding: 10px; background-opacity: 0.1;"
       >
-        ${i}.
+        ${d.rnk}.
       </div>
       <div
         class="row-name"
-        style="grid-area: ${i + 1} / 2 / ${i +
+        style="grid-area: ${d.rnk + 1} / 2 / ${d.rnk +
         2} / 3; padding: 10px; background-opacity: 0.1;"
       >
-        ${d.name}
+        Advertiser ${d.rnk}
       </div>
       <div
         class="row-value"
-        style="grid-area: ${i + 1} / 3 / ${i +
+        style="grid-area: ${d.rnk + 1} / 3 / ${d.rnk +
         2} / 4; padding: 10px; background-opacity: 0.1;"
       >
-        ${d.value1}
+        ${variableFormatting["cpm"](d.cpm)}
       </div>
       <div
         class="row-value"
-        style="grid-area: ${i + 1} / 4 / ${i +
+        style="grid-area: ${d.rnk + 1} / 4 / ${d.rnk +
         2} / 5; padding: 10px; background-opacity: 0.1;"
       >
-        ${d.value2}
+        ${variableFormatting["cpi"](d.cpi)}
       </div>
       <div
         class="row-value"
-        style="grid-area: ${i + 1} / 5 / ${i +
+        style="grid-area: ${d.rnk + 1} / 5 / ${d.rnk +
         2} / 6; padding: 10px; background-opacity: 0.1;"
       >
-        ${d.value3}
+        ${d.ftd_rate !== 0 ? d.ftd_rate.toFixed(2) : ""}
       </div>
     `;
   });
 
-  return html`<div id="leaderboard-container">
+  return html`<div
+    id="leaderboard-container"
+    style="display: flex; flex-direction: column; align-items: flex-end;"
+  >
     <div
-      style="display: grid; row-gap: 7px; grid-template-columns: 80px auto repeat(3, 80px);"
+      style="display: grid; row-gap: 7px; grid-template-columns: 80px auto repeat(3, 150px); width: 100%;"
     >
       <div class="header-cell" style="grid-area: 1 / 1 / 2 / 2;">Rank</div>
       <div class="header-cell" style="grid-area: 1 / 2 / 2 / 3;">Name</div>
@@ -160,5 +140,16 @@ export function Leaderboard() {
       </div>
       ${rows}
     </div>
+    ${filteredData.length > INITIAL_VISIBLE
+      ? html`
+          <p
+            onclick="${() => setShowMore(!showMore)}"
+            class="charts-text-body-bold"
+            style="color: white; cursor: pointer; text-decoration: underline;"
+          >
+            Show ${showMore ? "Less" : "More"}
+          </p>
+        `
+      : null}
   </div>`;
 }
