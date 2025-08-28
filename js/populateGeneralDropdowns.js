@@ -7,7 +7,7 @@ export function populateGeneralDropdowns() {
 
   const fields = [
     {
-      text: "Sportsbetting",
+      text: "Sports Betting",
       value: "Sportsbetting",
     },
     {
