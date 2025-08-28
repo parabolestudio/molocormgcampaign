@@ -89,13 +89,13 @@ export function Map() {
   // fetch data from file, later from live sheet
   useEffect(() => {
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/map-data2.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/map-data3.csv"
     ).then((data) => {
       data.forEach((d) => {
         d["system"] = d["os"];
         d["field"] = d["subgenre"];
         d["state"] = d["state"];
-        d["date"] = d["date_utc"];
+        d["date"] = d["utc_week"];
         d["cpm"] = +d["cpm"];
         d["cpi"] = +d["cpi"];
         d["spend_share"] = +(
@@ -146,9 +146,8 @@ export function Map() {
   const [endDate, setEndDate] = useState(uniqueDates[uniqueDates.length - 1]);
 
   useEffect(() => {
-    if (!selectedDate) setSelectedDate(uniqueDates[uniqueDates.length - 1]);
-    if (startDate !== uniqueDates[0])
-      setStartDate(uniqueDates[uniqueDates.length - 1]);
+    if (!selectedDate) setSelectedDate(uniqueDates[0]);
+    if (startDate !== uniqueDates[0]) setStartDate(uniqueDates[0]);
     if (endDate !== uniqueDates[uniqueDates.length - 1])
       setEndDate(uniqueDates[uniqueDates.length - 1]);
   }, [uniqueDates]);
@@ -347,7 +346,9 @@ export function MapTimeSelector() {
       (new Date(endDateRaw) - new Date(startDateRaw)) / (1000 * 60 * 60 * 24)
     ) + 1;
 
-  const [sliderValue, setSliderValue] = useState(numDays);
+  const numWeeks = Math.floor(numDays / 7);
+
+  const [sliderValue, setSliderValue] = useState(0);
 
   // listen to change in start date from new data
   useEffect(() => {
@@ -370,7 +371,7 @@ export function MapTimeSelector() {
   useEffect(() => {
     const handleEndDateChangeFromData = (e) => {
       setEndDateRaw(e.detail.endDate);
-      setSliderValue(numDays);
+      setSliderValue(0);
     };
     document.addEventListener(
       "vis-map-end-date-changed-from-data",
@@ -394,16 +395,16 @@ export function MapTimeSelector() {
 
   const getDateString = (offset) => {
     const d = new Date(startDateRaw);
-    d.setDate(d.getDate() + offset);
+    d.setDate(d.getDate() + offset * 7); // offset in weeks
     return d.toISOString().slice(0, 10); // YYYY-MM-DD
   };
 
-  // onclick="${() => setSliderValue(sliderValue + 1)}"
   return html`<div
     style="display: flex; flex-direction: row; align-items: center; border: 1px solid black; border-radius: 20px;"
   >
     <div
       style="padding:  12.5px 12.5px 12.5px 20px; border-right: 1px solid black; cursor: pointer;"
+      onclick="${() => setSliderValue(sliderValue + 1)}"
     >
       <svg
         width="11"
@@ -430,7 +431,7 @@ export function MapTimeSelector() {
       type="range"
       class="myRange"
       min="0"
-      max="${numDays - 1}"
+      max="${numWeeks - 1}"
       value="${sliderValue}"
       step="1"
       oninput="${(e) => setSliderValue(Number(e.target.value))}"

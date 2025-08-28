@@ -114,13 +114,13 @@ export function ConsumerTrends() {
     );
   });
 
-  console.log("Rendering consumer trends with", {
-    selectedVariable,
-    system,
-    country,
-    field,
-    filteredData,
-  });
+  // console.log("Rendering consumer trends with", {
+  //   selectedVariable,
+  //   system,
+  //   country,
+  //   field,
+  //   filteredData,
+  // });
 
   let datapoints = filteredData.map((d) => {
     return {
