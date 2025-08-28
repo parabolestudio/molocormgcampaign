@@ -77,14 +77,16 @@ export function Leaderboard() {
     return html`
       <div
         class="row"
-        style="display: grid;grid-template-columns: 80px auto repeat(3, 150px); width: 100%; border-radius: 10px; background: ${d.rnk ===
+        style="display: grid; width: 100%; border-radius: 10px; background: ${d.rnk ===
         1
           ? "#60E2B7"
-          : "#CCF5E8"};"
+          : "#CCF5E8"}; ${isMobile
+          ? "grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);"
+          : "grid-template-columns: 80px auto repeat(3, 150px); "}"
       >
         <div
           class="row-cell row-rank"
-          style="grid-area: ${d.rnk + 1} / 1 / ${d.rnk + 2} / 2; "
+          style="${isMobile ? "grid-area: 1 / 1 / 2 / 2;" : ``}"
         >
           ${isMobile
             ? html`<span class="charts-text-body-bold row-title-mobile"
@@ -95,7 +97,7 @@ export function Leaderboard() {
         </div>
         <div
           class="row-cell row-name"
-          style="grid-area: ${d.rnk + 1} / 2 / ${d.rnk + 2} / 3;"
+          style="${isMobile ? "grid-area: 1 / 2 / 2 / 4; " : ``}"
         >
           ${isMobile
             ? html`<span class="charts-text-body-bold row-title-mobile"
@@ -106,7 +108,7 @@ export function Leaderboard() {
         </div>
         <div
           class="row-cell row-value"
-          style="grid-area: ${d.rnk + 1} / 3 / ${d.rnk + 2} / 4;"
+          style="${isMobile ? "grid-area: 2 / 1 / 3 / 2;" : ``}"
         >
           ${isMobile
             ? html`<span class="charts-text-body-bold row-title-mobile"
@@ -117,7 +119,7 @@ export function Leaderboard() {
         </div>
         <div
           class="row-cell row-value"
-          style="grid-area: ${d.rnk + 1} / 4 / ${d.rnk + 2} / 5;"
+          style="${isMobile ? "grid-area: 2 / 2 / 3 / 3;" : ``}"
         >
           ${isMobile
             ? html`<span class="charts-text-body-bold row-title-mobile"
@@ -128,7 +130,7 @@ export function Leaderboard() {
         </div>
         <div
           class="row-cell row-value"
-          style="grid-area: ${d.rnk + 1} / 5 / ${d.rnk + 2} / 6;"
+          style="${isMobile ? "grid-area: 2 / 3 / 3 / 4" : ``}"
         >
           ${isMobile
             ? html`<span class="charts-text-body-bold row-title-mobile"
