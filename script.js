@@ -42,21 +42,26 @@ const visList = [
   },
 ];
 
-visList.forEach((vis) => {
-  const containerElement = document.getElementById(vis.id);
-  if (containerElement) {
-    // clear existing content before rendering
-    containerElement.innerHTML = "";
+function renderVis() {
+  visList.forEach((vis) => {
+    const containerElement = document.getElementById(vis.id);
+    if (containerElement) {
+      // clear existing content before rendering
+      containerElement.innerHTML = "";
 
-    // wait for async Vis to resolve before rendering
-    (async () => {
-      const rendered = await Vis(vis);
-      renderComponent(rendered, containerElement);
-    })();
-  } else {
-    console.error(`Could not find container element for vis with id ${vis.id}`);
-  }
-});
+      // wait for async Vis to resolve before rendering
+      (async () => {
+        const rendered = await Vis(vis);
+        renderComponent(rendered, containerElement);
+      })();
+    } else {
+      console.error(
+        `Could not find container element for vis with id ${vis.id}`
+      );
+    }
+  });
+}
+renderVis();
 
 // render button groups
 const itemsConsumer = ["DAU", "CFTD", "Spend"];

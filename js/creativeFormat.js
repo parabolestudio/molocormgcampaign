@@ -17,6 +17,7 @@ import {
   addMissingWeeksCurrent,
   formatDate,
   variableFormatting,
+  isMobile,
 } from "./helpers.js";
 
 export function renderCreativeFormats() {
@@ -229,7 +230,7 @@ export function CreativeFormat({
   const heightCost = 300;
   const heightSpend = 175;
   const innerWidth = width - margin.allLeft - margin.allRight;
-  const axisOffsetX = 4;
+  const axisOffsetX = isMobile ? 0 : 4;
   const chartWidth = innerWidth - axisOffsetX;
 
   const totalHeight =
@@ -307,7 +308,7 @@ export function CreativeFormat({
     .padding(0.1);
 
   // y axis ticks
-  const yAxisTicks = costScale.ticks(4);
+  const yAxisTicks = isMobile ? costScale.domain() : costScale.ticks(4);
 
   return html`<div style="position: relative">
     <svg
@@ -370,7 +371,7 @@ export function CreativeFormat({
               stroke-dasharray="2,2"
             />`
           : null}
-        <line x1="0" y1="0" x2="0" y2="${heightCost}" stroke="black" />
+        ${isMobile ? null : html`<line y2="${heightCost}" stroke="black" />`}
         <g transform="translate(${axisOffsetX},0)">
           <rect
             x="0"
@@ -380,12 +381,14 @@ export function CreativeFormat({
             fill="#D9D9D933"
           />
           <g class="y-axis">
-            ${yAxisTicks.map((tick) => {
+            ${yAxisTicks.map((tick, i) => {
+              if (!tick) return null;
               return html`<g class="y-axis-tick">
                 <text
                   x="${-axisOffsetX}"
                   dx="-6"
                   y="${costScale(tick)}"
+                  dy=${isMobile ? (i === 0 ? -12 : 12) : 0}
                   dominant-baseline="middle"
                   text-anchor="end"
                   class="charts-text-body"
@@ -412,7 +415,7 @@ export function CreativeFormat({
               text-anchor="start"
               class="charts-text-body"
             >
-              ${d3.timeFormat("%B")(prevTime.domain()[0])}
+              ${d3.timeFormat(isMobile ? "%b" : "%B")(prevTime.domain()[0])}
             </text>
             <text
               x="${currentTime.range()[1]}"
@@ -421,7 +424,7 @@ export function CreativeFormat({
               text-anchor="end"
               class="charts-text-body"
             >
-              ${d3.timeFormat("%B")(currentTime.domain()[1])}
+              ${d3.timeFormat(isMobile ? "%b" : "%B")(currentTime.domain()[1])}
             </text>
           </g>
           <path
@@ -446,7 +449,7 @@ export function CreativeFormat({
         margin.costBottom +
         margin.spendTop})"
       >
-        <line x1="0" y1="0" x2="0" y2="${heightSpend}" stroke="black" />
+        ${isMobile ? null : html`<line y2="${heightSpend}" stroke="black" />`}
 
         <g transform="translate(${axisOffsetX},0)">
           <g class="y-axis">
@@ -454,7 +457,8 @@ export function CreativeFormat({
               x="${-axisOffsetX}"
               dx="-6"
               y="${spendScale(0)}"
-              dominant-baseline="alphabetic"
+              dy=${isMobile ? -8 : 0}
+              dominant-baseline="middle"
               text-anchor="end"
               class="charts-text-body"
             >
@@ -464,7 +468,8 @@ export function CreativeFormat({
               x="${-axisOffsetX}"
               dx="-6"
               y="${spendScale(1)}"
-              dominant-baseline="hanging"
+              dy=${isMobile ? 8 : 0}
+              dominant-baseline="middle"
               text-anchor="end"
               class="charts-text-body"
             >
@@ -488,7 +493,7 @@ export function CreativeFormat({
               text-anchor="start"
               class="charts-text-body"
             >
-              ${d3.timeFormat("%B")(prevTime.domain()[0])}
+              ${d3.timeFormat(isMobile ? "%b" : "%B")(prevTime.domain()[0])}
             </text>
             <text
               x="${currentTime.range()[1]}"
@@ -497,7 +502,7 @@ export function CreativeFormat({
               text-anchor="end"
               class="charts-text-body"
             >
-              ${d3.timeFormat("%B")(currentTime.domain()[1])}
+              ${d3.timeFormat(isMobile ? "%b" : "%B")(prevTime.domain()[1])}
             </text>
           </g>
 

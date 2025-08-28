@@ -185,3 +185,18 @@ Tooltip for multiple visualizations
 .myRange::-moz-focus-outer {
   border: 0;
 }
+
+/* for local testing*/
+.vis-creative-formats-wrapper {
+  display: flex;
+  gap: 20px;
+  margin: 20px 0;
+  align-items: flex-start;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
+  div {
+    width: 100%;
+  }
+}
