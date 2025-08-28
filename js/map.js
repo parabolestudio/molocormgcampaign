@@ -320,7 +320,7 @@ export function Map() {
             )}</span
           >
           <div
-            style="width: 300px; height: 20px;   background: linear-gradient(90deg, ${colorScale(
+            style="width: 200px; height: 20px; background: linear-gradient(90deg, ${colorScale(
               0
             )} 0%, ${colorScale(maxValue)} 100%);
         "

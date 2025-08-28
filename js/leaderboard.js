@@ -68,7 +68,6 @@ export function Leaderboard() {
       );
     })
     .sort((a, b) => a.rnk - b.rnk);
-  console.log("Leaderboard data:", filteredData);
 
   const visibleRows = showMore
     ? filteredData.slice(0, MAX_VISIBLE)
