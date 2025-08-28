@@ -460,9 +460,9 @@ export function MapTimeSelector() {
 
     <label
       for="dateRange"
-      style="margin-bottom:0; padding: 0 18px; white-space: nowrap;"
+      style="margin-bottom:0; padding: 0 18px 0 10px; white-space: nowrap; min-width: 110px; text-align: end;"
       class="charts-text-body"
-      >${getDateString(sliderValue)}</label
+      >${formatDate(getDateString(sliderValue), "short-month")}</label
     >
     <input
       id="dateRange"
