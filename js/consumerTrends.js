@@ -95,7 +95,6 @@ export function ConsumerTrends() {
         // d["mau"] = +d[" mau"];
         d["dau"] = +d["dau"];
         d["cftd"] = +d["cftd"]; //.replace("$", "");
-        d["cftd__"] = d["cftd"]; //.replace("$", "");
         d["spend"] = +d["avg_user_spend"].replace("$", "");
       });
 
@@ -195,7 +194,6 @@ export function ConsumerTrends() {
 
   const yAxisTicks = valueScale.ticks(4);
 
-  // stroke-dasharray="0.10000000149011612, 10"
   return html`<div style="position: relative;">
     <svg
       viewBox="0 0 ${width} ${height}"
@@ -207,11 +205,30 @@ export function ConsumerTrends() {
 
         if (pointer[0] >= leftSide && pointer[0] <= rightSide) {
           const innerX = pointer[0] - margin.left - axisOffsetX;
-          const date = prevTime.invert(innerX).toISOString().slice(0, 10);
+          const datePrev = prevTime.invert(innerX).toISOString().slice(0, 10);
+          const dateCurrent = currentTime
+            .invert(innerX)
+            .toISOString()
+            .slice(0, 10);
+
+          // get value for hoveredItem
+          const datapointPrev =
+            datapointsPrev.find((d) => d.date === datePrev) || {};
+          const datapointCurrent =
+            datapointsCurrent.find((d) => d.date === dateCurrent) || {};
 
           setHoveredItem({
             x: innerX,
-            date,
+            tooltipX: innerX + margin.left + axisOffsetX,
+            tooltipY: margin.top,
+            datePrev,
+            dateCurrent,
+            variable: selectedVariable,
+            variablePrev:
+              datapointPrev[buttonToVariableMapping[selectedVariable]] || null,
+            variableCurrent:
+              datapointCurrent[buttonToVariableMapping[selectedVariable]] ||
+              null,
           });
         } else {
           setHoveredItem(null);
@@ -227,7 +244,7 @@ export function ConsumerTrends() {
       <g transform="translate(${margin.left}, ${margin.top})">
         <line y2="${innerHeight}" stroke="black" />
         <g class="y-axis">
-          ${yAxisTicks.map((tick) => {
+          ${yAxisTicks.map((tick, i) => {
             return html`
               <g transform="translate(0, ${valueScale(tick)})">
                 <text
@@ -237,6 +254,11 @@ export function ConsumerTrends() {
                   text-anchor="end"
                   class="charts-text-body"
                 >
+                  ${(selectedVariable === "CFTD" ||
+                    selectedVariable === "Spend") &&
+                  i === yAxisTicks.length - 1
+                    ? "$"
+                    : ""}
                   ${tick >= 1_000_000
                     ? (tick / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"
                     : tick >= 1_000
@@ -328,9 +350,38 @@ function Tooltip({ hoveredItem }) {
     class="tooltip"
     style="left: ${hoveredItem.x}px; top: ${hoveredItem.y}px;"
   >
-    <p class="tooltip-title">${formatDate(hoveredItem.date)}</p>
+    <p class="tooltip-title">${formatDate(hoveredItem.datePrev)}</p>
+    <div>
+      <p class="tooltip-label">${hoveredItem.variable}</p>
+
+      <p class="tooltip-value">
+        ${hoveredItem.variablePrev &&
+        variableFormatting[buttonToVariableMapping[hoveredItem.variable]]
+          ? variableFormatting[buttonToVariableMapping[hoveredItem.variable]](
+              hoveredItem.variablePrev,
+              2
+            )
+          : hoveredItem.variablePrev}
+      </p>
+    </div>
+
+    <div style="border-top: 1px solid #D9D9D9; width: 100%;" />
+    <p class="tooltip-title">${formatDate(hoveredItem.dateCurrent)}</p>
+    <div>
+      <p class="tooltip-label">${hoveredItem.variable}</p>
+      <p class="tooltip-value">
+        ${hoveredItem.variableCurrent &&
+        variableFormatting[buttonToVariableMapping[hoveredItem.variable]]
+          ? variableFormatting[buttonToVariableMapping[hoveredItem.variable]](
+              hoveredItem.variableCurrent,
+              2
+            )
+          : hoveredItem.variableCurrent}
+      </p>
+    </div>
   </div>`;
 }
+
 // <div>
 //   <p class="tooltip-label">${hoveredItem.variable}</p>
 //   <p class="tooltip-value">

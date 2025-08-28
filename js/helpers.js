@@ -67,7 +67,15 @@ export const variableFormatting = {
   cpm: (value, precision = 2) => `$${value.toFixed(precision)}`,
   cpi: (value, precision = 2) => `$${value.toFixed(precision)}`,
   cftd: (value, precision = 2) => `$${value.toFixed(precision)}`,
+  spend: (value, precision = 2) => `$${value.toFixed(precision)}`,
   spend_share: (value, precision = 2) => `${(value * 100).toFixed(precision)}%`,
+  dau: (value, precision = 2) => {
+    return value >= 1_000_000
+      ? (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"
+      : value >= 1_000
+      ? (value / 1_000).toFixed(1).replace(/\.0$/, "") + "k"
+      : value;
+  },
 };
 
 // time scales

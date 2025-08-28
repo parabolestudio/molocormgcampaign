@@ -585,12 +585,3 @@ function Tooltip({ hoveredItem }) {
     </div>
   </div>`;
 }
-
-// <p class="tooltip-value">
-//       ${variableFormatting[buttonToVariableMapping[hoveredItem.variable]]
-//         ? variableFormatting[buttonToVariableMapping[hoveredItem.variable]](
-//             hoveredItem.value,
-//             2
-//           )
-//         : hoveredItem.value}
-//     </p>
