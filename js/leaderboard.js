@@ -1,7 +1,70 @@
-import { html } from "./utils/preact-htm.js";
+import { html, useState, useEffect } from "./utils/preact-htm.js";
+import { getDropdownValue } from "./populateGeneralDropdowns.js";
 
 export function Leaderboard() {
-  const data = [
+  const [data, setData] = useState([]);
+  const [system, setSystem] = useState(getDropdownValue("system"));
+  const [field, setField] = useState(getDropdownValue("field"));
+
+  // listen to change in general system dropdown
+  useEffect(() => {
+    const handleSystemChange = (e) => setSystem(e.detail.selectedSystem);
+    document.addEventListener(
+      "vis-general-dropdown-system-changed",
+      handleSystemChange
+    );
+    return () => {
+      document.removeEventListener(
+        "vis-general-dropdown-system-changed",
+        handleSystemChange
+      );
+    };
+  }, []);
+
+  // listen to change in general field dropdown
+  useEffect(() => {
+    const handleFieldChange = (e) => setField(e.detail.selectedField);
+    document.addEventListener(
+      "vis-general-dropdown-field-changed",
+      handleFieldChange
+    );
+    return () => {
+      document.removeEventListener(
+        "vis-general-dropdown-field-changed",
+        handleFieldChange
+      );
+    };
+  }, []);
+
+  // fetch data from file, later from live sheet
+  useEffect(() => {
+    d3.csv(
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/leaderboard-data.csv"
+    ).then((data) => {
+      data.forEach((d) => {
+        d["system"] = d["os"];
+        d["field"] = d["vertical"];
+        d["date"] = d["utc_week"];
+        d["country"] = d["country"];
+        d["dau"] = +d["dau"];
+        d["cpm"] = +d["cpm"];
+        d["cpi"] = +d["cpi"];
+        d["ftd_rate"] = +d["ftd_rate"];
+        d["rnk"] = +d["rnk"];
+      });
+
+      setData(data);
+    });
+  }, []);
+
+  const filteredData = data.filter((d) => {
+    return (
+      d["system"] === system && d["field"] === field && d["country"] === "USA"
+    );
+  });
+  console.log("Leaderboard data:", filteredData);
+
+  const fakeData = [
     {
       name: "Name of Advertiser 1",
       value1: "$100",
@@ -34,7 +97,7 @@ export function Leaderboard() {
     },
   ];
 
-  const rows = data.map((d, i) => {
+  const rows = fakeData.map((d, i) => {
     i = i + 1;
     return html`
       <div

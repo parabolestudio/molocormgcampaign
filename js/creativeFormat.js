@@ -190,8 +190,6 @@ export function CreativeFormat({
 
   // filtering data
   const filteredData = dataset.filter((d) => {
-    // console.log("Filtering data:", d);
-    // return true;
     return d["system"] === system && d["field"] === field;
   });
 

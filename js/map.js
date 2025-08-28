@@ -396,7 +396,7 @@ export function MapTimeSelector() {
   const getDateString = (offset) => {
     const d = new Date(startDateRaw);
     d.setDate(d.getDate() + offset * 7); // offset in weeks
-    return d.toISOString().slice(0, 10); // YYYY-MM-DD
+    return isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10); // YYYY-MM-DD
   };
 
   return html`<div
