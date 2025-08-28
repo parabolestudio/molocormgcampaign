@@ -254,9 +254,7 @@ export function Map() {
     }
   }
 
-  return html`<div
-    style="display: flex; flex-direction: column; align-items: flex-end; position: relative;"
-  >
+  return html`<div class="vis-map-container">
     <${Tooltip} hoveredItem=${hoveredItem} />
     <svg
       viewBox="0 0 ${width} ${height}"
@@ -306,13 +304,13 @@ export function Map() {
     </svg>
     <div style="margin-top:40px;">
       <div class="rmg-filter-label">Value legend</div>
-      <div style="display: flex; gap: 16px; align-items:  center;">
-        <div style="display: flex; gap: 8px; align-items:  center;">
+      <div class="vis-map-value-legend">
+        <div style="display: flex; gap: 8px; align-items: center;">
           <div style="width:19px; height: 19px; background-color: #D9D9D9" />
           <span class="charts-text-body">No data</span>
         </div>
 
-        <div style="display: flex; gap: 8px; align-items:  center;">
+        <div style="display: flex; gap: 8px; align-items: center;">
           <span class="charts-text-body"
             >${variableFormatting[buttonToVariableMapping[selectedVariable]](
               colorScale.domain()[0],
@@ -404,7 +402,9 @@ export function MapTimeSelector() {
   >
     <div
       style="padding:  12.5px 12.5px 12.5px 20px; border-right: 1px solid black; cursor: pointer;"
-      onclick="${() => setSliderValue(sliderValue + 1)}"
+      onclick="${() => {
+        if (sliderValue + 1 <= numWeeks - 1) setSliderValue(sliderValue + 1);
+      }}"
     >
       <svg
         width="11"
