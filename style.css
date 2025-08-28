@@ -74,23 +74,40 @@
     align-self: center;
     padding: 10px 10px;
   }
+  .row-cell {
+    padding: 10px;
+    background-opacity: 0.1;
+    display: flex;
+    flex-direction: column;
+  }
   .row-rank {
     font-family: "Spacegrotesk", "Space Grotesk", sans-serif;
     font-weight: 700;
     font-size: 24px;
     line-height: 35px;
+    @media (max-width: 480px) {
+      font-size: 18px;
+    }
   }
   .row-name {
     font-family: "Montserrat", sans-serif;
     font-weight: 400;
     font-size: 21.5px;
     line-height: 1.4;
+
+    @media (max-width: 480px) {
+      font-size: 18px;
+    }
   }
   .row-value {
     font-family: "Montserrat", sans-serif;
     font-weight: 700;
     font-size: 21.5px;
     line-height: 1.4;
+  }
+  .row-title-mobile {
+    color: #040078;
+    display: block;
   }
 }
 
