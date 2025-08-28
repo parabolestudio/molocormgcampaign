@@ -40,10 +40,10 @@ export function renderCreativeFormats() {
 
   Promise.all([
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data2-usa.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data3-usa.csv"
     ),
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data2-world.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data3-world.csv"
     ),
   ])
     .then((files) => {
@@ -60,7 +60,7 @@ export function renderCreativeFormats() {
         d["cpm"] = +d["cpm"];
         d["cpi"] = +d["cpi"];
         d["cftd"] = +d["cftd"];
-        d["spend_share"] = 0.5; // +d["avg_user_spend"];
+        d["spend_share"] = +d["spend_share"];
       });
 
       // weekly
@@ -73,7 +73,7 @@ export function renderCreativeFormats() {
         d["cpm"] = +d["cpm"];
         d["cpi"] = +d["cpi"];
         d["cftd"] = +d["cftd"];
-        d["spend_share"] = 0.5; // +d["avg_user_spend"];
+        d["spend_share"] = +d["spend_share"];
       });
 
       for (let i = 0; i < formats.length; i++) {
@@ -479,7 +479,7 @@ export function CreativeFormat({
               text-anchor="start"
               class="charts-text-body-bold"
             >
-              Spend Share (Not real data atm)
+              Spend Share
             </text>
           </g>
           <g class="x-axis">
