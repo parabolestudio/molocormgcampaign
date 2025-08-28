@@ -1,4 +1,4 @@
-import { html, useState, useEffect } from "./utils/preact-htm.js";
+import { html, useState, useEffect, useRef } from "./utils/preact-htm.js";
 const geoPath = d3.geoPath();
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
 import {
@@ -338,14 +338,14 @@ export function Map() {
 export function MapTimeSelector() {
   const [startDateRaw, setStartDateRaw] = useState("2024-08-01");
   const [endDateRaw, setEndDateRaw] = useState("2025-08-25");
+  const [isRunning, setIsRunning] = useState(false);
+  const intervalRef = useRef(null);
 
   const numDays =
     Math.floor(
       (new Date(endDateRaw) - new Date(startDateRaw)) / (1000 * 60 * 60 * 24)
     ) + 1;
-
   const numWeeks = Math.floor(numDays / 7);
-
   const [sliderValue, setSliderValue] = useState(0);
 
   // listen to change in start date from new data
@@ -391,6 +391,31 @@ export function MapTimeSelector() {
     );
   }, [sliderValue]);
 
+  // Handle play/pause interval
+  useEffect(() => {
+    if (isRunning) {
+      intervalRef.current = setInterval(() => {
+        setSliderValue((prev) => {
+          if (prev + 1 <= numWeeks - 1) {
+            return prev + 1;
+          } else {
+            setIsRunning(false);
+            return prev;
+          }
+        });
+      }, 600);
+    } else if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [isRunning, numWeeks]);
+
   const getDateString = (offset) => {
     const d = new Date(startDateRaw);
     d.setDate(d.getDate() + offset * 7); // offset in weeks
@@ -402,22 +427,35 @@ export function MapTimeSelector() {
   >
     <div
       style="padding:  12.5px 12.5px 12.5px 20px; border-right: 1px solid black; cursor: pointer;"
-      onclick="${() => {
-        if (sliderValue + 1 <= numWeeks - 1) setSliderValue(sliderValue + 1);
-      }}"
+      onclick="${() => setIsRunning((r) => !r)}"
     >
-      <svg
-        width="11"
-        height="16"
-        viewBox="0 0 11 16"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M0 13.8699L0 2.91292C0 1.19374 2.02562 0.275703 3.31839 1.40898L9.34471 6.69179C10.2321 7.46971 10.2565 8.84288 9.39734 9.65186L3.37102 15.326C2.09478 16.5276 0 15.6228 0 13.8699Z"
-          fill="black"
-        />
-      </svg>
+      ${isRunning
+        ? html`<svg
+            width="16"
+            height="17"
+            viewBox="0 0 16 17"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            class="icon-pause"
+          >
+            <path
+              d="M13.5 3.5V13.5C13.5 13.7652 13.3946 14.0196 13.2071 14.2071C13.0196 14.3946 12.7652 14.5 12.5 14.5H10C9.73478 14.5 9.48043 14.3946 9.29289 14.2071C9.10536 14.0196 9 13.7652 9 13.5V3.5C9 3.23478 9.10536 2.98043 9.29289 2.79289C9.48043 2.60536 9.73478 2.5 10 2.5H12.5C12.7652 2.5 13.0196 2.60536 13.2071 2.79289C13.3946 2.98043 13.5 3.23478 13.5 3.5ZM6 2.5H3.5C3.23478 2.5 2.98043 2.60536 2.79289 2.79289C2.60536 2.98043 2.5 3.23478 2.5 3.5V13.5C2.5 13.7652 2.60536 14.0196 2.79289 14.2071C2.98043 14.3946 3.23478 14.5 3.5 14.5H6C6.26522 14.5 6.51957 14.3946 6.70711 14.2071C6.89464 14.0196 7 13.7652 7 13.5V3.5C7 3.23478 6.89464 2.98043 6.70711 2.79289C6.51957 2.60536 6.26522 2.5 6 2.5Z"
+              fill="black"
+            />
+          </svg> `
+        : html`<svg
+            width="16"
+            height="17"
+            viewBox="0 0 11 16"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            class="icon-play"
+          >
+            <path
+              d="M0 13.8699L0 2.91292C0 1.19374 2.02562 0.275703 3.31839 1.40898L9.34471 6.69179C10.2321 7.46971 10.2565 8.84288 9.39734 9.65186L3.37102 15.326C2.09478 16.5276 0 15.6228 0 13.8699Z"
+              fill="black"
+            />
+          </svg>`}
     </div>
 
     <label
