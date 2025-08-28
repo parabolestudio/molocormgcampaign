@@ -307,7 +307,9 @@ export function Map() {
       <div class="vis-map-value-legend">
         <div style="display: flex; gap: 8px; align-items: center;">
           <div style="width:19px; height: 19px; background-color: #D9D9D9" />
-          <span class="charts-text-body">No data</span>
+          <span class="charts-text-body" style="white-space: nowrap;"
+            >No data</span
+          >
         </div>
 
         <div style="display: flex; gap: 8px; align-items: center;">
