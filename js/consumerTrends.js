@@ -82,27 +82,21 @@ export function ConsumerTrends() {
     };
   }, [selectedVariable]);
 
-  // console.log("Rendering consumer trends with", {
-  //   selectedVariable,
-  //   system,
-  //   country,
-  //   field,
-  // });
-
   // fetch data from file, later from live sheet
   useEffect(() => {
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/consumer-trends-data2.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/consumer-trends-data3.csv"
     ).then((data) => {
       data.forEach((d) => {
         d["system"] = d["os"];
         d["field"] = d["vertical"];
         d["date"] = d["date"];
         d["country"] = d["country"];
-        d["mau"] = +d[" mau"];
+        // d["mau"] = +d[" mau"];
         d["dau"] = +d["dau"];
-        d["cftd"] = +d["cftd"].replace("$", "");
-        d["spend"] = +d[" avg_user_spend"].replace("$", "");
+        d["cftd"] = +d["cftd"]; //.replace("$", "");
+        d["cftd__"] = d["cftd"]; //.replace("$", "");
+        d["spend"] = +d["avg_user_spend"].replace("$", "");
       });
 
       setData(data);
@@ -118,6 +112,14 @@ export function ConsumerTrends() {
     return (
       d["system"] === system && d["country"] === country && d["field"] === field
     );
+  });
+
+  console.log("Rendering consumer trends with", {
+    selectedVariable,
+    system,
+    country,
+    field,
+    filteredData,
   });
 
   let datapoints = filteredData.map((d) => {

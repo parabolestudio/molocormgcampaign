@@ -26,12 +26,28 @@ export function populateGeneralDropdowns() {
       value: "CAN",
     },
     {
-      text: "Great Britain",
+      text: "U.K.",
       value: "GBR",
     },
     {
       text: "Germany",
       value: "DEU",
+    },
+    {
+      text: "Philippines",
+      value: "PHL",
+    },
+    {
+      text: "Spain",
+      value: "ESP",
+    },
+    {
+      text: "Brazil",
+      value: "BRA",
+    },
+    {
+      text: "Australia",
+      value: "AUS",
     },
   ];
   const countryDefault = countries[0];
@@ -72,12 +88,14 @@ export function populateGeneralDropdowns() {
 
   if (countryDropdown) {
     if (countryDropdown) countryDropdown.innerHTML = "";
-    countries.forEach((country) => {
-      let option = document.createElement("option");
-      option.value = country.value;
-      option.text = country.text;
-      countryDropdown.add(option);
-    });
+    countries
+      .sort((a, b) => a.text.localeCompare(b.text))
+      .forEach((country) => {
+        let option = document.createElement("option");
+        option.value = country.value;
+        option.text = country.text;
+        countryDropdown.add(option);
+      });
     countryDropdown.value = countryDefault.value;
     countryDropdown.addEventListener("change", (e) => {
       // Dispatch custom event to notify other components
