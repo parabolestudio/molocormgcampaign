@@ -7,6 +7,7 @@ import {
   addMissingDaysCurrent,
   formatDate,
   variableFormatting,
+  isMobile,
 } from "./helpers.js";
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
 
@@ -134,12 +135,12 @@ export function ConsumerTrends() {
   const width =
     visContainer && visContainer.offsetWidth ? visContainer.offsetWidth : 600;
   const height = 500;
-  const axisOffsetX = 20;
+  const axisOffsetX = isMobile ? 0 : 20;
   const margin = {
     top: 30,
     right: 1,
-    bottom: 50,
-    left: 60,
+    bottom: isMobile ? 80 : 50,
+    left: isMobile ? 1 : 60,
   };
   const innerWidth = width - margin.left - margin.right;
   const innerHeight = height - margin.top - margin.bottom;
@@ -192,7 +193,7 @@ export function ConsumerTrends() {
   const xAxisTicks = prevTime.ticks(12);
   let xAxisTicksWidth = prevTime(xAxisTicks[1]) - prevTime(xAxisTicks[0]);
 
-  const yAxisTicks = valueScale.ticks(4);
+  const yAxisTicks = isMobile ? valueScale.domain() : valueScale.ticks(4);
 
   return html`<div style="position: relative;">
     <svg
@@ -242,33 +243,7 @@ export function ConsumerTrends() {
         year: ${datapointsCurrent.length}
       </text>
       <g transform="translate(${margin.left}, ${margin.top})">
-        <line y2="${innerHeight}" stroke="black" />
-        <g class="y-axis">
-          ${yAxisTicks.map((tick, i) => {
-            return html`
-              <g transform="translate(0, ${valueScale(tick)})">
-                <text
-                  x="${-10}"
-                  y="${0}"
-                  dominant-baseline="middle"
-                  text-anchor="end"
-                  class="charts-text-body"
-                >
-                  ${(selectedVariable === "CFTD" ||
-                    selectedVariable === "Spend") &&
-                  i === yAxisTicks.length - 1
-                    ? "$"
-                    : ""}
-                  ${tick >= 1_000_000
-                    ? (tick / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"
-                    : tick >= 1_000
-                    ? (tick / 1_000).toFixed(1).replace(/\.0$/, "") + "k"
-                    : tick}
-                </text>
-              </g>
-            `;
-          })}
-        </g>
+        ${isMobile ? "" : html`<line y2="${innerHeight}" stroke="black" />`}
         <g transform="translate(${axisOffsetX}, 0)">
           <g class="x-axis">
             ${xAxisTicks.map((tick, index) => {
@@ -296,15 +271,31 @@ export function ConsumerTrends() {
                     stroke="white"
                     stroke-width="5"
                   />
-                  <text
-                    x="${xAxisTicksWidth / 2}"
-                    y="${innerHeight + 5 + 20}"
-                    dominant-baseline="middle"
-                    text-anchor="middle"
-                    class="charts-text-body"
-                  >
-                    ${d3.timeFormat("%B")(tick)}
-                  </text></g
+                  ${isMobile &&
+                  (index === 0 ||
+                    index === xAxisTicks.length / 2 - 1 ||
+                    index === xAxisTicks.length - 1)
+                    ? html`<text
+                        x="${xAxisTicksWidth / 2}"
+                        y="${innerHeight + 5 + 50}"
+                        dominant-baseline="middle"
+                        text-anchor="middle"
+                        class="charts-text-body"
+                      >
+                        ${d3.timeFormat("%b")(tick)}
+                      </text>`
+                    : null}
+                  ${!isMobile
+                    ? html` <text
+                        x="${xAxisTicksWidth / 2}"
+                        y="${innerHeight + 5 + 20}"
+                        dominant-baseline="middle"
+                        text-anchor="middle"
+                        class="charts-text-body"
+                      >
+                        ${d3.timeFormat("%B")(tick)}
+                      </text>`
+                    : null}</g
                 >
               `;
             })}
@@ -336,6 +327,32 @@ export function ConsumerTrends() {
                 stroke-dasharray="2,2"
               />`
             : null}
+        </g>
+        <g class="y-axis">
+          ${yAxisTicks.map((tick, i) => {
+            return html`
+              <g transform="translate(0, ${valueScale(tick)})">
+                <text
+                  x="${isMobile ? 8 : -10}"
+                  y="${isMobile ? (i === 0 ? -12 : 15) : 0}"
+                  dominant-baseline="middle"
+                  text-anchor="${isMobile ? "start" : "end"}"
+                  class="charts-text-body"
+                >
+                  ${(selectedVariable === "CFTD" ||
+                    selectedVariable === "Spend") &&
+                  i === yAxisTicks.length - 1
+                    ? "$"
+                    : ""}
+                  ${tick >= 1_000_000
+                    ? (tick / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"
+                    : tick >= 1_000
+                    ? (tick / 1_000).toFixed(1).replace(/\.0$/, "") + "k"
+                    : tick}
+                </text>
+              </g>
+            `;
+          })}
         </g>
       </g>
     </svg>

@@ -78,6 +78,8 @@ export const variableFormatting = {
   },
 };
 
+export const isMobile = window.innerWidth <= 480;
+
 // time scales
 const prevYear = new Date().getFullYear() - 1;
 const currentYear = new Date().getFullYear();
