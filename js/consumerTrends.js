@@ -264,9 +264,9 @@ export function ConsumerTrends() {
                   />
                   <rect
                     x="${0}"
-                    y="${innerHeight + 5}"
+                    y="${innerHeight}"
                     width="${xAxisTicksWidth}"
-                    height="${40}"
+                    height="${isMobile ? 20 : 40}"
                     fill="#D3F5FF"
                     stroke="white"
                     stroke-width="5"
@@ -277,7 +277,7 @@ export function ConsumerTrends() {
                     index === xAxisTicks.length - 1)
                     ? html`<text
                         x="${xAxisTicksWidth / 2}"
-                        y="${innerHeight + 5 + 50}"
+                        y="${innerHeight + 30}"
                         dominant-baseline="middle"
                         text-anchor="middle"
                         class="charts-text-body"
@@ -288,7 +288,7 @@ export function ConsumerTrends() {
                   ${!isMobile
                     ? html` <text
                         x="${xAxisTicksWidth / 2}"
-                        y="${innerHeight + 5 + 20}"
+                        y="${innerHeight + 20}"
                         dominant-baseline="middle"
                         text-anchor="middle"
                         class="charts-text-body"

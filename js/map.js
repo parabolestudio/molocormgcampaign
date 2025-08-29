@@ -6,6 +6,7 @@ import {
   buttonToVariableMapping,
   formatDate,
   variableFormatting,
+  isMobile,
 } from "./helpers.js";
 
 export function Map() {
@@ -320,7 +321,9 @@ export function Map() {
             )}</span
           >
           <div
-            style="width: 200px; height: 20px; background: linear-gradient(90deg, ${colorScale(
+            style="width: ${isMobile
+              ? "120px"
+              : "200px"}; height: 20px; background: linear-gradient(90deg, ${colorScale(
               0
             )} 0%, ${colorScale(maxValue)} 100%);
         "

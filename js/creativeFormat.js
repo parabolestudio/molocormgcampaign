@@ -457,7 +457,7 @@ export function CreativeFormat({
               x="${-axisOffsetX}"
               dx="-6"
               y="${spendScale(0)}"
-              dy=${isMobile ? -8 : 0}
+              dy=${isMobile ? -8 : -8}
               dominant-baseline="middle"
               text-anchor="end"
               class="charts-text-body"
@@ -468,7 +468,7 @@ export function CreativeFormat({
               x="${-axisOffsetX}"
               dx="-6"
               y="${spendScale(1)}"
-              dy=${isMobile ? 8 : 0}
+              dy=${isMobile ? 8 : 8}
               dominant-baseline="middle"
               text-anchor="end"
               class="charts-text-body"
@@ -477,7 +477,7 @@ export function CreativeFormat({
             </text>
             <text
               x="${-axisOffsetX - 40}"
-              y="${-margin.spendTop / 2}"
+              y="${-25}"
               dominant-baseline="middle"
               text-anchor="start"
               class="charts-text-body-bold"
