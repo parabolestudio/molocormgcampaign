@@ -86,7 +86,7 @@ export function ConsumerTrends() {
   // fetch data from file, later from live sheet
   useEffect(() => {
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/consumer-trends-data3.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/consumer-trends-data4.csv"
     ).then((data) => {
       data.forEach((d) => {
         d["system"] = d["os"];
@@ -94,8 +94,8 @@ export function ConsumerTrends() {
         d["date"] = d["date"];
         d["country"] = d["country"];
         // d["mau"] = +d[" mau"];
-        d["dau"] = +d["dau"];
-        d["cftd"] = +d["cftd"]; //.replace("$", "");
+        d["dau"] = +d["DAU"];
+        d["cftd"] = +d["cftd"].replace("$", "");
         d["spend"] = +d["avg_user_spend"].replace("$", "");
       });
 

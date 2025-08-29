@@ -111,7 +111,10 @@
   }
 }
 
-.vis-container svg {
+.vis-container svg,
+.vis-creative-format-video svg,
+.vis-creative-format-statics svg,
+.vis-creative-formats-playables svg {
   overflow: visible;
 }
 

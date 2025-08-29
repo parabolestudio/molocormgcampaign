@@ -393,7 +393,7 @@ export function CreativeFormat({
                   text-anchor="end"
                   class="charts-text-body"
                 >
-                  $${tick}
+                  ${i === yAxisTicks.length - 1 ? "$" : ""}${tick}
                 </text>
               </g>`;
             })}
