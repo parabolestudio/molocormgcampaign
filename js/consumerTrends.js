@@ -95,7 +95,10 @@ export function ConsumerTrends() {
         d["country"] = d["country"];
         d["dau"] =
           d["total_DAU"] === "" ? null : +d["total_DAU"].replaceAll(",", "");
-        d["downloads"] = +d["total_downloads"].replaceAll(",", "");
+        d["downloads"] =
+          d["total_downloads"] === ""
+            ? null
+            : +d["total_downloads"].replaceAll(",", "");
         d["time_spent"] =
           d["total_duration_minutes"] === ""
             ? null

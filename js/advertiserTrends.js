@@ -94,9 +94,18 @@ export function AdvertiserTrends() {
         d["field"] = d["sub_genre"];
         d["date"] = d["date_utc"];
         d["country"] = "USA"; //d["country"];
-        d["cpm"] = d["cpm_bm"] ? +d["cpm_bm"].replace("$", "") : null;
-        d["cpi"] = d["cpi_bm"] ? +d["cpi_bm"].replace("$", "") : null;
-        d["cftd"] = d["cpftd_bm"] ? +d["cpftd_bm"].replace("$", "") : null;
+        d["cpm"] =
+          d["cpm_bm"] && d["cpm_bm"] !== ""
+            ? +d["cpm_bm"].replace("$", "")
+            : null;
+        d["cpi"] =
+          d["cpi_bm"] && d["cpi_bm"] !== ""
+            ? +d["cpi_bm"].replace("$", "")
+            : null;
+        d["cftd"] =
+          d["cpftd_bm"] && d["cpftd_bm"] !== ""
+            ? +d["cpftd_bm"].replace("$", "")
+            : null;
       });
 
       setData(data);
@@ -106,25 +115,21 @@ export function AdvertiserTrends() {
   if (data.length === 0) {
     return html`<div>Data loading...</div>`;
   }
-  console.log("Fetched advertiser trends data:", data);
 
   // filtering data
   const filteredData = data.filter((d) => {
     return (
-      d["system"] === system &&
-      d["country"] === country &&
-      d["field"] === field &&
-      d[buttonToVariableMapping[selectedVariable]] !== null
+      d["system"] === system && d["country"] === country && d["field"] === field
     );
   });
 
-  console.log("Rendering advertisers trends with", {
-    selectedVariable,
-    system,
-    country,
-    field,
-    filteredData,
-  });
+  // console.log("Rendering advertisers trends with", {
+  //   selectedVariable,
+  //   system,
+  //   country,
+  //   field,
+  //   filteredData,
+  // });
 
   let datapoints = filteredData.map((d) => {
     return {
@@ -199,6 +204,11 @@ export function AdvertiserTrends() {
 
   const yAxisTicks = isMobile ? valueScale.domain() : valueScale.ticks(4);
 
+  // <text dy="15" style="fill: orange; font-size: 12px;">
+  //   Debug: ${selectedVariable} | ${field} | ${system} | ${country} ||
+  //   #datapoints prev year: ${datapointsPrev.length} || #datapoints current
+  //   year: ${datapointsCurrent.length}
+  // </text>
   return html`<div style="position: relative;">
     <svg
       viewBox="0 0 ${width} ${height}"
@@ -241,11 +251,6 @@ export function AdvertiserTrends() {
       }}"
       onmouseleave="${() => setHoveredItem(null)}"
     >
-      <text dy="15" style="fill: orange; font-size: 12px;">
-        Debug: ${selectedVariable} | ${field} | ${system} | ${country} ||
-        #datapoints prev year: ${datapointsPrev.length} || #datapoints current
-        year: ${datapointsCurrent.length}
-      </text>
       <g transform="translate(${margin.left}, ${margin.top})">
         ${isMobile ? "" : html`<line y2="${innerHeight}" stroke="black" />`}
         <g transform="translate(${axisOffsetX}, 0)">
