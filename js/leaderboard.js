@@ -112,7 +112,7 @@ export function Leaderboard() {
         >
           ${isMobile
             ? html`<span class="charts-text-body-bold row-title-mobile"
-                >Avg CPM</span
+                >CPM</span
               >`
             : null}
           ${variableFormatting["cpm"](d.cpm)}
@@ -123,7 +123,7 @@ export function Leaderboard() {
         >
           ${isMobile
             ? html`<span class="charts-text-body-bold row-title-mobile"
-                >Avg CPI</span
+                >CPI</span
               >`
             : null}
           ${variableFormatting["cpi"](d.cpi)}
@@ -134,7 +134,7 @@ export function Leaderboard() {
         >
           ${isMobile
             ? html`<span class="charts-text-body-bold row-title-mobile"
-                >Avg FTD</span
+                >CPFTD</span
               >`
             : null}
           ${d.ftd_rate !== 0 ? d.ftd_rate.toFixed(2) : ""}
@@ -149,15 +149,9 @@ export function Leaderboard() {
     >
       <div class="header-cell" style="grid-area: 1 / 1 / 2 / 2;">Rank</div>
       <div class="header-cell" style="grid-area: 1 / 2 / 2 / 3;">Name</div>
-      <div class="header-cell" style="grid-area: 1 / 3 / 2 / 4;">
-        Average CPM
-      </div>
-      <div class="header-cell" style="grid-area: 1 / 4 / 2 / 5;">
-        Average CPI
-      </div>
-      <div class="header-cell" style="grid-area: 1 / 5 / 2 / 6;">
-        Average FTD
-      </div>
+      <div class="header-cell" style="grid-area: 1 / 3 / 2 / 4;">CPM</div>
+      <div class="header-cell" style="grid-area: 1 / 4 / 2 / 5;">CPI</div>
+      <div class="header-cell" style="grid-area: 1 / 5 / 2 / 6;">CPFTD</div>
     </div>
   `;
 
@@ -181,5 +175,3 @@ export function Leaderboard() {
       : null}
   </div>`;
 }
-
-// ${!isMobile ? headerCells : null} ${rows}

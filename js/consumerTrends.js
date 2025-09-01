@@ -345,11 +345,6 @@ export function ConsumerTrends() {
                   text-anchor="${isMobile ? "start" : "end"}"
                   class="charts-text-body"
                 >
-                  ${(selectedVariable === "CFTD" ||
-                    selectedVariable === "Spend") &&
-                  i === yAxisTicks.length - 1
-                    ? "$"
-                    : ""}
                   ${tick >= 1_000_000
                     ? (tick / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"
                     : tick >= 1_000

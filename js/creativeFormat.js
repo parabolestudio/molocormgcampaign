@@ -60,7 +60,7 @@ export function renderCreativeFormats() {
         d["date"] = d["date"];
         d["cpm"] = +d["cpm"];
         d["cpi"] = +d["cpi"];
-        d["cftd"] = +d["cftd"];
+        d["cpftd"] = +d["cftd"];
         d["spend_share"] = +d["spend_share"];
       });
 
@@ -73,7 +73,7 @@ export function renderCreativeFormats() {
         d["date"] = d["utc_week"];
         d["cpm"] = +d["cpm"];
         d["cpi"] = +d["cpi"];
-        d["cftd"] = +d["cftd"];
+        d["cpftd"] = +d["cftd"];
         d["spend_share"] = +d["spend_share"];
       });
 

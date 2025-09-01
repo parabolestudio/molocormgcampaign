@@ -59,7 +59,7 @@ export const buttonToVariableMapping = {
   "Spend Share": "spend_share",
   DAU: "dau",
   MAU: "mau",
-  CFTD: "cftd",
+  CPFTD: "cpftd",
   Spend: "spend",
   Downloads: "downloads",
   "Time Spent": "time_spent",
@@ -68,7 +68,7 @@ export const buttonToVariableMapping = {
 export const variableFormatting = {
   cpm: (value, precision = 2) => `$${value.toFixed(precision)}`,
   cpi: (value, precision = 2) => `$${value.toFixed(precision)}`,
-  cftd: (value, precision = 2) => `$${value.toFixed(precision)}`,
+  cpftd: (value, precision = 2) => `$${value.toFixed(precision)}`,
   spend: (value, precision = 2) => `$${value.toFixed(precision)}`,
   spend_share: (value, precision = 2) => `${(value * 100).toFixed(precision)}%`,
   dau: (value, precision = 2) => {
@@ -141,7 +141,7 @@ function addNonExistingDays(dataArray, startDate, endDate) {
       spend: null,
       spend_share: null,
       dau: null,
-      cftd: null,
+      cpftd: null,
       cpm: null,
       cpi: null,
       downloads: null,
@@ -174,11 +174,14 @@ function addNonExistingWeeks(dataArray, startDate, endDate) {
     missingWeeks.map((week) => ({
       date: week,
       cost: null,
+      spend: null,
       spend_share: null,
       dau: null,
-      mau: null,
-      cftd: null,
-      spend: null,
+      cpftd: null,
+      cpm: null,
+      cpi: null,
+      downloads: null,
+      time_spent: null,
     }))
   );
 

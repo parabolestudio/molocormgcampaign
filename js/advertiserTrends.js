@@ -102,7 +102,7 @@ export function AdvertiserTrends() {
           d["cpi_bm"] && d["cpi_bm"] !== ""
             ? +d["cpi_bm"].replace("$", "")
             : null;
-        d["cftd"] =
+        d["cpftd"] =
           d["cpftd_bm"] && d["cpftd_bm"] !== ""
             ? +d["cpftd_bm"].replace("$", "")
             : null;
@@ -348,7 +348,7 @@ export function AdvertiserTrends() {
                   text-anchor="${isMobile ? "start" : "end"}"
                   class="charts-text-body"
                 >
-                  ${(selectedVariable === "CFTD" ||
+                  ${(selectedVariable === "CPFTD" ||
                     selectedVariable === "Spend") &&
                   i === yAxisTicks.length - 1
                     ? "$"
