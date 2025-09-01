@@ -8,7 +8,7 @@ const MAX_VISIBLE = 10;
 export function Leaderboard() {
   const [data, setData] = useState([]);
   const [system, setSystem] = useState(getDropdownValue("system"));
-  const [field, setField] = useState(getDropdownValue("field"));
+  const [field, setField] = useState("Sportsbetting");
   const [showMore, setShowMore] = useState(false);
 
   // listen to change in general system dropdown
@@ -27,34 +27,40 @@ export function Leaderboard() {
   }, []);
 
   // listen to change in general field dropdown
-  useEffect(() => {
-    const handleFieldChange = (e) => setField(e.detail.selectedField);
-    document.addEventListener(
-      "vis-general-dropdown-field-changed",
-      handleFieldChange
-    );
-    return () => {
-      document.removeEventListener(
-        "vis-general-dropdown-field-changed",
-        handleFieldChange
-      );
-    };
-  }, []);
+  // useEffect(() => {
+  //   const handleFieldChange = (e) => setField(e.detail.selectedField);
+  //   document.addEventListener(
+  //     "vis-general-dropdown-field-changed",
+  //     handleFieldChange
+  //   );
+  //   return () => {
+  //     document.removeEventListener(
+  //       "vis-general-dropdown-field-changed",
+  //       handleFieldChange
+  //     );
+  //   };
+  // }, []);
 
   // fetch data from file, later from live sheet
   useEffect(() => {
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/leaderboard-data.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/leaderboard-data2.csv"
     ).then((data) => {
       data.forEach((d) => {
         d["system"] = d["os"];
-        d["field"] = d["vertical"];
-        d["date"] = d["utc_week"];
+        d["field"] = d["sub_genre"];
+        d["date"] = d["week_utc"];
         d["country"] = d["country"];
-        d["cpm"] = +d["cpm"];
-        d["cpi"] = +d["cpi"];
-        d["ftd_rate"] = +d["ftd_rate"];
-        d["rnk"] = +d["rnk"];
+        d["cpm"] =
+          d["cpm"] && d["cpm"] !== "" ? +d["cpm"].replace("$", "") : null;
+        d["cpi"] =
+          d["cpi"] && d["cpi"] !== "" ? +d["cpi"].replace("$", "") : null;
+        d["cpftd"] =
+          d["cpftd"] && d["cpftd"] !== ""
+            ? +d["cpftd"].replace("$", "").replace(",", "")
+            : null;
+
+        d["rank"] = +d["rank_by_spend"];
       });
 
       setData(data);
@@ -63,11 +69,9 @@ export function Leaderboard() {
 
   const filteredData = data
     .filter((d) => {
-      return (
-        d["system"] === system && d["field"] === field && d["country"] === "USA"
-      );
+      return d["system"] === system && d["field"] === field;
     })
-    .sort((a, b) => a.rnk - b.rnk);
+    .sort((a, b) => a.rank - b.rank);
 
   const visibleRows = showMore
     ? filteredData.slice(0, MAX_VISIBLE)
@@ -77,7 +81,7 @@ export function Leaderboard() {
     return html`
       <div
         class="row"
-        style="display: grid; width: 100%; border-radius: 10px; background: ${d.rnk ===
+        style="display: grid; width: 100%; border-radius: 10px; background: ${d.rank ===
         1
           ? "#60E2B7"
           : "#CCF5E8"}; ${isMobile
@@ -93,7 +97,7 @@ export function Leaderboard() {
                 >Rank</span
               >`
             : null}
-          ${d.rnk}.
+          ${d.rank}.
         </div>
         <div
           class="row-cell row-name"
@@ -104,7 +108,7 @@ export function Leaderboard() {
                 >Name</span
               >`
             : null}
-          Advertiser ${d.rnk}
+          Advertiser ${d.rank}
         </div>
         <div
           class="row-cell row-value"
@@ -137,7 +141,7 @@ export function Leaderboard() {
                 >CPFTD</span
               >`
             : null}
-          ${d.ftd_rate !== 0 ? d.ftd_rate.toFixed(2) : ""}
+          ${variableFormatting["cpftd"](d.cpftd)}
         </div>
       </div>
     `;
