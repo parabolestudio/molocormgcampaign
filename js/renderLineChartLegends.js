@@ -42,7 +42,7 @@ export default function renderLineChartLegends() {
 function LineChartLegend(props) {
   return html`<div
     class="vis-line-chart-legend"
-    style="display: flex; gap: 24px; flex-wrap: wrap;"
+    style="display: flex; column-gap: 24px; row-gap: 8px; flex-wrap: wrap;"
   >
     <p
       class="legend-item rmg-viz-subtitle"
