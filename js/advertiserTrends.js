@@ -8,8 +8,10 @@ import {
   formatDate,
   variableFormatting,
   isMobile,
+  dataPullFromSheet,
 } from "./helpers.js";
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
+import { fetchGoogleSheetCSV } from "./googleSheets.js";
 
 export function AdvertiserTrends() {
   const [selectedVariable, setSelectedVariable] = useState("CPM");
@@ -85,32 +87,45 @@ export function AdvertiserTrends() {
   }, [selectedVariable]);
 
   // fetch data from file, later from live sheet
-  useEffect(() => {
-    d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/advertiser-trends-data.csv"
-    ).then((data) => {
-      data.forEach((d) => {
-        d["system"] = d["os"];
-        d["field"] = d["sub_genre"];
-        d["date"] = d["date_utc"];
-        d["country"] = "USA"; //d["country"];
-        d["cpm"] =
-          d["cpm_bm"] && d["cpm_bm"] !== ""
-            ? +d["cpm_bm"].replace("$", "")
-            : null;
-        d["cpi"] =
-          d["cpi_bm"] && d["cpi_bm"] !== ""
-            ? +d["cpi_bm"].replace("$", "")
-            : null;
-        d["cpftd"] =
-          d["cpftd_bm"] && d["cpftd_bm"] !== ""
-            ? +d["cpftd_bm"].replace("$", "")
-            : null;
-      });
 
-      setData(data);
-    });
+  useEffect(() => {
+    if (dataPullFromSheet) {
+      fetchGoogleSheetCSV("advertiser-trends")
+        .then((data) => handleData(data))
+        .catch((error) => {
+          console.error(
+            "Error fetching sheet data (last updated date):",
+            error
+          );
+        });
+    } else {
+      d3.csv(
+        "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/daily-data.csv"
+      ).then((data) => handleData(data));
+    }
   }, []);
+  function handleData(data) {
+    data.forEach((d) => {
+      d["system"] = d["os"];
+      d["field"] = d["sub_genre"];
+      d["date"] = d["date_utc"];
+      d["country"] = "USA"; //d["country"];
+      d["cpm"] =
+        d["cpm_bm"] && d["cpm_bm"] !== ""
+          ? +d["cpm_bm"].replace("$", "")
+          : null;
+      d["cpi"] =
+        d["cpi_bm"] && d["cpi_bm"] !== ""
+          ? +d["cpi_bm"].replace("$", "")
+          : null;
+      d["cpftd"] =
+        d["cpftd_bm"] && d["cpftd_bm"] !== ""
+          ? +d["cpftd_bm"].replace("$", "")
+          : null;
+    });
+
+    setData(data);
+  }
 
   if (data.length === 0) {
     return html`<div>Data loading...</div>`;

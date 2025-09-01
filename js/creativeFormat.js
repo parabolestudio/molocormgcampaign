@@ -469,14 +469,14 @@ export function CreativeFormat({
             d="${prevLine}"
             fill="none"
             stroke="#C3C3C3"
-            stroke-width="2"
+            stroke-width="3"
             style="transition: all ease 0.3s"
           />
           <path
             d="${currentLine}"
             fill="none"
             stroke="${color}"
-            stroke-width="2"
+            stroke-width="3"
             style="transition: all ease 0.3s"
           />
         </g>
