@@ -2,8 +2,9 @@ import { html, renderComponent } from "./js/utils/preact-htm.js";
 
 import { AdvertiserTrends } from "./js/advertiserTrends.js";
 import { ConsumerTrends } from "./js/consumerTrends.js";
-import { Map, MapTimeSelector } from "./js/map.js";
+import { Map } from "./js/map.js";
 import { Leaderboard } from "./js/leaderboard.js";
+import { LastDataUpdate } from "./js/lastDataUpdate.js";
 import { populateGeneralDropdowns } from "./js/populateGeneralDropdowns.js";
 import renderButtonGroup from "./js/renderButtonGroup.js";
 import { renderCreativeFormats } from "./js/creativeFormat.js";
@@ -39,6 +40,10 @@ const visList = [
   {
     id: "vis-leaderboard",
     component: Leaderboard,
+  },
+  {
+    id: "vis-text-last-data-update",
+    component: LastDataUpdate,
   },
 ];
 
