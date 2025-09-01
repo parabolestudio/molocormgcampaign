@@ -64,7 +64,7 @@ function renderVis() {
 renderVis();
 
 // render button groups
-const itemsConsumer = ["DAU", "CFTD", "Spend"];
+const itemsConsumer = ["DAU", "Downloads", "Time Spent"];
 renderButtonGroup(
   "vis-consumer-trends-button-group",
   itemsConsumer,

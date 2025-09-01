@@ -61,6 +61,8 @@ export const buttonToVariableMapping = {
   MAU: "mau",
   CFTD: "cftd",
   Spend: "spend",
+  Downloads: "downloads",
+  "Time Spent": "time_spent",
 };
 
 export const variableFormatting = {
@@ -70,6 +72,20 @@ export const variableFormatting = {
   spend: (value, precision = 2) => `$${value.toFixed(precision)}`,
   spend_share: (value, precision = 2) => `${(value * 100).toFixed(precision)}%`,
   dau: (value, precision = 2) => {
+    return value >= 1_000_000
+      ? (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"
+      : value >= 1_000
+      ? (value / 1_000).toFixed(1).replace(/\.0$/, "") + "k"
+      : value;
+  },
+  downloads: (value, precision = 2) => {
+    return value >= 1_000_000
+      ? (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"
+      : value >= 1_000
+      ? (value / 1_000).toFixed(1).replace(/\.0$/, "") + "k"
+      : value;
+  },
+  time_spent: (value, precision = 2) => {
     return value >= 1_000_000
       ? (value / 1_000_000).toFixed(1).replace(/\.0$/, "") + "M"
       : value >= 1_000
@@ -122,11 +138,14 @@ function addNonExistingDays(dataArray, startDate, endDate) {
     missingDates.map((date) => ({
       date,
       cost: null,
+      spend: null,
       spend_share: null,
       dau: null,
-      mau: null,
       cftd: null,
-      spend: null,
+      cpm: null,
+      cpi: null,
+      downloads: null,
+      time_spent: null,
     }))
   );
 

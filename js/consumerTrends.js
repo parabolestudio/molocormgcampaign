@@ -86,17 +86,20 @@ export function ConsumerTrends() {
   // fetch data from file, later from live sheet
   useEffect(() => {
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/consumer-trends-data4.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/daily-data.csv"
     ).then((data) => {
       data.forEach((d) => {
         d["system"] = d["os"];
         d["field"] = d["vertical"];
         d["date"] = d["date"];
         d["country"] = d["country"];
-        // d["mau"] = +d[" mau"];
-        d["dau"] = +d["DAU"];
-        d["cftd"] = +d["cftd"].replace("$", "");
-        d["spend"] = +d["avg_user_spend"].replace("$", "");
+        d["dau"] =
+          d["total_DAU"] === "" ? null : +d["total_DAU"].replaceAll(",", "");
+        d["downloads"] = +d["total_downloads"].replaceAll(",", "");
+        d["time_spent"] =
+          d["total_duration_minutes"] === ""
+            ? null
+            : +d["total_duration_minutes"].replaceAll(",", "");
       });
 
       setData(data);
@@ -195,6 +198,11 @@ export function ConsumerTrends() {
 
   const yAxisTicks = isMobile ? valueScale.domain() : valueScale.ticks(4);
 
+  // <text dy="15" style="fill: orange; font-size: 12px;">
+  //       Debug: ${selectedVariable} | ${field} | ${system} | ${country} ||
+  //       #datapoints prev year: ${datapointsPrev.length} || #datapoints current
+  //       year: ${datapointsCurrent.length}
+  //     </text>
   return html`<div style="position: relative;">
     <svg
       viewBox="0 0 ${width} ${height}"
@@ -237,11 +245,6 @@ export function ConsumerTrends() {
       }}"
       onmouseleave="${() => setHoveredItem(null)}"
     >
-      <text dy="15" style="fill: orange; font-size: 12px;">
-        Debug: ${selectedVariable} | ${field} | ${system} | ${country} ||
-        #datapoints prev year: ${datapointsPrev.length} || #datapoints current
-        year: ${datapointsCurrent.length}
-      </text>
       <g transform="translate(${margin.left}, ${margin.top})">
         ${isMobile ? "" : html`<line y2="${innerHeight}" stroke="black" />`}
         <g transform="translate(${axisOffsetX}, 0)">
@@ -398,15 +401,3 @@ function Tooltip({ hoveredItem }) {
     </div>
   </div>`;
 }
-
-// <div>
-//   <p class="tooltip-label">${hoveredItem.variable}</p>
-//   <p class="tooltip-value">
-//     ${variableFormatting[buttonToVariableMapping[hoveredItem.variable]]
-//       ? variableFormatting[buttonToVariableMapping[hoveredItem.variable]](
-//           hoveredItem.value,
-//           2
-//         )
-//       : hoveredItem.value}
-//   </p>
-// </div>
