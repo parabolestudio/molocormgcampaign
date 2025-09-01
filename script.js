@@ -14,6 +14,12 @@ populateGeneralDropdowns();
 
 const Vis = async (props) => {
   console.log("Rendering Vis component with props:", props);
+
+  // render last data update without div container
+  if (props.id === "vis-text-last-data-update") {
+    return html` <${props.component} ...${props} />`;
+  }
+
   return html`<div class="vis-container">
     <${props.component} ...${props} />
   </div>`;

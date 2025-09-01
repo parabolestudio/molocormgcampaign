@@ -350,6 +350,24 @@ export function CreativeFormat({
             .toISOString()
             .slice(0, 10);
 
+          // // get first day of week for datePrev
+          // const firstDayOfWeekPrev = d3.timeMonday
+          //   .offset(new Date(datePrev), -1)
+          //   .toISOString()
+          //   .slice(0, 10);
+          // console.log(
+          //   "Tag prev:",
+          //   datePrev,
+          //   "Week prev:",
+          //   firstDayOfWeekPrev,
+          //   allWeeksPrev
+          // );
+
+          // const firstDayOfWeekCurrent = d3.timeMonday
+          //   .offset(new Date(dateCurrent), -1)
+          //   .toISOString()
+          //   .slice(0, 10);
+
           // get value for hoveredItem
           const datapointPrev =
             datapointsPrev.find((d) => d.date === datePrev) || {};
@@ -550,7 +568,7 @@ export function CreativeFormat({
         </g>
       </g>
     </svg>
-    <${Tooltip} hoveredItem=${isDaily ? hoveredItem : null} />
+    <${Tooltip} hoveredItem=${hoveredItem} />
   </div> `;
 }
 
