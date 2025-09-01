@@ -1,6 +1,7 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
-import { variableFormatting, isMobile } from "./helpers.js";
+import { variableFormatting, isMobile, dataPullFromSheet } from "./helpers.js";
+import { fetchGoogleSheetCSV } from "./googleSheets.js";
 
 const INITIAL_VISIBLE = 5;
 const MAX_VISIBLE = 10;
@@ -41,31 +42,42 @@ export function Leaderboard() {
   //   };
   // }, []);
 
-  // fetch data from file, later from live sheet
   useEffect(() => {
-    d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/leaderboard-data2.csv"
-    ).then((data) => {
-      data.forEach((d) => {
-        d["system"] = d["os"];
-        d["field"] = d["sub_genre"];
-        d["date"] = d["week_utc"];
-        d["country"] = d["country"];
-        d["cpm"] =
-          d["cpm"] && d["cpm"] !== "" ? +d["cpm"].replace("$", "") : null;
-        d["cpi"] =
-          d["cpi"] && d["cpi"] !== "" ? +d["cpi"].replace("$", "") : null;
-        d["cpftd"] =
-          d["cpftd"] && d["cpftd"] !== ""
-            ? +d["cpftd"].replace("$", "").replace(",", "")
-            : null;
-
-        d["rank"] = +d["rank_by_spend"];
-      });
-
-      setData(data);
-    });
+    if (dataPullFromSheet) {
+      fetchGoogleSheetCSV("leaderboard")
+        .then((data) => handleData(data))
+        .catch((error) => {
+          console.error(
+            "Error fetching sheet data (last updated date):",
+            error
+          );
+        });
+    } else {
+      d3.csv(
+        "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/leaderboard-data2.csv"
+      ).then((data) => handleData(data));
+    }
   }, []);
+  function handleData(data) {
+    data.forEach((d) => {
+      d["system"] = d["os"];
+      d["field"] = d["sub_genre"];
+      d["date"] = d["week_utc"];
+      d["country"] = d["country"];
+      d["cpm"] =
+        d["cpm"] && d["cpm"] !== "" ? +d["cpm"].replace("$", "") : null;
+      d["cpi"] =
+        d["cpi"] && d["cpi"] !== "" ? +d["cpi"].replace("$", "") : null;
+      d["cpftd"] =
+        d["cpftd"] && d["cpftd"] !== ""
+          ? +d["cpftd"].replace("$", "").replace(",", "")
+          : null;
+
+      d["rank"] = +d["rank_by_spend"];
+    });
+
+    setData(data);
+  }
 
   const filteredData = data
     .filter((d) => {

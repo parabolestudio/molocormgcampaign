@@ -89,7 +89,6 @@ export function Map() {
     return html`<div>Loading US Geo data...</div>`;
   }
 
-  // fetch data from file, later from live sheet
   useEffect(() => {
     if (dataPullFromSheet) {
       fetchGoogleSheetCSV("state-level")

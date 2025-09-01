@@ -327,7 +327,7 @@ export function AdvertiserTrends() {
             d="${prevLine(addMissingDaysPrev(datapointsPrev))}"
             fill="none"
             stroke="#C3C3C3"
-            stroke-width="3"
+            stroke-width="${isMobile ? 2 : 3}"
             stroke-joint="round"
             stroke-linecap="round"
             style="transition: all ease 0.3s"
@@ -336,7 +336,7 @@ export function AdvertiserTrends() {
             d="${currentLine(addMissingDaysCurrent(datapointsCurrent))}"
             fill="none"
             stroke="#C368F9"
-            stroke-width="3"
+            stroke-width="${isMobile ? 2 : 3}"
             style="transition: all ease 0.3s"
           />
           ${hoveredItem

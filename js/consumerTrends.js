@@ -323,7 +323,7 @@ export function ConsumerTrends() {
             d="${prevLine(addMissingDaysPrev(datapointsPrev))}"
             fill="none"
             stroke="#C3C3C3"
-            stroke-width="3"
+            stroke-width="${isMobile ? 2 : 3}"
             stroke-joint="round"
             stroke-linecap="round"
             style="transition: all ease 0.3s"
@@ -332,7 +332,7 @@ export function ConsumerTrends() {
             d="${currentLine(addMissingDaysCurrent(datapointsCurrent))}"
             fill="none"
             stroke="#0280FB"
-            stroke-width="3"
+            stroke-width="${isMobile ? 2 : 3}"
             style="transition: all ease 0.3s"
           />
           ${hoveredItem
