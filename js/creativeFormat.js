@@ -11,6 +11,8 @@ import {
   currentTimeScale,
   allDaysPrev,
   allDaysCurrent,
+  allWeeksCurrent,
+  allWeeksPrev,
   addMissingDaysPrev,
   addMissingDaysCurrent,
   addMissingWeeksPrev,
@@ -32,49 +34,66 @@ export function renderCreativeFormats() {
       containerId: "vis-creative-format-statics",
       color: "#0280FB",
     },
-    {
-      name: "Playables",
-      containerId: "vis-creative-format-playables",
-      color: "#37BF92",
-    },
+    // {
+    //   name: "Playables",
+    //   containerId: "vis-creative-format-playables",
+    //   color: "#37BF92",
+    // },
   ];
 
   Promise.all([
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data3-usa.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data4.csv"
     ),
-    d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data3-world.csv"
-    ),
+    // d3.csv(
+    //   "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data3-world.csv"
+    // ),
   ])
     .then((files) => {
-      const usData = files[0];
-      const worldData = files[1];
+      const weeklyData = files[0];
+      // const worldData = files[1];
 
       // daily
-      usData.forEach((d) => {
-        d["system"] = d["os"];
-        d["field"] = d["vertical"];
-        d["country"] = d["country"];
-        d["format"] = d["creative_format"];
-        d["date"] = d["date"];
-        d["cpm"] = +d["cpm"];
-        d["cpi"] = +d["cpi"];
-        d["cpftd"] = +d["cftd"];
-        d["spend_share"] = +d["spend_share"];
-      });
+      // usData.forEach((d) => {
+      //   d["system"] = d["os"];
+      //   d["field"] = d["vertical"];
+      //   d["country"] = d["country"];
+      //   d["format"] = d["creative_format"];
+      //   d["date"] = d["date"];
+      //   d["cpm"] = +d["cpm"];
+      //   d["cpi"] = +d["cpi"];
+      //   d["cpftd"] = +d["cftd"];
+      //   d["spend_share"] = +d["spend_share"];
+      // });
 
       // weekly
-      worldData.forEach((d) => {
+      weeklyData.forEach((d) => {
         d["system"] = d["os"];
-        d["field"] = d["vertical"];
-        d["country"] = d["country"];
-        d["format"] = d["creative_format"];
-        d["date"] = d["utc_week"];
-        d["cpm"] = +d["cpm"];
-        d["cpi"] = +d["cpi"];
-        d["cpftd"] = +d["cftd"];
-        d["spend_share"] = +d["spend_share"];
+        d["field"] = d["sub_genre"];
+        d["country"] = "USA"; // d["country"];
+        d["format"] = d["format_type"];
+        d["date"] = d["week_utc"];
+        d["cpm"] =
+          d["cpm_bm"] && d["cpm_bm"] !== ""
+            ? +d["cpm_bm"].replace("$", "")
+            : null;
+        d["cpi"] =
+          d["cpi_bm"] && d["cpi_bm"] !== ""
+            ? +d["cpi_bm"].replace("$", "")
+            : null;
+        d["cpftd"] =
+          d["cpftd_bm"] && d["cpftd_bm"] !== ""
+            ? +d["cpftd_bm"].replace("$", "")
+            : null;
+        d["ipm"] =
+          d["ipm_bm"] && d["ipm_bm"] !== ""
+            ? +d["ipm_bm"].replace("$", "")
+            : null;
+        d["i2a"] =
+          d["i2a_bm"] && d["i2a_bm"] !== ""
+            ? +d["i2a_bm"].replace("%", "") / 100
+            : null;
+        d["spend_share"] = +d["format_spend_share"].replace("%", "") / 100;
       });
 
       for (let i = 0; i < formats.length; i++) {
@@ -89,8 +108,7 @@ export function renderCreativeFormats() {
             html`<${CreativeFormat}
               formatName=${name}
               containerId=${containerId}
-              usData=${usData.filter((d) => d["format"] === name)}
-              worldData=${worldData.filter((d) => d["format"] === name)}
+              data=${weeklyData.filter((d) => d["format"] === name)}
               color=${color}
             />`,
             containerElement
@@ -110,15 +128,14 @@ export function renderCreativeFormats() {
 export function CreativeFormat({
   formatName,
   containerId,
-  usData = [],
-  worldData = [],
+  data = [],
   color = "black",
 }) {
   const [selectedVariable, setSelectedVariable] = useState("CPM");
   const [system, setSystem] = useState(getDropdownValue("system"));
   const [field, setField] = useState(getDropdownValue("field"));
   const [country, setCountry] = useState(getDropdownValue("country"));
-  const isDaily = country === "USA";
+  const isDaily = false; //country === "USA";
   const [hoveredItem, setHoveredItem] = useState(null);
 
   // listen to change in general system dropdown
@@ -185,12 +202,12 @@ export function CreativeFormat({
     };
   }, [selectedVariable]);
 
-  const dataset = isDaily
-    ? usData
-    : worldData.filter((d) => d["country"] === country);
+  // const dataset = isDaily
+  //   ? usData
+  //   : worldData.filter((d) => d["country"] === country);
 
   // filtering data
-  const filteredData = dataset.filter((d) => {
+  const filteredData = data.filter((d) => {
     return d["system"] === system && d["field"] === field;
   });
 
@@ -298,18 +315,22 @@ export function CreativeFormat({
 
   const barsScalePrev = d3
     .scaleBand()
-    .domain(allDaysPrev)
+    .domain(allWeeksPrev)
     .range([0, chartWidth])
     .padding(0.1);
   const barsScaleCurrent = d3
     .scaleBand()
-    .domain(allDaysCurrent)
+    .domain(allWeeksCurrent)
     .range([0, chartWidth])
     .padding(0.1);
 
   // y axis ticks
   const yAxisTicks = isMobile ? costScale.domain() : costScale.ticks(4);
 
+  //  <text dy="15" style="fill: orange; font-size: 12px;">
+  //       ${selectedVariable} | ${field} | ${system} | ${country} || #prev:
+  //       ${datapointsPrev.length} || #current: ${datapointsCurrent.length}
+  //     </text>
   return html`<div style="position: relative">
     <svg
       viewBox="0 0 ${width} ${totalHeight}"
@@ -353,10 +374,6 @@ export function CreativeFormat({
         }
       }}"
     >
-      <text dy="15" style="fill: orange; font-size: 12px;">
-        ${selectedVariable} | ${field} | ${system} | ${country} || #prev:
-        ${datapointsPrev.length} || #current: ${datapointsCurrent.length}
-      </text>
       <g transform="translate(${margin.allLeft}, ${margin.costTop})">
         ${hoveredItem
           ? html`<line
@@ -393,7 +410,10 @@ export function CreativeFormat({
                   text-anchor="end"
                   class="charts-text-body"
                 >
-                  ${i === yAxisTicks.length - 1 ? "$" : ""}${tick}
+                  ${i === yAxisTicks.length - 1 &&
+                  ["CPM", "CPI", "CPFTD", "IPM"].includes(selectedVariable)
+                    ? "$"
+                    : ""}${tick}
                 </text>
               </g>`;
             })}

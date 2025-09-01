@@ -56,10 +56,11 @@ export const stateMapping = {
 export const buttonToVariableMapping = {
   CPM: "cpm",
   CPI: "cpi",
+  CPFTD: "cpftd",
   "Spend Share": "spend_share",
   DAU: "dau",
-  MAU: "mau",
-  CPFTD: "cpftd",
+  IPM: "ipm",
+  I2A: "i2a",
   Spend: "spend",
   Downloads: "downloads",
   "Time Spent": "time_spent",
@@ -128,6 +129,14 @@ export const allDaysCurrent = getDaysBetween(
   currentTimeScale.domain()[0],
   currentTimeScale.domain()[1]
 );
+export const allWeeksPrev = getWeeksBetween(
+  prevTimeScale.domain()[0],
+  prevTimeScale.domain()[1]
+);
+export const allWeeksCurrent = getWeeksBetween(
+  currentTimeScale.domain()[0],
+  currentTimeScale.domain()[1]
+);
 
 function addNonExistingDays(dataArray, startDate, endDate) {
   const allDates = getDaysBetween(startDate, endDate);
@@ -141,9 +150,11 @@ function addNonExistingDays(dataArray, startDate, endDate) {
       spend: null,
       spend_share: null,
       dau: null,
-      cpftd: null,
       cpm: null,
       cpi: null,
+      cpftd: null,
+      ipm: null,
+      i2a: null,
       downloads: null,
       time_spent: null,
     }))
@@ -162,7 +173,12 @@ function getWeeksBetween(startDate, endDate) {
     weeks.push(new Date(current).toISOString().split("T")[0]);
     current.setDate(current.getDate() + 7);
   }
-  return weeks;
+  // get next day's date to fix Monday / Sunday problem
+  return weeks.map((week_day) => {
+    const nextDay = new Date(week_day);
+    nextDay.setDate(nextDay.getDate() + 1);
+    return nextDay.toISOString().split("T")[0];
+  });
 }
 
 function addNonExistingWeeks(dataArray, startDate, endDate) {
@@ -180,6 +196,8 @@ function addNonExistingWeeks(dataArray, startDate, endDate) {
       cpftd: null,
       cpm: null,
       cpi: null,
+      ipm: null,
+      i2a: null,
       downloads: null,
       time_spent: null,
     }))
