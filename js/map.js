@@ -90,35 +90,26 @@ export function Map() {
   // fetch data from file, later from live sheet
   useEffect(() => {
     d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/map-data3.csv"
+      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/state-level-data.csv"
     ).then((data) => {
       data.forEach((d) => {
         d["system"] = d["os"];
-        d["field"] = d["subgenre"];
+        d["field"] = d["sub_genre"];
         d["state"] = d["state"];
-        d["date"] = d["utc_week"];
-        d["cpm"] = +d["cpm"];
-        d["cpi"] = +d["cpi"];
-        d["spend_share"] = +(
-          d["spend_share_state_level"].replace(/%/g, "") / 100
-        );
+        d["date"] = "2025-01-01"; //d["utc_week"];
+        d["cpm"] =
+          d["cpm_bm"] && d["cpm_bm"] !== ""
+            ? +d["cpm_bm"].replace("$", "")
+            : null;
+        d["cpi"] =
+          d["cpi_bm"] && d["cpi_bm"] !== ""
+            ? +d["cpi_bm"].replace("$", "")
+            : null;
 
-        // delete all other fields without knowing the fields names
-        Object.keys(d).forEach((key) => {
-          if (
-            ![
-              "system",
-              "field",
-              "cpm",
-              "cpi",
-              "spend_share",
-              "state",
-              "date",
-            ].includes(key)
-          ) {
-            delete d[key];
-          }
-        });
+        d["spend_share"] =
+          d["state_spend_share"] && d["state_spend_share"] !== ""
+            ? +(d["state_spend_share"].replace(/%/g, "") / 100)
+            : null;
       });
 
       setData(data);
@@ -135,13 +126,11 @@ export function Map() {
       return d["field"] === field && d["system"] === system;
     })
     .sort((a, b) => new Date(a["date"]) - new Date(b["date"]));
-  // console.log("Filtered Data:", filteredData);
 
   // get all unique dates
   const uniqueDates = Array.from(
     new Set(filteredData.map((d) => d["date"]))
   ).sort((a, b) => new Date(a) - new Date(b));
-  // console.log("Unique Dates:", uniqueDates);
 
   const [startDate, setStartDate] = useState(uniqueDates[0]);
   const [endDate, setEndDate] = useState(uniqueDates[uniqueDates.length - 1]);
@@ -261,9 +250,6 @@ export function Map() {
       viewBox="0 0 ${width} ${height}"
       style="max-width: 1122px;margin: 0 auto; height: auto;"
     >
-      <text dy="20" style="fill: orange; font-size: 12px;">
-        Date for max value: ${maxItem ? maxItem["date"] : "N/A"}
-      </text>
       <g stroke-linejoin="round" stroke-linecap="round">
         ${statesArray.map(
           (d) => html`<path

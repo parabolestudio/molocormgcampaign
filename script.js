@@ -32,10 +32,10 @@ const visList = [
     id: "vis-map",
     component: Map,
   },
-  {
-    id: "vis-map-time-selector",
-    component: MapTimeSelector,
-  },
+  // {
+  //   id: "vis-map-time-selector",
+  //   component: MapTimeSelector,
+  // },
   {
     id: "vis-leaderboard",
     component: Leaderboard,
