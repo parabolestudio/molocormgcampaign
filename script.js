@@ -8,6 +8,7 @@ import { LastDataUpdate } from "./js/lastDataUpdate.js";
 import { populateGeneralDropdowns } from "./js/populateGeneralDropdowns.js";
 import renderButtonGroup from "./js/renderButtonGroup.js";
 import { renderCreativeFormats } from "./js/creativeFormat.js";
+import renderLineChartLegends from "./js/renderLineChartLegends.js";
 
 // add options to the general dropdowns
 populateGeneralDropdowns();
@@ -99,6 +100,7 @@ const itemsMap = ["CPM", "CPI", "Spend Share"];
 renderButtonGroup("vis-map-button-group", itemsMap, itemsMap[0]);
 
 renderCreativeFormats();
+renderLineChartLegends();
 
 // // fetch data from a public Google sheet without the API directly from the URL
 // async function fetchGoogleSheetCSV(sheetUrl) {
