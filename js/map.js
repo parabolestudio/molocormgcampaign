@@ -7,7 +7,9 @@ import {
   formatDate,
   variableFormatting,
   isMobile,
+  dataPullFromSheet,
 } from "./helpers.js";
+import { fetchGoogleSheetCSV } from "./googleSheets.js";
 
 export function Map() {
   const [selectedVariable, setSelectedVariable] = useState("CPM");
@@ -89,9 +91,23 @@ export function Map() {
 
   // fetch data from file, later from live sheet
   useEffect(() => {
-    d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/state-level-data.csv"
-    ).then((data) => {
+    if (dataPullFromSheet) {
+      fetchGoogleSheetCSV("state-level")
+        .then((data) => handleData(data))
+        .catch((error) => {
+          console.error(
+            "Error fetching sheet data (last updated date):",
+            error
+          );
+        });
+    } else {
+      d3.csv(
+        "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/state-level-data.csv"
+      ).then((data) => handleData(data));
+    }
+  }, []);
+  function handleData(data) {
+    data.forEach((d) => {
       data.forEach((d) => {
         d["system"] = d["os"];
         d["field"] = d["sub_genre"];
@@ -111,10 +127,9 @@ export function Map() {
             ? +(d["state_spend_share"].replace(/%/g, "") / 100)
             : null;
       });
-
-      setData(data);
     });
-  }, []);
+    setData(data);
+  }
 
   if (data.length === 0) {
     return html`<div>Data loading...</div>`;
