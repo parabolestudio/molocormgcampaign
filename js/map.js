@@ -476,9 +476,7 @@ function Tooltip({ hoveredItem }) {
     class="tooltip"
     style="left: ${hoveredItem.x}px; top: ${hoveredItem.y}px;"
   >
-    <p class="tooltip-title">
-      ${hoveredItem.name}<br />${formatDate(hoveredItem.date)}
-    </p>
+    <p class="tooltip-title">${hoveredItem.name}</p>
     <div>
       <p class="tooltip-label">${hoveredItem.variable}</p>
       <p class="tooltip-value">

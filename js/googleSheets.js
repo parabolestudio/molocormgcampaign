@@ -4,18 +4,39 @@ export async function fetchGoogleSheetCSV(tabName) {
   const response = await fetch(sheetUrl);
   const csvText = await response.text();
   const lines = csvText.trim().split("\n");
-  const headers = lines[0].split(",");
+  // Robust CSV parser for a single line
+  function splitCSV(line) {
+    const result = [];
+    let current = "";
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        if (inQuotes && line[i + 1] === '"') {
+          current += '"';
+          i++; // skip next quote
+        } else {
+          inQuotes = !inQuotes;
+        }
+      } else if (char === "," && !inQuotes) {
+        result.push(current);
+        current = "";
+      } else {
+        current += char;
+      }
+    }
+    result.push(current); // push last column
+    return result;
+  }
+  const headers = splitCSV(lines[0]);
   const data = lines.slice(1).map((line) => {
-    const values = line.split(",");
+    const values = splitCSV(line);
     const rowObj = {};
     headers.forEach((header, i) => {
       header = header.trim();
       let cellValue = values[i] || "";
-      if (cellValue.startsWith('"')) {
-        cellValue = cellValue.slice(1);
-      }
-      if (cellValue.endsWith('"')) {
-        cellValue = cellValue.slice(0, -1);
+      if (cellValue === "\r") {
+        cellValue = "";
       }
       rowObj[header] = cellValue;
     });

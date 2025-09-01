@@ -8,8 +8,10 @@ import {
   formatDate,
   variableFormatting,
   isMobile,
+  dataPullFromSheet,
 } from "./helpers.js";
 import { getDropdownValue } from "./populateGeneralDropdowns.js";
+import { fetchGoogleSheetCSV } from "./googleSheets.js";
 
 export function ConsumerTrends() {
   const [selectedVariable, setSelectedVariable] = useState("DAU");
@@ -85,29 +87,41 @@ export function ConsumerTrends() {
 
   // fetch data from file, later from live sheet
   useEffect(() => {
-    d3.csv(
-      "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/daily-data.csv"
-    ).then((data) => {
-      data.forEach((d) => {
-        d["system"] = d["os"];
-        d["field"] = d["vertical"];
-        d["date"] = d["date"];
-        d["country"] = d["country"];
-        d["dau"] =
-          d["total_DAU"] === "" ? null : +d["total_DAU"].replaceAll(",", "");
-        d["downloads"] =
-          d["total_downloads"] === ""
-            ? null
-            : +d["total_downloads"].replaceAll(",", "");
-        d["time_spent"] =
-          d["total_duration_minutes"] === ""
-            ? null
-            : +d["total_duration_minutes"].replaceAll(",", "");
-      });
-
-      setData(data);
-    });
+    if (dataPullFromSheet) {
+      fetchGoogleSheetCSV("daily-data")
+        .then((data) => handleData(data))
+        .catch((error) => {
+          console.error(
+            "Error fetching sheet data (last updated date):",
+            error
+          );
+        });
+    } else {
+      d3.csv(
+        "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/daily-data.csv"
+      ).then((data) => handleData(data));
+    }
   }, []);
+  function handleData(data) {
+    data.forEach((d) => {
+      d["system"] = d["os"];
+      d["field"] = d["vertical"];
+      d["date"] = d["date"];
+      d["country"] = d["country"];
+      d["dau"] =
+        d["total_DAU"] === "" ? null : +d["total_DAU"].replaceAll(",", "");
+      d["downloads"] =
+        d["total_downloads"] === ""
+          ? null
+          : +d["total_downloads"].replaceAll(",", "");
+      d["time_spent"] =
+        d["total_duration_minutes"] === "" ||
+        d["total_duration_minutes"] === null
+          ? null
+          : +d["total_duration_minutes"].replaceAll(",", "");
+    });
+    setData(data);
+  }
 
   if (data.length === 0) {
     return html`<div>Data loading...</div>`;
@@ -194,7 +208,6 @@ export function ConsumerTrends() {
       !isNaN(d[buttonToVariableMapping[selectedVariable]])
     );
   });
-
   // ticks
   const xAxisTicks = prevTime.ticks(12);
   let xAxisTicksWidth = prevTime(xAxisTicks[1]) - prevTime(xAxisTicks[0]);
