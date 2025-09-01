@@ -322,7 +322,7 @@ export function AdvertiserTrends() {
           <path
             d="${currentLine(addMissingDaysCurrent(datapointsCurrent))}"
             fill="none"
-            stroke="#0280FB"
+            stroke="#C368F9"
             stroke-width="3"
             style="transition: all ease 0.3s"
           />

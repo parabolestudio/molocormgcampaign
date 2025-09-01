@@ -96,6 +96,7 @@ export const variableFormatting = {
 };
 
 export const isMobile = window.innerWidth <= 480;
+export const dataPullFromSheet = true;
 
 // time scales
 const prevYear = new Date().getFullYear() - 1;

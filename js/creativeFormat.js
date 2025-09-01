@@ -27,7 +27,7 @@ export function renderCreativeFormats() {
     {
       name: "Video",
       containerId: "vis-creative-format-video",
-      color: "#C368F9",
+      color: "#0280FB",
     },
     {
       name: "Statics",

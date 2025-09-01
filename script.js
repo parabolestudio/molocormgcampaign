@@ -101,30 +101,3 @@ renderButtonGroup("vis-map-button-group", itemsMap, itemsMap[0]);
 
 renderCreativeFormats();
 renderLineChartLegends();
-
-// // fetch data from a public Google sheet without the API directly from the URL
-// async function fetchGoogleSheetCSV(sheetUrl) {
-//   const response = await fetch(sheetUrl);
-//   const csvText = await response.text();
-//   const rows = csvText
-//     .trim()
-//     .split("\n")
-//     .map((row) => row.split(","));
-//   return rows;
-// }
-
-// // Example usage:
-// const SHEET_ID =
-//   "2PACX-1vTHjzo63bGZDnWJEY7Znbn7_iaFFkaavshfQgbIVQ9wwawIRN959vAT8t_VT-k2pK3Enz3xPMJcJE-s";
-// const SHEET_TAB_GID_1 = "0";
-// const SHEET_TAB_GID_2 = "1850923812";
-
-// const sheetUrlTab1 = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${SHEET_TAB_GID_1}&single=true&output=csv`;
-// const sheetUrlTab2 = `https://docs.google.com/spreadsheets/d/e/${SHEET_ID}/pub?gid=${SHEET_TAB_GID_2}&single=true&output=csv`;
-
-// fetchGoogleSheetCSV(sheetUrlTab1).then((data) => {
-//   console.log("Sheet data 1:", data);
-// });
-// fetchGoogleSheetCSV(sheetUrlTab2).then((data) => {
-//   console.log("Sheet data 2:", data);
-// });
