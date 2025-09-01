@@ -85,7 +85,6 @@ export function ConsumerTrends() {
     };
   }, [selectedVariable]);
 
-  // fetch data from file, later from live sheet
   useEffect(() => {
     if (dataPullFromSheet) {
       fetchGoogleSheetCSV("daily-data")

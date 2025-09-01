@@ -20,9 +20,12 @@ import {
   formatDate,
   variableFormatting,
   isMobile,
+  dataPullFromSheet,
 } from "./helpers.js";
+import { fetchGoogleSheetCSV } from "./googleSheets.js";
 
 export function renderCreativeFormats() {
+  let myData = [];
   const formats = [
     {
       name: "Video",
@@ -34,95 +37,81 @@ export function renderCreativeFormats() {
       containerId: "vis-creative-format-statics",
       color: "#37BF92",
     },
-    // {
-    //   name: "Playables",
-    //   containerId: "vis-creative-format-playables",
-    //   color: "#37BF92",
-    // },
   ];
 
-  Promise.all([
+  if (dataPullFromSheet) {
+    fetchGoogleSheetCSV("creative-formats")
+      .then((data) => {
+        handleData(data);
+        renderFormats(data);
+      })
+      .catch((error) => {
+        console.error("Error fetching sheet data (last updated date):", error);
+      });
+  } else {
     d3.csv(
       "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data4.csv"
-    ),
-    // d3.csv(
-    //   "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/creative-formats-data3-world.csv"
-    // ),
-  ])
-    .then((files) => {
-      const weeklyData = files[0];
-      // const worldData = files[1];
-
-      // daily
-      // usData.forEach((d) => {
-      //   d["system"] = d["os"];
-      //   d["field"] = d["vertical"];
-      //   d["country"] = d["country"];
-      //   d["format"] = d["creative_format"];
-      //   d["date"] = d["date"];
-      //   d["cpm"] = +d["cpm"];
-      //   d["cpi"] = +d["cpi"];
-      //   d["cpftd"] = +d["cftd"];
-      //   d["spend_share"] = +d["spend_share"];
-      // });
-
-      // weekly
-      weeklyData.forEach((d) => {
-        d["system"] = d["os"];
-        d["field"] = d["sub_genre"];
-        d["country"] = "USA"; // d["country"];
-        d["format"] = d["format_type"];
-        d["date"] = d["week_utc"];
-        d["cpm"] =
-          d["cpm_bm"] && d["cpm_bm"] !== ""
-            ? +d["cpm_bm"].replace("$", "")
-            : null;
-        d["cpi"] =
-          d["cpi_bm"] && d["cpi_bm"] !== ""
-            ? +d["cpi_bm"].replace("$", "")
-            : null;
-        d["cpftd"] =
-          d["cpftd_bm"] && d["cpftd_bm"] !== ""
-            ? +d["cpftd_bm"].replace("$", "")
-            : null;
-        d["ipm"] =
-          d["ipm_bm"] && d["ipm_bm"] !== ""
-            ? +d["ipm_bm"].replace("$", "")
-            : null;
-        d["i2a"] =
-          d["i2a_bm"] && d["i2a_bm"] !== ""
-            ? +d["i2a_bm"].replace("%", "") / 100
-            : null;
-        d["spend_share"] = +d["format_spend_share"].replace("%", "") / 100;
-      });
-
-      for (let i = 0; i < formats.length; i++) {
-        const { name, containerId, color } = formats[i];
-        const containerElement = document.getElementById(containerId);
-        if (containerElement) {
-          // clear existing content before rendering
-          containerElement.innerHTML = "";
-
-          // Render ButtonGroup as a component so hooks work
-          renderComponent(
-            html`<${CreativeFormat}
-              formatName=${name}
-              containerId=${containerId}
-              data=${weeklyData.filter((d) => d["format"] === name)}
-              color=${color}
-            />`,
-            containerElement
-          );
-        } else {
-          console.error(
-            `Could not find container element for creative format with id ${containerId}`
-          );
-        }
-      }
-    })
-    .catch((err) => {
-      console.error("Error loading creative formats data:", err);
+    ).then((data) => {
+      handleData(data);
+      renderFormats(data);
     });
+  }
+  function handleData(data) {
+    return data.forEach((d) => {
+      d["system"] = d["os"];
+      d["field"] = d["sub_genre"];
+      d["country"] = "USA"; // d["country"];
+      d["format"] = d["format_type"];
+      d["date"] = d["week_utc"];
+      d["cpm"] =
+        d["cpm_bm"] && d["cpm_bm"] !== ""
+          ? +d["cpm_bm"].replace("$", "")
+          : null;
+      d["cpi"] =
+        d["cpi_bm"] && d["cpi_bm"] !== ""
+          ? +d["cpi_bm"].replace("$", "")
+          : null;
+      d["cpftd"] =
+        d["cpftd_bm"] && d["cpftd_bm"] !== ""
+          ? +d["cpftd_bm"].replace("$", "")
+          : null;
+      d["ipm"] =
+        d["ipm_bm"] && d["ipm_bm"] !== ""
+          ? +d["ipm_bm"].replace("$", "")
+          : null;
+      d["i2a"] =
+        d["i2a_bm"] && d["i2a_bm"] !== ""
+          ? +d["i2a_bm"].replace("%", "") / 100
+          : null;
+      d["spend_share"] = +d["format_spend_share"].replace("%", "") / 100;
+    });
+  }
+
+  function renderFormats(data) {
+    for (let i = 0; i < formats.length; i++) {
+      const { name, containerId, color } = formats[i];
+      const containerElement = document.getElementById(containerId);
+      if (containerElement) {
+        // clear existing content before rendering
+        containerElement.innerHTML = "";
+
+        // Render ButtonGroup as a component so hooks work
+        renderComponent(
+          html`<${CreativeFormat}
+            formatName=${name}
+            containerId=${containerId}
+            data=${data.filter((d) => d["format"] === name)}
+            color=${color}
+          />`,
+          containerElement
+        );
+      } else {
+        console.error(
+          `Could not find container element for creative format with id ${containerId}`
+        );
+      }
+    }
+  }
 }
 
 export function CreativeFormat({

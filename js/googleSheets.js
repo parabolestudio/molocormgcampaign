@@ -52,6 +52,9 @@ const SHEET_TAB_IDS = {
   "daily-data": "50498285",
   "advertiser-trends": "927917492",
   "last-data-update": "255109729",
+  "creative-formats": "509586178",
+  "state-level": "811799059",
+  leaderboard: "1245037258",
 };
 
 function getSheetUrl(tabName) {

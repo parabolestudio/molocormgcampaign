@@ -86,8 +86,6 @@ export function AdvertiserTrends() {
     };
   }, [selectedVariable]);
 
-  // fetch data from file, later from live sheet
-
   useEffect(() => {
     if (dataPullFromSheet) {
       fetchGoogleSheetCSV("advertiser-trends")
@@ -100,7 +98,7 @@ export function AdvertiserTrends() {
         });
     } else {
       d3.csv(
-        "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/daily-data.csv"
+        "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/data/advertiser-trends-data.csv"
       ).then((data) => handleData(data));
     }
   }, []);
