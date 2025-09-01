@@ -276,7 +276,7 @@ export function AdvertiserTrends() {
                     y="${innerHeight}"
                     width="${xAxisTicksWidth}"
                     height="${isMobile ? 20 : 40}"
-                    fill="#D3F5FF"
+                    fill="#F3DFFF"
                     stroke="white"
                     stroke-width="5"
                   />
