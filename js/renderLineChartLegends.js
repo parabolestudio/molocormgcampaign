@@ -45,17 +45,17 @@ function LineChartLegend(props) {
     style="display: flex; gap: 24px; flex-wrap: wrap;"
   >
     <p
-      class="legend-item"
-      style="display: flex; align-items: center; gap: 12px; margin: 0;"
+      class="legend-item rmg-viz-subtitle"
+      style="display: flex; align-items: center; gap: 8px; margin: 0;"
     >
       Past(2024/2025)
       <span
-        style="width: 60px; height: 3px; display: inline-block; border-radius: 4px; background-color: ${props.color};"
+        style="width: 60px; height: 3px; display: inline-block; border-radius: 4px; background-color: #C3C3C3;"
       ></span>
     </p>
     <p
-      class="legend-item"
-      style="display: flex; align-items: center; gap: 12px; margin: 0;"
+      class="legend-item rmg-viz-subtitle"
+      style="display: flex; align-items: center; gap: 8px; margin: 0;"
     >
       Current(2025/2026)
       <span
