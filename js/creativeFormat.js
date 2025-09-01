@@ -32,7 +32,7 @@ export function renderCreativeFormats() {
     {
       name: "Statics",
       containerId: "vis-creative-format-statics",
-      color: "#0280FB",
+      color: "#37BF92",
     },
     // {
     //   name: "Playables",
