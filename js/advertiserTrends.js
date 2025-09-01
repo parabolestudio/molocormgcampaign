@@ -348,8 +348,7 @@ export function AdvertiserTrends() {
                   text-anchor="${isMobile ? "start" : "end"}"
                   class="charts-text-body"
                 >
-                  ${(selectedVariable === "CPFTD" ||
-                    selectedVariable === "Spend") &&
+                  ${["CPFTD", "CPM", "CPI"].includes(selectedVariable) &&
                   i === yAxisTicks.length - 1
                     ? "$"
                     : ""}
