@@ -236,8 +236,8 @@ export function CreativeFormat({
     visContainer && visContainer.offsetWidth ? visContainer.offsetWidth : 600;
 
   const margin = {
-    allLeft: 50,
-    allRight: 5,
+    allLeft: 45,
+    allRight: 0,
     costTop: 50,
     costBottom: 50,
     spendTop: 30,
@@ -436,10 +436,10 @@ export function CreativeFormat({
               </g>`;
             })}
             <text
-              x="${-axisOffsetX}"
+              x="${isMobile ? -axisOffsetX - margin.allLeft : -axisOffsetX}"
               y="${-margin.costTop / 2}"
               dominant-baseline="middle"
-              text-anchor="end"
+              text-anchor="${isMobile ? "start" : "end"}"
               class="charts-text-body-bold"
             >
               Cost
@@ -514,7 +514,9 @@ export function CreativeFormat({
               100%
             </text>
             <text
-              x="${-axisOffsetX - 40}"
+              x="${isMobile
+                ? -axisOffsetX - margin.allLeft
+                : -axisOffsetX - 40}"
               y="${-25}"
               dominant-baseline="middle"
               text-anchor="start"
