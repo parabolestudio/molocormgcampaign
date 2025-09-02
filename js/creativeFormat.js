@@ -9,14 +9,9 @@ import {
   buttonToVariableMapping,
   prevTimeScale,
   currentTimeScale,
-  allDaysPrev,
-  allDaysCurrent,
-  allWeeksCurrent,
-  allWeeksPrev,
   addMissingDaysPrev,
   addMissingDaysCurrent,
-  addMissingWeeksPrev,
-  addMissingWeeksCurrent,
+  getWeek,
   formatDate,
   variableFormatting,
   isMobile,
@@ -191,10 +186,6 @@ export function CreativeFormat({
     };
   }, [selectedVariable]);
 
-  // const dataset = isDaily
-  //   ? usData
-  //   : worldData.filter((d) => d["country"] === country);
-
   // filtering data
   const filteredData = data.filter((d) => {
     return d["system"] === system && d["field"] === field;
@@ -203,21 +194,22 @@ export function CreativeFormat({
   let datapoints = filteredData.map((d) => {
     return {
       date: d["date"],
+      weekNumber: getWeek(new Date(d["date"])),
       cost: d[buttonToVariableMapping[selectedVariable]],
       spend_share: d["spend_share"],
     };
   });
 
-  //   console.log(
-  //     "Rendering CreativeFormat component for:",
-  //     formatName,
-  //     filteredData,
-  //     system,
-  //     country,
-  //     field,
-  //     selectedVariable,
-  //     datapoints
-  //   );
+  // console.log(
+  //   "Rendering CreativeFormat component for:",
+  //   formatName,
+  //   filteredData,
+  //   system,
+  //   country,
+  //   field,
+  //   selectedVariable,
+  //   datapoints
+  // );
 
   // set up vis dimensions
   const visContainer = document.querySelector(`#${containerId}`);
@@ -302,14 +294,12 @@ export function CreativeFormat({
     //   : addMissingWeeksCurrent(datapointsCurrent)
   );
 
-  const barsScalePrev = d3
+  // array with weeknumbers starting at 32, 32 until 52, then 1 until 31
+  const weekNumberArray = d3.range(32, 53).concat(d3.range(1, 32));
+
+  const barScaleWeekNumbers = d3
     .scaleBand()
-    .domain(allWeeksPrev)
-    .range([0, chartWidth])
-    .padding(0.1);
-  const barsScaleCurrent = d3
-    .scaleBand()
-    .domain(allWeeksCurrent)
+    .domain(weekNumberArray)
     .range([0, chartWidth])
     .padding(0.1);
 
@@ -328,7 +318,7 @@ export function CreativeFormat({
       onmousemove="${(event) => {
         const pointer = d3.pointer(event);
 
-        const leftSide = margin.allLeft + axisOffsetX;
+        const leftSide = margin.allLeft + 2 * axisOffsetX;
         const rightSide = leftSide + chartWidth;
 
         if (pointer[0] >= leftSide && pointer[0] <= rightSide) {
@@ -338,37 +328,23 @@ export function CreativeFormat({
             .invert(innerX)
             .toISOString()
             .slice(0, 10);
-
-          // // get first day of week for datePrev
-          // const firstDayOfWeekPrev = d3.timeMonday
-          //   .offset(new Date(datePrev), -1)
-          //   .toISOString()
-          //   .slice(0, 10);
-          // console.log(
-          //   "Tag prev:",
-          //   datePrev,
-          //   "Week prev:",
-          //   firstDayOfWeekPrev,
-          //   allWeeksPrev
-          // );
-
-          // const firstDayOfWeekCurrent = d3.timeMonday
-          //   .offset(new Date(dateCurrent), -1)
-          //   .toISOString()
-          //   .slice(0, 10);
+          const weekPrev = getWeek(new Date(datePrev));
+          const weekCurrent = getWeek(new Date(dateCurrent));
 
           // get value for hoveredItem
           const datapointPrev =
-            datapointsPrev.find((d) => d.date === datePrev) || {};
+            datapointsPrev.find((d) => d.weekNumber === weekPrev) || {};
           const datapointCurrent =
-            datapointsCurrent.find((d) => d.date === dateCurrent) || {};
+            datapointsCurrent.find((d) => d.weekNumber === weekCurrent) || {};
 
           setHoveredItem({
             x: innerX,
             tooltipX: innerX + margin.allLeft + axisOffsetX,
             tooltipY: margin.costTop,
             datePrev,
+            weekPrev,
             dateCurrent,
+            weekCurrent,
             variable1: selectedVariable,
             costPrev: datapointPrev.cost || null,
             costCurrent: datapointCurrent.cost || null,
@@ -538,19 +514,19 @@ export function CreativeFormat({
           <g>
             ${datapointsPrev.map((d) => {
               return html`<rect
-                x="${barsScalePrev(d.date)}"
+                x="${barScaleWeekNumbers(d.weekNumber)}"
                 y="${spendScale(d.spend_share)}"
-                width="${barsScalePrev.bandwidth() / 2}"
+                width="${barScaleWeekNumbers.bandwidth() / 2}"
                 height="${heightSpend - spendScale(d.spend_share)}"
                 fill="#D9D9D9"
               />`;
             })}
             ${datapointsCurrent.map((d) => {
               return html`<rect
-                x="${barsScaleCurrent(d.date) +
-                barsScaleCurrent.bandwidth() / 2}"
+                x="${barScaleWeekNumbers(d.weekNumber) +
+                barScaleWeekNumbers.bandwidth() / 2}"
                 y="${spendScale(d.spend_share)}"
-                width="${barsScaleCurrent.bandwidth() / 2}"
+                width="${barScaleWeekNumbers.bandwidth() / 2}"
                 height="${heightSpend - spendScale(d.spend_share)}"
                 fill="${color}"
               />`;
@@ -570,7 +546,11 @@ function Tooltip({ hoveredItem }) {
     class="tooltip"
     style="left: ${hoveredItem.tooltipX}px; top: ${hoveredItem.tooltipY}px;"
   >
-    <p class="tooltip-title">${formatDate(hoveredItem.datePrev)}</p>
+    <p class="tooltip-title">
+      Week ${hoveredItem.weekPrev} in 2024<br />(${formatDate(
+        hoveredItem.datePrev
+      )})
+    </p>
     <div>
       <p class="tooltip-label">${hoveredItem.variable1}</p>
       <p class="tooltip-value">
@@ -594,7 +574,10 @@ function Tooltip({ hoveredItem }) {
       </p>
     </div>
     <div style="border-top: 1px solid #D9D9D9; width: 100%;" />
-    <p class="tooltip-title">${formatDate(hoveredItem.dateCurrent)}</p>
+    <p class="tooltip-title">
+      Week ${hoveredItem.weekCurrent} in 2025<br />
+      (${formatDate(hoveredItem.dateCurrent)})
+    </p>
     <div>
       <p class="tooltip-label">${hoveredItem.variable1}</p>
       <p class="tooltip-value">
