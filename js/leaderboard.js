@@ -101,7 +101,7 @@ export function Leaderboard() {
         1
           ? "#60E2B7"
           : "#CCF5E8"}; ${isMobile
-          ? "grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);"
+          ? "grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr);"
           : "grid-template-columns: 80px auto repeat(4, 150px); "}"
       >
         <div
@@ -159,11 +159,17 @@ export function Leaderboard() {
             : null}
           ${d.cpftd ? variableFormatting["cpftd"](d.cpftd) : "-"}
         </div>
-        ${isMobile
-          ? null
-          : html`<div class="row-cell row-value">
-              ${d.arppu ? variableFormatting["arppu"](d.arppu) : "-"}
-            </div>`}
+        <div
+          class="row-cell row-value"
+          style="${isMobile ? "grid-area: 2 / 4 / 3 / 5" : ``}"
+        >
+          ${isMobile
+            ? html`<span class="charts-text-body-bold row-title-mobile"
+                >ARPPU</span
+              >`
+            : null}
+          ${d.arppu ? variableFormatting["arppu"](d.arppu) : "-"}
+        </div>
       </div>
     `;
   });

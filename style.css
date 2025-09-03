@@ -105,6 +105,9 @@
     font-weight: 700;
     font-size: 21.5px;
     line-height: 1.4;
+    @media (max-width: 480px) {
+      font-size: 18px;
+    }
   }
   .row-title-mobile {
     color: #040078;
