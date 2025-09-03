@@ -83,7 +83,7 @@ renderButtonGroup(
   itemsConsumer[0]
 );
 
-const itemsAdvertiser = ["CPM", "CPI", "CPFTD"];
+const itemsAdvertiser = ["CPM", "CPI", "CPFTD", "ARPPU"];
 renderButtonGroup(
   "vis-advertiser-trends-button-group",
   itemsAdvertiser,

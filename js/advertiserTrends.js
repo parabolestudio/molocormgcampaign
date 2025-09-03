@@ -120,6 +120,10 @@ export function AdvertiserTrends() {
         d["cpftd_bm"] && d["cpftd_bm"] !== ""
           ? +d["cpftd_bm"].replace("$", "")
           : null;
+      d["arppu"] =
+        d["arppu_d30_bm"] && d["arppu_d30_bm"] !== ""
+          ? +d["arppu_d30_bm"].replace("$", "")
+          : null;
     });
 
     setData(data);
@@ -361,8 +365,9 @@ export function AdvertiserTrends() {
                   text-anchor="${isMobile ? "start" : "end"}"
                   class="charts-text-body"
                 >
-                  ${["CPFTD", "CPM", "CPI"].includes(selectedVariable) &&
-                  i === yAxisTicks.length - 1
+                  ${["CPFTD", "CPM", "CPI", "ARPPU"].includes(
+                    selectedVariable
+                  ) && i === yAxisTicks.length - 1
                     ? "$"
                     : ""}
                   ${tick >= 1_000_000

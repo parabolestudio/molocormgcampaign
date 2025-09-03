@@ -64,6 +64,7 @@ export const buttonToVariableMapping = {
   Spend: "spend",
   Downloads: "downloads",
   "Time Spent": "time_spent",
+  ARPPU: "arppu",
 };
 
 export const variableFormatting = {
@@ -71,6 +72,7 @@ export const variableFormatting = {
   cpi: (value, precision = 2) => `$${value.toFixed(precision)}`,
   cpftd: (value, precision = 2) => `$${value.toFixed(precision)}`,
   spend: (value, precision = 2) => `$${value.toFixed(precision)}`,
+  arppu: (value, precision = 2) => `$${value.toFixed(precision)}`,
   spend_share: (value, precision = 2) => `${(value * 100).toFixed(precision)}%`,
   dau: (value, precision = 2) => {
     return value >= 1_000_000
@@ -158,6 +160,7 @@ function addNonExistingDays(dataArray, startDate, endDate) {
       i2a: null,
       downloads: null,
       time_spent: null,
+      arppu: null,
     }))
   );
 
@@ -201,6 +204,7 @@ function addNonExistingWeeks(dataArray, startDate, endDate) {
       i2a: null,
       downloads: null,
       time_spent: null,
+      arppu: null,
     }))
   );
 
