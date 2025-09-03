@@ -72,6 +72,10 @@ export function Leaderboard() {
         d["cpftd"] && d["cpftd"] !== ""
           ? +d["cpftd"].replace("$", "").replace(",", "")
           : null;
+      d["arppu"] =
+        d["arppu_d30"] && d["arppu_d30"] !== ""
+          ? +d["arppu_d30"].replace("$", "")
+          : null;
 
       d["rank"] = +d["rank_by_spend"];
     });
@@ -98,7 +102,7 @@ export function Leaderboard() {
           ? "#60E2B7"
           : "#CCF5E8"}; ${isMobile
           ? "grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr);"
-          : "grid-template-columns: 80px auto repeat(3, 150px); "}"
+          : "grid-template-columns: 80px auto repeat(4, 150px); "}"
       >
         <div
           class="row-cell row-rank"
@@ -131,7 +135,7 @@ export function Leaderboard() {
                 >CPM</span
               >`
             : null}
-          ${variableFormatting["cpm"](d.cpm)}
+          ${d.cpm ? variableFormatting["cpm"](d.cpm) : "-"}
         </div>
         <div
           class="row-cell row-value"
@@ -142,7 +146,7 @@ export function Leaderboard() {
                 >CPI</span
               >`
             : null}
-          ${variableFormatting["cpi"](d.cpi)}
+          ${d.cpi ? variableFormatting["cpi"](d.cpi) : "-"}
         </div>
         <div
           class="row-cell row-value"
@@ -153,21 +157,27 @@ export function Leaderboard() {
                 >CPFTD</span
               >`
             : null}
-          ${variableFormatting["cpftd"](d.cpftd)}
+          ${d.cpftd ? variableFormatting["cpftd"](d.cpftd) : "-"}
         </div>
+        ${isMobile
+          ? null
+          : html`<div class="row-cell row-value">
+              ${d.arppu ? variableFormatting["arppu"](d.arppu) : "-"}
+            </div>`}
       </div>
     `;
   });
 
   const headerRow = html`
     <div
-      style="display: grid; grid-template-columns: 80px auto repeat(3, 150px); width: 100%;"
+      style="display: grid; grid-template-columns: 80px auto repeat(4, 150px); width: 100%;"
     >
       <div class="header-cell" style="grid-area: 1 / 1 / 2 / 2;">Rank</div>
       <div class="header-cell" style="grid-area: 1 / 2 / 2 / 3;">Name</div>
       <div class="header-cell" style="grid-area: 1 / 3 / 2 / 4;">CPM</div>
       <div class="header-cell" style="grid-area: 1 / 4 / 2 / 5;">CPI</div>
       <div class="header-cell" style="grid-area: 1 / 5 / 2 / 6;">CPFTD</div>
+      <div class="header-cell" style="grid-area: 1 / 6 / 2 / 7;">ARPPU</div>
     </div>
   `;
 
