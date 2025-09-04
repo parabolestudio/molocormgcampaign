@@ -83,13 +83,13 @@ renderButtonGroup(
   itemsConsumer[0]
 );
 
-const itemsAdvertiser = ["CPM", "CPI", "CPFTD", "ARPPU"];
+const itemsAdvertiser = ["CPM", "CPI", "CPFTD (D7)"];
 renderButtonGroup(
   "vis-advertiser-trends-button-group",
   itemsAdvertiser,
   itemsAdvertiser[0]
 );
-const itemsFormats = ["CPM", "CPI", "CPFTD"];
+const itemsFormats = ["CPM", "CPI", "CPFTD (D7)"];
 renderButtonGroup(
   "vis-creative-formats-button-group",
   itemsFormats,

@@ -57,6 +57,7 @@ export const buttonToVariableMapping = {
   CPM: "cpm",
   CPI: "cpi",
   CPFTD: "cpftd",
+  "CPFTD (D7)": "cpftd",
   "Spend Share": "spend_share",
   DAU: "dau",
   IPM: "ipm",

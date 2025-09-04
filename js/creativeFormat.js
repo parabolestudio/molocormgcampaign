@@ -196,7 +196,7 @@ export function CreativeFormat({
       date: d["date"],
       weekNumber: getWeek(new Date(d["date"])),
       cost: d[buttonToVariableMapping[selectedVariable]],
-      spend_share: d["spend_share"],
+      spend_share: d["format_spend_share"],
     };
   });
 
@@ -394,7 +394,7 @@ export function CreativeFormat({
                   class="charts-text-body"
                 >
                   ${i === yAxisTicks.length - 1 &&
-                  ["CPM", "CPI", "CPFTD", "IPM"].includes(selectedVariable)
+                  ["CPM", "CPI", "CPFTD (D7)", "IPM"].includes(selectedVariable)
                     ? "$"
                     : ""}${tick}
                 </text>

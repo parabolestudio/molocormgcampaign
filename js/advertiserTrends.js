@@ -365,7 +365,7 @@ export function AdvertiserTrends() {
                   text-anchor="${isMobile ? "start" : "end"}"
                   class="charts-text-body"
                 >
-                  ${["CPFTD", "CPM", "CPI", "ARPPU"].includes(
+                  ${["CPFTD (D7)", "CPM", "CPI", "ARPPU"].includes(
                     selectedVariable
                   ) && i === yAxisTicks.length - 1
                     ? "$"
