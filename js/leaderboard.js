@@ -106,24 +106,9 @@ export function Leaderboard() {
             ? `grid-template-columns: auto repeat(2, ${
                 window.innerWidth <= 375 ? "1fr" : "110px"
               }); grid-template-rows: repeat(1, 1fr);`
-            : "grid-template-columns: 80px auto repeat(2, 150px); "
+            : "grid-template-columns: auto repeat(2, 250px); "
         }"
       >
-        ${
-          isMobile
-            ? null
-            : html` <div
-                class="row-cell row-rank"
-                style="${isMobile ? "grid-area: 1 / 1 / 2 / 2;" : ``}"
-              >
-                ${isMobile
-                  ? html`<span
-                      class="charts-text-body-bold row-title-mobile"
-                    ></span>`
-                  : null}
-                ${alphabet[i]}
-              </div>`
-        }
         <div
           class="row-cell row-name"
           style="${isMobile ? "grid-area: 1 / 1 / 2 / 2; " : ``}"
@@ -169,12 +154,11 @@ export function Leaderboard() {
 
   const headerRow = html`
     <div
-      style="display: grid; grid-template-columns: 80px auto repeat(2, 150px); width: 100%;"
+      style="display: grid; grid-template-columns: auto repeat(2, 250px); width: 100%;"
     >
-      <div class="header-cell" style="grid-area: 1 / 1 / 2 / 2;"></div>
-      <div class="header-cell" style="grid-area: 1 / 2 / 2 / 3;">Name</div>
-      <div class="header-cell" style="grid-area: 1 / 3 / 2 / 4;">CPM</div>
-      <div class="header-cell" style="grid-area: 1 / 4 / 2 / 5;">CPI</div>
+      <div class="header-cell" style="grid-area: 1 / 1 / 2 / 2;">Name</div>
+      <div class="header-cell" style="grid-area: 1 / 2 / 2 / 3;">CPM</div>
+      <div class="header-cell" style="grid-area: 1 / 3 / 2 / 4;">CPI</div>
     </div>
   `;
 

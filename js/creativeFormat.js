@@ -78,7 +78,7 @@ export function renderCreativeFormats() {
         d["i2a_bm"] && d["i2a_bm"] !== ""
           ? +d["i2a_bm"].replace("%", "") / 100
           : null;
-      d["spend_share"] = +d["format_spend_share"].replace("%", "") / 100;
+      d["spend_share"] = +d["format_spend_share"].replace("%", "");
     });
   }
 
