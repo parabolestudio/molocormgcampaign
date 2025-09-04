@@ -95,6 +95,7 @@
     font-weight: 400;
     font-size: 21.5px;
     line-height: 1.4;
+    padding-left: 20px;
 
     @media (max-width: 480px) {
       font-size: 18px;
