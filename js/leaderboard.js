@@ -156,7 +156,12 @@ export function Leaderboard() {
     <div
       style="display: grid; grid-template-columns: auto repeat(2, 250px); width: 100%;"
     >
-      <div class="header-cell" style="grid-area: 1 / 1 / 2 / 2;">Name</div>
+      <div
+        class="header-cell"
+        style="grid-area: 1 / 1 / 2 / 2;padding-left:20px;"
+      >
+        Name
+      </div>
       <div class="header-cell" style="grid-area: 1 / 2 / 2 / 3;">CPM</div>
       <div class="header-cell" style="grid-area: 1 / 3 / 2 / 4;">CPI</div>
     </div>
