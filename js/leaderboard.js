@@ -68,107 +68,98 @@ export function Leaderboard() {
         d["cpm"] && d["cpm"] !== "" ? +d["cpm"].replace("$", "") : null;
       d["cpi"] =
         d["cpi"] && d["cpi"] !== "" ? +d["cpi"].replace("$", "") : null;
-      d["cpftd"] =
-        d["cpftd"] && d["cpftd"] !== ""
-          ? +d["cpftd"].replace("$", "").replace(",", "")
-          : null;
-      d["arppu"] =
-        d["arppu_d30"] && d["arppu_d30"] !== ""
-          ? +d["arppu_d30"].replace("$", "")
-          : null;
+      // d["cpftd"] =
+      //   d["cpftd"] && d["cpftd"] !== ""
+      //     ? +d["cpftd"].replace("$", "").replace(",", "")
+      //     : null;
+      // d["arppu"] =
+      //   d["arppu_d30"] && d["arppu_d30"] !== ""
+      //     ? +d["arppu_d30"].replace("$", "")
+      //     : null;
 
-      d["rank"] = +d["rank_by_spend"];
+      // d["rank"] = +d["rank_by_spend"];
     });
 
     setData(data);
   }
 
-  const filteredData = data
-    .filter((d) => {
-      return d["system"] === system && d["field"] === field;
-    })
-    .sort((a, b) => a.rank - b.rank);
+  const filteredData = data.filter((d) => {
+    return d["system"] === system && d["field"] === field;
+  });
+  // .sort((a, b) => a.rank - b.rank);
 
   const visibleRows = showMore
     ? filteredData.slice(0, MAX_VISIBLE)
     : filteredData.slice(0, INITIAL_VISIBLE);
 
-  const rows = visibleRows.map((d) => {
+  // array with single characters from A to Z
+  const alphabet = Array.from(Array(26)).map((_, i) =>
+    String.fromCharCode(i + 65)
+  );
+
+  const rows = visibleRows.map((d, i) => {
     return html`
       <div
         class="row"
-        style="display: grid; width: 100%; border-radius: 10px; background: ${d.rank ===
-        1
-          ? "#60E2B7"
-          : "#CCF5E8"}; ${isMobile
-          ? "grid-template-columns: repeat(4, 1fr); grid-template-rows: repeat(2, 1fr);"
-          : "grid-template-columns: 80px auto repeat(4, 150px); "}"
+        style="display: grid; width: 100%; border-radius: 10px; background: "#60E2B7"; ${
+          isMobile
+            ? "grid-template-columns: auto repeat(2, 110px); grid-template-rows: repeat(1, 1fr);"
+            : "grid-template-columns: 80px auto repeat(2, 150px); "
+        }"
       >
-        <div
-          class="row-cell row-rank"
-          style="${isMobile ? "grid-area: 1 / 1 / 2 / 2;" : ``}"
-        >
-          ${isMobile
-            ? html`<span class="charts-text-body-bold row-title-mobile"
-                >Rank</span
-              >`
-            : null}
-          ${d.rank}.
-        </div>
+        ${
+          isMobile
+            ? null
+            : html` <div
+                class="row-cell row-rank"
+                style="${isMobile ? "grid-area: 1 / 1 / 2 / 2;" : ``}"
+              >
+                ${isMobile
+                  ? html`<span
+                      class="charts-text-body-bold row-title-mobile"
+                    ></span>`
+                  : null}
+                ${alphabet[i]}
+              </div>`
+        }
         <div
           class="row-cell row-name"
-          style="${isMobile ? "grid-area: 1 / 2 / 2 / 4; " : ``}"
+          style="${isMobile ? "grid-area: 1 / 1 / 2 / 2; " : ``}"
         >
-          ${isMobile
-            ? html`<span class="charts-text-body-bold row-title-mobile"
-                >Name</span
-              >`
-            : null}
-          Advertiser ${d.rank}
+          ${
+            isMobile
+              ? html`<span class="charts-text-body-bold row-title-mobile"
+                  >Name</span
+                >`
+              : null
+          }
+          Advertiser ${alphabet[i]}
         </div>
         <div
           class="row-cell row-value"
-          style="${isMobile ? "grid-area: 2 / 1 / 3 / 2;" : ``}"
+          style="${isMobile ? "grid-area: 1 / 2 / 2 / 3;" : ``}"
         >
-          ${isMobile
-            ? html`<span class="charts-text-body-bold row-title-mobile"
-                >CPM</span
-              >`
-            : null}
+          ${
+            isMobile
+              ? html`<span class="charts-text-body-bold row-title-mobile"
+                  >CPM</span
+                >`
+              : null
+          }
           ${d.cpm ? variableFormatting["cpm"](d.cpm) : "-"}
         </div>
         <div
           class="row-cell row-value"
-          style="${isMobile ? "grid-area: 2 / 2 / 3 / 3;" : ``}"
+          style="${isMobile ? "grid-area: 1 / 3 / 2 / 4;" : ``}"
         >
-          ${isMobile
-            ? html`<span class="charts-text-body-bold row-title-mobile"
-                >CPI</span
-              >`
-            : null}
+          ${
+            isMobile
+              ? html`<span class="charts-text-body-bold row-title-mobile"
+                  >CPI</span
+                >`
+              : null
+          }
           ${d.cpi ? variableFormatting["cpi"](d.cpi) : "-"}
-        </div>
-        <div
-          class="row-cell row-value"
-          style="${isMobile ? "grid-area: 2 / 3 / 3 / 4" : ``}"
-        >
-          ${isMobile
-            ? html`<span class="charts-text-body-bold row-title-mobile"
-                >CPFTD</span
-              >`
-            : null}
-          ${d.cpftd ? variableFormatting["cpftd"](d.cpftd) : "-"}
-        </div>
-        <div
-          class="row-cell row-value"
-          style="${isMobile ? "grid-area: 2 / 4 / 3 / 5" : ``}"
-        >
-          ${isMobile
-            ? html`<span class="charts-text-body-bold row-title-mobile"
-                >ARPPU</span
-              >`
-            : null}
-          ${d.arppu ? variableFormatting["arppu"](d.arppu) : "-"}
         </div>
       </div>
     `;
@@ -176,14 +167,12 @@ export function Leaderboard() {
 
   const headerRow = html`
     <div
-      style="display: grid; grid-template-columns: 80px auto repeat(4, 150px); width: 100%;"
+      style="display: grid; grid-template-columns: 80px auto repeat(2, 150px); width: 100%;"
     >
-      <div class="header-cell" style="grid-area: 1 / 1 / 2 / 2;">Rank</div>
+      <div class="header-cell" style="grid-area: 1 / 1 / 2 / 2;"></div>
       <div class="header-cell" style="grid-area: 1 / 2 / 2 / 3;">Name</div>
       <div class="header-cell" style="grid-area: 1 / 3 / 2 / 4;">CPM</div>
       <div class="header-cell" style="grid-area: 1 / 4 / 2 / 5;">CPI</div>
-      <div class="header-cell" style="grid-area: 1 / 5 / 2 / 6;">CPFTD</div>
-      <div class="header-cell" style="grid-area: 1 / 6 / 2 / 7;">ARPPU</div>
     </div>
   `;
 
