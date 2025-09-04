@@ -103,7 +103,9 @@ export function Leaderboard() {
         class="row"
         style="display: grid; width: 100%; border-radius: 10px; background: "#60E2B7"; ${
           isMobile
-            ? "grid-template-columns: auto repeat(2, 110px); grid-template-rows: repeat(1, 1fr);"
+            ? `grid-template-columns: auto repeat(2, ${
+                window.innerWidth <= 375 ? "1fr" : "110px"
+              }); grid-template-rows: repeat(1, 1fr);`
             : "grid-template-columns: 80px auto repeat(2, 150px); "
         }"
       >
