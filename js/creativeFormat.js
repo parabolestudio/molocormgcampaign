@@ -337,9 +337,14 @@ export function CreativeFormat({
           const datapointCurrent =
             datapointsCurrent.find((d) => d.weekNumber === weekCurrent) || {};
 
+          let tooltipX = innerX + margin.allLeft + axisOffsetX;
+          if (tooltipX + 150 > width) {
+            tooltipX = width - 160;
+          }
+
           setHoveredItem({
             x: innerX,
-            tooltipX: innerX + margin.allLeft + axisOffsetX,
+            tooltipX: tooltipX,
             tooltipY: margin.costTop,
             datePrev,
             weekPrev,

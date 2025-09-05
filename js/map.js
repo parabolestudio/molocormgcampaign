@@ -259,81 +259,85 @@ export function Map() {
   }
 
   return html`<div class="vis-map-container">
-    <${Tooltip} hoveredItem=${hoveredItem} />
-    <svg
-      viewBox="0 0 ${width} ${height}"
-      style="max-width: 1122px;margin: 0 auto; height: auto;"
+    <div
+      style="max-width: 1122px; margin: 0 auto; height: auto; position: relative;"
     >
-      <g stroke-linejoin="round" stroke-linecap="round">
-        ${statesArray.map(
-          (d) => html`<path
-            d="${d.path}"
-            fill="${d.fillColor}"
-            data-state-name="${d.name}"
-            data-state-value=${d.value}
-            onmouseenter="${(event) => {
-              d.value
-                ? setHoveredItem({
-                    x: d3.pointer(event)[0],
-                    y: d3.pointer(event)[1],
-                    date: selectedDate,
-                    name: d.name,
-                    value: d.value,
-                    variable: selectedVariable,
-                  })
-                : null;
-            }}"
-            onmouseleave="${() => {
-              setHoveredItem(null);
-            }}"
-            class="map-state ${d.value ? "map-state-filled" : ""}"
-          ></path>`
-        )}
-        <path
-          d="${geoPath(
-            topojson.mesh(
-              usGeoData,
-              usGeoData.objects.states,
-              (a, b) => a !== b
-            )
-          )}"
-          stroke="white"
-          fill="none"
-          border-width="4"
-        />
-      </g>
-    </svg>
-    <div style="margin-top:40px;">
-      <div class="rmg-filter-label">Value legend</div>
-      <div class="vis-map-value-legend">
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <div style="width:19px; height: 19px; background-color: #D9D9D9" />
-          <span class="charts-text-body" style="white-space: nowrap;"
-            >No data</span
-          >
-        </div>
+      <${Tooltip} hoveredItem=${hoveredItem} />
+      <svg viewBox="0 0 ${width} ${height}">
+        <g stroke-linejoin="round" stroke-linecap="round">
+          ${statesArray.map(
+            (d) => html`<path
+              d="${d.path}"
+              fill="${d.fillColor}"
+              data-state-name="${d.name}"
+              data-state-value=${d.value}
+              onmousemove="${(event) => {
+                console.log("enter", event);
+                d.value
+                  ? setHoveredItem({
+                      x: d3.pointer(event)[0],
+                      y: d3.pointer(event)[1],
+                      date: selectedDate,
+                      name: d.name,
+                      value: d.value,
+                      variable: selectedVariable,
+                    })
+                  : null;
+              }}"
+              onmouseleave="${() => {
+                setHoveredItem(null);
+              }}"
+              class="map-state ${d.value ? "map-state-filled" : ""}"
+            ></path>`
+          )}
+          <path
+            d="${geoPath(
+              topojson.mesh(
+                usGeoData,
+                usGeoData.objects.states,
+                (a, b) => a !== b
+              )
+            )}"
+            stroke="white"
+            fill="none"
+            border-width="4"
+          />
+        </g>
+      </svg>
+    </div>
+    <div class="vis-map-legend-container">
+      <div style="margin-top:40px;">
+        <div class="rmg-filter-label">Value legend</div>
+        <div class="vis-map-value-legend">
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <div style="width:19px; height: 19px; background-color: #D9D9D9" />
+            <span class="charts-text-body" style="white-space: nowrap;"
+              >No data</span
+            >
+          </div>
 
-        <div style="display: flex; gap: 8px; align-items: center;">
-          <span class="charts-text-body"
-            >${variableFormatting[buttonToVariableMapping[selectedVariable]](
-              colorScale.domain()[0],
-              0
-            )}</span
-          >
-          <div
-            style="width: ${isMobile
-              ? "120px"
-              : "200px"}; height: 20px; background: linear-gradient(90deg, ${colorScale(
-              0
-            )} 0%, ${colorScale(maxValue)} 100%);
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <span class="charts-text-body"
+              >${variableFormatting[buttonToVariableMapping[selectedVariable]](
+                colorScale.domain()[0],
+                0
+              )}</span
+            >
+            <div
+              style="width: ${isMobile
+                ? "120px"
+                : "200px"}; height: 20px; background: linear-gradient(90deg, ${colorScale(
+                0
+              )} 0%, ${colorScale(maxValue)} 100%);
         "
-          ></div>
-          <span class="charts-text-body"
-            >${variableFormatting[buttonToVariableMapping[selectedVariable]](
-              colorScale.domain()[1],
-              0
-            )}</span
-          >
+            ></div>
+            <span class="charts-text-body"
+              >${variableFormatting[buttonToVariableMapping[selectedVariable]](
+                colorScale.domain()[1],
+                0
+              )}</span
+            >
+          </div>
         </div>
       </div>
     </div>
@@ -488,7 +492,9 @@ function Tooltip({ hoveredItem }) {
 
   return html`<div
     class="tooltip"
-    style="left: ${hoveredItem.x}px; top: ${hoveredItem.y}px;"
+    style="${isMobile
+      ? "left: unset; right: 0; top: -65px;"
+      : `left: ${hoveredItem.x}px; top: ${hoveredItem.y}px;`}"
   >
     <p class="tooltip-title">${hoveredItem.name}</p>
     <div>

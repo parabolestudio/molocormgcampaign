@@ -37,13 +37,13 @@
 
 #vis-map {
   .vis-map-container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    position: relative;
-
-    @media (max-width: 768px) {
-      align-items: flex-start;
+    .vis-map-legend-container {
+      display: flex;
+      justify-content: end;
+      width: 100%;
+      @media (max-width: 768px) {
+        justify-content: flex-start;
+      }
     }
 
     .vis-map-value-legend {
