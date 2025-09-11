@@ -8,19 +8,22 @@ import { getDropdownValue } from "./populateGeneralDropdowns.js";
 import {
   buttonToVariableMapping,
   prevTimeScale,
+  prevTimeScaleUTC,
   currentTimeScale,
+  currentTimeScaleUTC,
   addMissingDaysPrev,
   addMissingDaysCurrent,
   getWeek,
   formatDate,
+  formatDateUTC,
   variableFormatting,
   isMobile,
   dataPullFromSheet,
+  getDateInUTC,
 } from "./helpers.js";
 import { fetchGoogleSheetCSV } from "./googleSheets.js";
 
 export function renderCreativeFormats() {
-  let myData = [];
   const formats = [
     {
       name: "Video",
@@ -58,6 +61,7 @@ export function renderCreativeFormats() {
       d["country"] = "USA"; // d["country"];
       d["format"] = d["format_type"];
       d["date"] = d["week_utc"];
+      d["weekNumber"] = +d["Week Number"].trim();
       d["cpm"] =
         d["cpm_bm"] && d["cpm_bm"] !== ""
           ? +d["cpm_bm"].replace("$", "")
@@ -194,7 +198,7 @@ export function CreativeFormat({
   let datapoints = filteredData.map((d) => {
     return {
       date: d["date"],
-      weekNumber: getWeek(new Date(d["date"])),
+      weekNumber: d["weekNumber"],
       cost: d[buttonToVariableMapping[selectedVariable]],
       spend_share: d["format_spend_share"],
     };
@@ -246,62 +250,65 @@ export function CreativeFormat({
     .range([heightCost, 0])
     .nice();
   const spendScale = d3.scaleLinear().domain([0, 1]).range([heightSpend, 0]);
-  const prevTime = prevTimeScale.range([0, chartWidth]);
-  const currentTime = currentTimeScale.range([0, chartWidth]);
+  const prevTime = prevTimeScaleUTC.range([0, chartWidth]);
+  const currentTime = currentTimeScaleUTC.range([0, chartWidth]);
+
+  // array with weeknumbers starting at 32, 32 until 52, then 1 until 31
+  const weekNumberArray = d3.range(32, 53).concat(d3.range(1, 32));
+  const weekScale = d3
+    .scaleBand()
+    .domain(weekNumberArray)
+    .range([0, chartWidth]);
+
+  // for bars with padding
+  const barScaleWeekNumbers = d3
+    .scaleBand()
+    .domain(weekNumberArray)
+    .range([0, chartWidth])
+    .padding(0.1);
 
   const prevLineGen = d3
     .line()
     .y((d) => costScale(d.cost))
-    .x((d) => prevTime(new Date(d.date)))
+    .x((d) => weekScale(d.weekNumber))
     .defined((d) => d.cost !== null);
   // .curve(d3.curveBasis);
 
   const currentLineGen = d3
     .line()
     .y((d) => costScale(d.cost))
-    .x((d) => currentTime(new Date(d.date)))
+    .x((d) => weekScale(d.weekNumber))
     .defined((d) => d.cost !== null);
   // .curve(d3.curveCatmullRom);
 
   const datapointsPrev = datapoints
     .filter((d) => {
-      const date = new Date(d.date);
+      const date = getDateInUTC(d.date);
       return (
         date >= prevTime.domain()[0] &&
         date <= prevTime.domain()[1] &&
         !isNaN(d.cost)
       );
     })
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
+    .sort((a, b) => getDateInUTC(a.date) - getDateInUTC(b.date));
 
   const datapointsCurrent = datapoints
     .filter((d) => {
-      const date = new Date(d.date);
+      const date = getDateInUTC(d.date);
       return (
         date >= currentTime.domain()[0] &&
         date <= currentTime.domain()[1] &&
         !isNaN(d.cost)
       );
     })
-    .sort((a, b) => new Date(a.date) - new Date(b.date));
+    .sort((a, b) => getDateInUTC(a.date) - getDateInUTC(b.date));
 
-  const prevLine = prevLineGen(
-    isDaily ? addMissingDaysPrev(datapointsPrev) : datapointsPrev
-    //   : addMissingWeeksPrev(datapointsPrev)
-  );
-  const currentLine = currentLineGen(
-    isDaily ? addMissingDaysCurrent(datapointsCurrent) : datapointsCurrent
-    //   : addMissingWeeksCurrent(datapointsCurrent)
-  );
+  const prevLine = prevLineGen(datapointsPrev);
+  const currentLine = currentLineGen(datapointsCurrent);
 
-  // array with weeknumbers starting at 32, 32 until 52, then 1 until 31
-  const weekNumberArray = d3.range(32, 53).concat(d3.range(1, 32));
-
-  const barScaleWeekNumbers = d3
-    .scaleBand()
-    .domain(weekNumberArray)
-    .range([0, chartWidth])
-    .padding(0.1);
+  // datapointsPrev.forEach((d) => {
+  //   console.log(d.weekNumber, d.date, weekScale(d.weekNumber));
+  // });
 
   // y axis ticks
   const yAxisTicks = isMobile ? costScale.domain() : costScale.ticks(4);
@@ -323,19 +330,43 @@ export function CreativeFormat({
 
         if (pointer[0] >= leftSide && pointer[0] <= rightSide) {
           const innerX = pointer[0] - margin.allLeft - axisOffsetX;
-          const datePrev = prevTime.invert(innerX).toISOString().slice(0, 10);
-          const dateCurrent = currentTime
-            .invert(innerX)
-            .toISOString()
-            .slice(0, 10);
-          const weekPrev = getWeek(new Date(datePrev));
-          const weekCurrent = getWeek(new Date(dateCurrent));
+          // const datePrev = prevTime.invert(innerX).toISOString().slice(0, 10);
+
+          const eachBand = weekScale.step();
+          const index = Math.floor(innerX / eachBand);
+          const hoveredWeek = weekScale.domain()[index];
+          // console.log("inverted", innerX, eachBand, index, hoveredWeek);
+
+          // const datePrev = new Date(prevTimeScaleUTC.invert(innerX))
+          //   .toISOString()
+          //   .slice(0, 10);
+
+          // const dateCurrent = currentTime
+          //   .invert(innerX)
+          //   .toISOString()
+          //   .slice(0, 10);
+          // const dateCurrent = new Date(currentTimeScaleUTC.invert(innerX))
+          //   .toISOString()
+          //   .slice(0, 10);
+
+          // // TODO: ?
+          // const weekPrev = getWeek(new Date(datePrev));
+          // const weekCurrent = getWeek(new Date(dateCurrent));
+
+          // console.log(
+          //   "datePrev",
+          //   datePrev,
+          //   weekPrev,
+          //   "dateCurrent",
+          //   dateCurrent,
+          //   weekCurrent
+          // );
 
           // get value for hoveredItem
           const datapointPrev =
-            datapointsPrev.find((d) => d.weekNumber === weekPrev) || {};
+            datapointsPrev.find((d) => d.weekNumber === hoveredWeek) || {};
           const datapointCurrent =
-            datapointsCurrent.find((d) => d.weekNumber === weekCurrent) || {};
+            datapointsCurrent.find((d) => d.weekNumber === hoveredWeek) || {};
 
           let tooltipX = innerX + margin.allLeft + axisOffsetX;
           if (tooltipX + 150 > width) {
@@ -346,10 +377,9 @@ export function CreativeFormat({
             x: innerX,
             tooltipX: tooltipX,
             tooltipY: margin.costTop,
-            datePrev,
-            weekPrev,
-            dateCurrent,
-            weekCurrent,
+            week: hoveredWeek,
+            firstDayOfWeekPrev: datapointPrev.date || null,
+            firstDayOfWeekCurrent: datapointCurrent.date || null,
             variable1: selectedVariable,
             costPrev: datapointPrev.cost || null,
             costCurrent: datapointCurrent.cost || null,
@@ -423,7 +453,7 @@ export function CreativeFormat({
               text-anchor="start"
               class="charts-text-body"
             >
-              ${d3.timeFormat(isMobile ? "%b" : "%B")(prevTime.domain()[0])}
+              ${d3.utcFormat(isMobile ? "%b" : "%B")(prevTime.domain()[0])}
             </text>
             <text
               x="${currentTime.range()[1]}"
@@ -432,7 +462,7 @@ export function CreativeFormat({
               text-anchor="end"
               class="charts-text-body"
             >
-              ${d3.timeFormat(isMobile ? "%b" : "%B")(currentTime.domain()[1])}
+              ${d3.utcFormat(isMobile ? "%b" : "%B")(currentTime.domain()[1])}
             </text>
           </g>
           <path
@@ -547,14 +577,18 @@ export function CreativeFormat({
 function Tooltip({ hoveredItem }) {
   if (!hoveredItem) return null;
 
+  // const formattedWeekPrev = d3.utcFormat("%B %d, %Y")(hoveredItem.firstDayOfWeekPrev);
+  // const formattedWeekCurrent = d3.utcFormat("%B %d, %Y")(
+  //   hoveredItem.firstDayOfWeekCurrent
+  // );
+  // console.log("firstDayOfWeekCurrent", hoveredItem, formattedWeekCurrent);
+
   return html`<div
     class="tooltip"
     style="left: ${hoveredItem.tooltipX}px; top: ${hoveredItem.tooltipY}px;"
   >
     <p class="tooltip-title">
-      Week ${hoveredItem.weekPrev} in 2024<br />(${formatDate(
-        hoveredItem.datePrev
-      )})
+      Week ${hoveredItem.week} in 2024<br />(starts${" "}${hoveredItem.firstDayOfWeekPrev})
     </p>
     <div>
       <p class="tooltip-label">${hoveredItem.variable1}</p>
@@ -580,8 +614,10 @@ function Tooltip({ hoveredItem }) {
     </div>
     <div style="border-top: 1px solid #D9D9D9; width: 100%;" />
     <p class="tooltip-title">
-      Week ${hoveredItem.weekCurrent} in 2025<br />
-      (${formatDate(hoveredItem.dateCurrent)})
+      Week ${hoveredItem.week} in 2025<br />
+      ${hoveredItem.firstDayOfWeekCurrent
+        ? `(starts ${hoveredItem.firstDayOfWeekCurrent})`
+        : ""}
     </p>
     <div>
       <p class="tooltip-label">${hoveredItem.variable1}</p>
