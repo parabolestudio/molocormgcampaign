@@ -330,37 +330,9 @@ export function CreativeFormat({
 
         if (pointer[0] >= leftSide && pointer[0] <= rightSide) {
           const innerX = pointer[0] - margin.allLeft - axisOffsetX;
-          // const datePrev = prevTime.invert(innerX).toISOString().slice(0, 10);
 
-          const eachBand = weekScale.step();
-          const index = Math.floor(innerX / eachBand);
+          const index = Math.floor(innerX / weekScale.step());
           const hoveredWeek = weekScale.domain()[index];
-          // console.log("inverted", innerX, eachBand, index, hoveredWeek);
-
-          // const datePrev = new Date(prevTimeScaleUTC.invert(innerX))
-          //   .toISOString()
-          //   .slice(0, 10);
-
-          // const dateCurrent = currentTime
-          //   .invert(innerX)
-          //   .toISOString()
-          //   .slice(0, 10);
-          // const dateCurrent = new Date(currentTimeScaleUTC.invert(innerX))
-          //   .toISOString()
-          //   .slice(0, 10);
-
-          // // TODO: ?
-          // const weekPrev = getWeek(new Date(datePrev));
-          // const weekCurrent = getWeek(new Date(dateCurrent));
-
-          // console.log(
-          //   "datePrev",
-          //   datePrev,
-          //   weekPrev,
-          //   "dateCurrent",
-          //   dateCurrent,
-          //   weekCurrent
-          // );
 
           // get value for hoveredItem
           const datapointPrev =
@@ -577,18 +549,21 @@ export function CreativeFormat({
 function Tooltip({ hoveredItem }) {
   if (!hoveredItem) return null;
 
-  // const formattedWeekPrev = d3.utcFormat("%B %d, %Y")(hoveredItem.firstDayOfWeekPrev);
-  // const formattedWeekCurrent = d3.utcFormat("%B %d, %Y")(
-  //   hoveredItem.firstDayOfWeekCurrent
-  // );
-  // console.log("firstDayOfWeekCurrent", hoveredItem, formattedWeekCurrent);
+  const formattedDayPrev = hoveredItem.firstDayOfWeekPrev
+    ? d3.utcFormat("%b %d, %Y")(getDateInUTC(hoveredItem.firstDayOfWeekPrev))
+    : null;
+  const formattedDayCurrent = hoveredItem.firstDayOfWeekCurrent
+    ? d3.utcFormat("%b %d, %Y")(getDateInUTC(hoveredItem.firstDayOfWeekCurrent))
+    : null;
 
   return html`<div
     class="tooltip"
     style="left: ${hoveredItem.tooltipX}px; top: ${hoveredItem.tooltipY}px;"
   >
     <p class="tooltip-title">
-      Week ${hoveredItem.week} in 2024<br />(starts${" "}${hoveredItem.firstDayOfWeekPrev})
+      Week ${hoveredItem.week} in 2024<br />${hoveredItem.firstDayOfWeekPrev
+        ? `(starts ${formattedDayPrev})`
+        : ""}
     </p>
     <div>
       <p class="tooltip-label">${hoveredItem.variable1}</p>
@@ -616,7 +591,7 @@ function Tooltip({ hoveredItem }) {
     <p class="tooltip-title">
       Week ${hoveredItem.week} in 2025<br />
       ${hoveredItem.firstDayOfWeekCurrent
-        ? `(starts ${hoveredItem.firstDayOfWeekCurrent})`
+        ? `(starts ${formattedDayCurrent})`
         : ""}
     </p>
     <div>
