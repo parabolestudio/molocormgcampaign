@@ -245,16 +245,11 @@ export function ConsumerTrends() {
 
         if (pointer[0] >= leftSide && pointer[0] <= rightSide) {
           const innerX = pointer[0] - margin.left - axisOffsetX;
-          // const datePrev = prevTime.invert(innerX).toISOString().slice(0, 10);
 
           const datePrev = new Date(prevTimeScaleUTC.invert(innerX))
             .toISOString()
             .slice(0, 10);
 
-          // const dateCurrent = currentTime
-          //   .invert(innerX)
-          //   .toISOString()
-          //   .slice(0, 10);
           const dateCurrent = new Date(currentTimeScaleUTC.invert(innerX))
             .toISOString()
             .slice(0, 10);

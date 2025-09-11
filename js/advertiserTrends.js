@@ -1,11 +1,15 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
 import {
+  prevTimeScaleUTC,
+  currentTimeScaleUTC,
+  getDateInUTC,
   prevTimeScale,
   currentTimeScale,
   buttonToVariableMapping,
   addMissingDaysPrev,
   addMissingDaysCurrent,
   formatDate,
+  formatDateUTC,
   variableFormatting,
   isMobile,
   dataPullFromSheet,
@@ -181,20 +185,20 @@ export function AdvertiserTrends() {
     ])
     .range([innerHeight, 0])
     .nice();
-  const prevTime = prevTimeScale.range([0, chartWidth]);
-  const currentTime = currentTimeScale.range([0, chartWidth]);
+  const prevTime = prevTimeScaleUTC.range([0, chartWidth]);
+  const currentTime = currentTimeScaleUTC.range([0, chartWidth]);
 
   // lines
   const prevLine = d3
     .line()
     .y((d) => valueScale(d[buttonToVariableMapping[selectedVariable]]))
-    .x((d) => prevTime(new Date(d.date)))
+    .x((d) => prevTime(getDateInUTC(d.date)))
     .defined((d) => d[buttonToVariableMapping[selectedVariable]] !== null);
 
   const currentLine = d3
     .line()
     .y((d) => valueScale(d[buttonToVariableMapping[selectedVariable]]))
-    .x((d) => currentTime(new Date(d.date)))
+    .x((d) => currentTime(getDateInUTC(d.date)))
     .defined((d) => d[buttonToVariableMapping[selectedVariable]] !== null);
 
   // data points
@@ -216,8 +220,23 @@ export function AdvertiserTrends() {
   });
 
   // ticks
-  const xAxisTicks = prevTime.ticks(12);
-  let xAxisTicksWidth = prevTime(xAxisTicks[1]) - prevTime(xAxisTicks[0]);
+  const xAxisTicks = [
+    "2024-08-01",
+    "2024-09-01",
+    "2024-10-01",
+    "2024-11-01",
+    "2024-12-01",
+    "2025-01-01",
+    "2025-02-01",
+    "2025-03-01",
+    "2025-04-01",
+    "2025-05-01",
+    "2025-06-01",
+    "2025-07-01",
+  ];
+  let xAxisTicksWidth =
+    prevTime(getDateInUTC(xAxisTicks[1])) -
+    prevTime(getDateInUTC(xAxisTicks[0]));
 
   const yAxisTicks = isMobile ? valueScale.domain() : valueScale.ticks(4);
 
@@ -237,9 +256,18 @@ export function AdvertiserTrends() {
 
         if (pointer[0] >= leftSide && pointer[0] <= rightSide) {
           const innerX = pointer[0] - margin.left - axisOffsetX;
-          const datePrev = prevTime.invert(innerX).toISOString().slice(0, 10);
-          const dateCurrent = currentTime
-            .invert(innerX)
+          // const datePrev = prevTime.invert(innerX).toISOString().slice(0, 10);
+
+          const datePrev = new Date(prevTimeScaleUTC.invert(innerX))
+            .toISOString()
+            .slice(0, 10);
+
+          // const dateCurrent = currentTime
+          //   .invert(innerX)
+          //   .toISOString()
+          //   .slice(0, 10);
+
+          const dateCurrent = new Date(currentTimeScaleUTC.invert(innerX))
             .toISOString()
             .slice(0, 10);
 
@@ -275,10 +303,15 @@ export function AdvertiserTrends() {
             ${xAxisTicks.map((tick, index) => {
               if (index < xAxisTicks.length - 1) {
                 xAxisTicksWidth =
-                  prevTime(xAxisTicks[index + 1]) - prevTime(xAxisTicks[index]);
+                  prevTime(getDateInUTC(xAxisTicks[index + 1])) -
+                  prevTime(getDateInUTC(xAxisTicks[index]));
               }
+              const monthNameOfTick = d3.utcFormat("%B")(getDateInUTC(tick));
+              const monthNameOfTickShort = d3.utcFormat("%b")(
+                getDateInUTC(tick)
+              );
               return html`
-                <g transform="translate(${prevTime(tick)}, 0)">
+                <g transform="translate(${prevTime(getDateInUTC(tick))}, 0)">
                   <rect
                     x="${0}"
                     y="${0}"
@@ -308,7 +341,7 @@ export function AdvertiserTrends() {
                         text-anchor="middle"
                         class="charts-text-body"
                       >
-                        ${d3.timeFormat("%b")(tick)}
+                        ${monthNameOfTickShort}
                       </text>`
                     : null}
                   ${!isMobile
@@ -319,7 +352,7 @@ export function AdvertiserTrends() {
                         text-anchor="middle"
                         class="charts-text-body"
                       >
-                        ${d3.timeFormat("%B")(tick)}
+                        ${monthNameOfTick}
                       </text>`
                     : null}</g
                 >
@@ -393,7 +426,7 @@ function Tooltip({ hoveredItem }) {
     class="tooltip"
     style="left: ${hoveredItem.x}px; top: ${hoveredItem.y}px;"
   >
-    <p class="tooltip-title">${formatDate(hoveredItem.datePrev)}</p>
+    <p class="tooltip-title">${formatDateUTC(hoveredItem.datePrev)}</p>
     <div>
       <p class="tooltip-label">${hoveredItem.variable}</p>
 
@@ -409,7 +442,7 @@ function Tooltip({ hoveredItem }) {
     </div>
 
     <div style="border-top: 1px solid #D9D9D9; width: 100%;" />
-    <p class="tooltip-title">${formatDate(hoveredItem.dateCurrent)}</p>
+    <p class="tooltip-title">${formatDateUTC(hoveredItem.dateCurrent)}</p>
     <div>
       <p class="tooltip-label">${hoveredItem.variable}</p>
       <p class="tooltip-value">
