@@ -110,9 +110,22 @@ export const prevTimeScale = d3.scaleTime().domain([
   new Date(prevYear, 7, 1), // Aug is month 7 (0-based)
   new Date(currentYear, 6, 31), // July is month 6, day 31
 ]);
+export const prevTimeScaleUTC = d3
+  .scaleLinear()
+  .domain([Date.UTC(prevYear, 7, 1), Date.UTC(currentYear, 6, 31)]);
+
 export const currentTimeScale = d3
   .scaleTime()
   .domain([new Date(currentYear, 7, 1), new Date(currentYear + 1, 6, 31)]);
+export const currentTimeScaleUTC = d3
+  .scaleLinear()
+  .domain([Date.UTC(currentYear, 7, 1), Date.UTC(currentYear + 1, 6, 31)]);
+
+export function getDateInUTC(dateString) {
+  const [year, month, day] = dateString.split("-").map(Number);
+  const dateUTC = Date.UTC(year, month - 1, day); // month is 0-based
+  return dateUTC;
+}
 
 // get all days between two dates
 function getDaysBetween(startDate, endDate) {
@@ -264,6 +277,17 @@ export function formatDate(dateString, type = null) {
   });
   const day = date.getDate();
   const year = date.getFullYear();
+  return `${month} ${day}, ${year}`;
+}
+
+export function formatDateUTC(dateString, type = null) {
+  const a = getDateInUTC(dateString);
+  const date = new Date(a);
+  const month = date.toLocaleString("en-US", {
+    month: type === "short-month" ? "short" : "long",
+  });
+  const day = date.getUTCDate();
+  const year = date.getUTCFullYear();
   return `${month} ${day}, ${year}`;
 }
 
