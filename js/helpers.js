@@ -280,13 +280,44 @@ export function formatDate(dateString, type = null) {
   return `${month} ${day}, ${year}`;
 }
 
+const monthNamesLong = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const monthNamesShort = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 export function formatDateUTC(dateString, type = null) {
-  const a = getDateInUTC(dateString);
-  const date = new Date(a);
-  const month = date.toLocaleString("en-US", {
-    month: type === "short-month" ? "short" : "long",
-  });
+  const date = new Date(getDateInUTC(dateString));
   const day = date.getUTCDate();
+  // Months are zero-based
+  const month = date.getUTCMonth()
+    ? type === "short-month"
+      ? monthNamesShort[date.getUTCMonth()]
+      : monthNamesLong[date.getUTCMonth()]
+    : "";
   const year = date.getUTCFullYear();
   return `${month} ${day}, ${year}`;
 }
