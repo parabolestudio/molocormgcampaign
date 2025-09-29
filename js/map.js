@@ -272,7 +272,6 @@ export function Map() {
               data-state-name="${d.name}"
               data-state-value=${d.value}
               onmousemove="${(event) => {
-                console.log("enter", event);
                 d.value
                   ? setHoveredItem({
                       x: d3.pointer(event)[0],

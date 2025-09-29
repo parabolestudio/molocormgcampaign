@@ -22,40 +22,16 @@ export function populateGeneralDropdowns() {
       value: "USA",
     },
     {
-      text: "Canada",
-      value: "CAN",
-    },
-    {
       text: "U.K.",
       value: "GBR",
     },
-    {
-      text: "Germany",
-      value: "DEU",
-    },
-    {
-      text: "Philippines",
-      value: "PHL",
-    },
-    {
-      text: "Spain",
-      value: "ESP",
-    },
-    {
-      text: "Brazil",
-      value: "BRA",
-    },
-    {
-      text: "Australia",
-      value: "AUS",
-    },
   ];
-  const countryDefault = countries[0];
+  const countryParam = new URLSearchParams(window.location.search).get(
+    "testCountry"
+  );
+  console.log("testCountry param:", countryParam);
+  const countryDefault = countryParam === "GBR" ? countries[1] : countries[0];
   const systems = [
-    // {
-    //   text: "All systems",
-    //   value: "ALL",
-    // },
     {
       text: "iOS",
       value: "IOS",

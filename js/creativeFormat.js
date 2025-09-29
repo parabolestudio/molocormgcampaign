@@ -58,7 +58,7 @@ export function renderCreativeFormats() {
     return data.forEach((d) => {
       d["system"] = d["os"];
       d["field"] = d["sub_genre"];
-      d["country"] = "USA"; // d["country"];
+      d["country"] = d["country"];
       d["format"] = d["format_type"];
       d["date"] = d["week_utc"];
       d["weekNumber"] = +d["Week Number"].trim();
@@ -123,7 +123,6 @@ export function CreativeFormat({
   const [system, setSystem] = useState(getDropdownValue("system"));
   const [field, setField] = useState(getDropdownValue("field"));
   const [country, setCountry] = useState(getDropdownValue("country"));
-  const isDaily = false; //country === "USA";
   const [hoveredItem, setHoveredItem] = useState(null);
 
   // listen to change in general system dropdown
@@ -192,7 +191,9 @@ export function CreativeFormat({
 
   // filtering data
   const filteredData = data.filter((d) => {
-    return d["system"] === system && d["field"] === field;
+    return (
+      d["system"] === system && d["field"] === field && d["country"] === country
+    );
   });
 
   let datapoints = filteredData.map((d) => {
@@ -306,17 +307,8 @@ export function CreativeFormat({
   const prevLine = prevLineGen(datapointsPrev);
   const currentLine = currentLineGen(datapointsCurrent);
 
-  // datapointsPrev.forEach((d) => {
-  //   console.log(d.weekNumber, d.date, weekScale(d.weekNumber));
-  // });
-
-  // y axis ticks
   const yAxisTicks = isMobile ? costScale.domain() : costScale.ticks(4);
 
-  //  <text dy="15" style="fill: orange; font-size: 12px;">
-  //       ${selectedVariable} | ${field} | ${system} | ${country} || #prev:
-  //       ${datapointsPrev.length} || #current: ${datapointsCurrent.length}
-  //     </text>
   return html`<div style="position: relative">
     <svg
       viewBox="0 0 ${width} ${totalHeight}"

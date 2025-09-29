@@ -108,7 +108,7 @@ export function AdvertiserTrends() {
       d["system"] = d["os"];
       d["field"] = d["sub_genre"];
       d["date"] = d["date_utc"];
-      d["country"] = "USA"; //d["country"];
+      d["country"] = d["country"];
       d["cpm"] =
         d["cpm_bm"] && d["cpm_bm"] !== ""
           ? +d["cpm_bm"].replace("$", "")
