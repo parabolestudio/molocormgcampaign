@@ -205,16 +205,16 @@ export function CreativeFormat({
     };
   });
 
-  // console.log(
-  //   "Rendering CreativeFormat component for:",
-  //   formatName,
-  //   filteredData,
-  //   system,
-  //   country,
-  //   field,
-  //   selectedVariable,
-  //   datapoints
-  // );
+  console.log(
+    "Rendering CreativeFormat component for:",
+    formatName,
+    filteredData,
+    system,
+    country,
+    field,
+    selectedVariable,
+    datapoints
+  );
 
   // set up vis dimensions
   const visContainer = document.querySelector(`#${containerId}`);

@@ -32,25 +32,7 @@ export function populateGeneralDropdowns() {
       value: "RMG",
     },
   ];
-  const fieldsGBR = [
-    {
-      text: "Gambling & Casino",
-      value: "RMG",
-    },
-  ];
-
-  function getFieldsSet() {
-    if (countryParam === "GBR") {
-      return fieldsGBR;
-    }
-    const fieldsSet =
-      getDropdownValue("country") === "GBR" ? fieldsGBR : fields;
-    return fieldsSet;
-  }
-
-  function getFieldDefault() {
-    return getFieldsSet()[0];
-  }
+  const fieldDefaults = fields[0];
 
   const systems = [
     {
@@ -69,17 +51,16 @@ export function populateGeneralDropdowns() {
   showHideUsOnlySections();
 
   function populateFieldDropdown() {
-    const fieldsSet = getFieldsSet();
     if (fieldDropdown) {
       if (fieldDropdown) fieldDropdown.innerHTML = "";
-      fieldsSet.forEach((field) => {
+      fields.forEach((field) => {
         let option = document.createElement("option");
         option.value = field.value;
         option.text = field.text;
         fieldDropdown.add(option);
       });
-      fieldDropdown.value = getFieldDefault().value;
-      fieldDropdown.disabled = fieldsSet.length === 1;
+      fieldDropdown.value = fieldDefaults.value;
+      // fieldDropdown.disabled = fieldsSet.length === 1;
       fieldDropdown.addEventListener("change", (e) => {
         // Dispatch custom event to notify other components
         document.dispatchEvent(
@@ -104,13 +85,38 @@ export function populateGeneralDropdowns() {
     countryDropdown.value = countryDefault.value;
     countryDropdown.addEventListener("change", (e) => {
       // Dispatch custom event to notify other components
+      const newCountry = e.target.value;
       document.dispatchEvent(
         new CustomEvent("vis-general-dropdown-country-changed", {
-          detail: { selectedCountry: e.target.value },
+          detail: { selectedCountry: newCountry },
         })
       );
-      populateFieldDropdown();
-      populateSystemDropdown();
+
+      if (newCountry === "GBR") {
+        fieldDropdown.value = "RMG";
+        fieldDropdown.disabled = true;
+        document.dispatchEvent(
+          new CustomEvent("vis-general-dropdown-field-changed", {
+            detail: { selectedField: "RMG" },
+          })
+        );
+      } else {
+        fieldDropdown.disabled = false;
+        fieldDropdown.value = fieldDefaults.value;
+      }
+
+      if (newCountry === "GBR") {
+        systemDropdown.value = "IOS";
+        systemDropdown.disabled = true;
+        document.dispatchEvent(
+          new CustomEvent("vis-general-dropdown-system-changed", {
+            detail: { selectedSystem: "IOS" },
+          })
+        );
+      } else {
+        systemDropdown.disabled = false;
+        systemDropdown.value = systemDefault.value;
+      }
 
       showHideUsOnlySections(
         getDropdownValue("country") === "GBR" ? false : true
@@ -128,7 +134,6 @@ export function populateGeneralDropdowns() {
         systemDropdown.add(option);
       });
       systemDropdown.value = systemDefault.value;
-      systemDropdown.disabled = getDropdownValue("country") === "GBR";
       systemDropdown.addEventListener("change", (e) => {
         // Dispatch custom event to notify other components
         document.dispatchEvent(
