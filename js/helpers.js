@@ -313,11 +313,12 @@ export function formatDateUTC(dateString, type = null) {
   const date = new Date(getDateInUTC(dateString));
   const day = date.getUTCDate();
   // Months are zero-based
-  const month = date.getUTCMonth()
-    ? type === "short-month"
-      ? monthNamesShort[date.getUTCMonth()]
-      : monthNamesLong[date.getUTCMonth()]
-    : "";
+  const month =
+    date.getUTCMonth() !== null
+      ? type === "short-month"
+        ? monthNamesShort[date.getUTCMonth()]
+        : monthNamesLong[date.getUTCMonth()]
+      : "";
   const year = date.getUTCFullYear();
   return `${month} ${day}, ${year}`;
 }
