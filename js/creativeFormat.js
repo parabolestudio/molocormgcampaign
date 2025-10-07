@@ -417,7 +417,7 @@ export function CreativeFormat({
               text-anchor="start"
               class="charts-text-body"
             >
-              ${d3.utcFormat(isMobile ? "%b" : "%B")(prevTime.domain()[0])}
+              August
             </text>
             <text
               x="${currentTime.range()[1]}"
@@ -426,7 +426,7 @@ export function CreativeFormat({
               text-anchor="end"
               class="charts-text-body"
             >
-              ${d3.utcFormat(isMobile ? "%b" : "%B")(currentTime.domain()[1])}
+              July
             </text>
           </g>
           <path
@@ -497,7 +497,7 @@ export function CreativeFormat({
               text-anchor="start"
               class="charts-text-body"
             >
-              ${d3.timeFormat(isMobile ? "%b" : "%B")(prevTime.domain()[0])}
+              August
             </text>
             <text
               x="${currentTime.range()[1]}"
@@ -506,7 +506,7 @@ export function CreativeFormat({
               text-anchor="end"
               class="charts-text-body"
             >
-              ${d3.timeFormat(isMobile ? "%b" : "%B")(prevTime.domain()[1])}
+              July
             </text>
           </g>
 
