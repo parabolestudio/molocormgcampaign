@@ -242,3 +242,81 @@ Tooltip for multiple visualizations
     width: 100%;
   }
 }
+
+#vis-advertiser-table {
+  .header-cell-metric {
+    background: #c368f9;
+    color: white;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+  .header-cell-label {
+    text-align: center;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .header-cell-month {
+    justify-content: flex-start;
+    padding-left: 10%;
+  }
+  .cell-month {
+    background: #f3dfff;
+    font-family: "Montserrat", sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    padding-left: 10%;
+  }
+  .cell-value {
+    font-family: "Spacegrotesk", "Space Grotesk", sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 1.4;
+    text-align: center;
+    background: #efefef;
+    border-right: 1px solid #c3c3c3;
+    margin-right: -3px;
+    padding: 8px 0px;
+  }
+  .cell-growth {
+    font-family: "Spacegrotesk", "Space Grotesk", sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 1.4;
+    text-align: center;
+    background: #efefef;
+    margin-left: -3px;
+    padding: 8px 0px;
+  }
+  .show-more {
+    font-family: "Montserrat", sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.25;
+    text-decoration: underline;
+
+    display: flex;
+    align-items: center;
+    padding-left: 10%;
+
+    button {
+      background: none;
+      text-transform: uppercase;
+      padding: 0;
+      cursor: pointer;
+    }
+  }
+}

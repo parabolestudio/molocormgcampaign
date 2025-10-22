@@ -1,7 +1,8 @@
 import { html, renderComponent } from "./js/utils/preact-htm.js";
 
-import { AdvertiserTrends } from "./js/advertiserTrends.js";
 import { ConsumerTrends } from "./js/consumerTrends.js";
+import { AdvertiserTrends } from "./js/advertiserTrends.js";
+import { AdvertiserTable } from "./js/advertiserTable.js";
 import { Map } from "./js/map.js";
 import { Leaderboard } from "./js/leaderboard.js";
 import { LastDataUpdate } from "./js/lastDataUpdate.js";
@@ -36,14 +37,15 @@ const visList = [
     id: "vis-advertiser-trends",
     component: AdvertiserTrends,
   },
+  // {
+  //   id: "vis-advertiser-table",
+  //   component: AdvertiserTable,
+  // },
   {
     id: "vis-map",
     component: Map,
   },
-  // {
-  //   id: "vis-map-time-selector",
-  //   component: MapTimeSelector,
-  // },
+
   {
     id: "vis-leaderboard",
     component: Leaderboard,

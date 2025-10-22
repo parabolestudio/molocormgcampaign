@@ -49,10 +49,11 @@ const SHEET_ID =
   "2PACX-1vTOmbHaf7C-yNazrNfKd8CCHgDlpLUwYw5W9BGw_kkAiEx7oDgaQ08dFapzk82JugiA1VHN8JcgwC7E";
 
 const SHEET_TAB_IDS = {
-  "daily-data": "629812091", //"50498285",
-  "advertiser-trends": "759362543", //"927917492",
+  "daily-data": "629812091",
+  "advertiser-trends": "759362543",
+  "advertiser-table": "1003208819",
   "last-data-update": "255109729",
-  "creative-formats": "997123278", //"509586178",
+  "creative-formats": "997123278",
   "state-level": "811799059",
   leaderboard: "1245037258",
 };
