@@ -11,27 +11,26 @@ import {
   isMobile,
   dataPullFromSheet,
 } from "./helpers.js";
-import { getDropdownValue } from "./populateGeneralDropdowns.js";
 import { fetchGoogleSheetCSV } from "./googleSheets.js";
 
 export function AdvertiserTrends() {
   const [selectedVariable, setSelectedVariable] = useState("CPM");
-  const [system, setSystem] = useState(getDropdownValue("system"));
-  const [country, setCountry] = useState(getDropdownValue("country"));
-  const [field, setField] = useState(getDropdownValue("field"));
+  const [system, setSystem] = useState("IOS");
+  const [country, setCountry] = useState("USA");
+  const [field, setField] = useState("Sportsbetting");
   const [data, setData] = useState([]);
   const [hoveredItem, setHoveredItem] = useState(null);
 
   // listen to change in general system dropdown
   useEffect(() => {
-    const handleSystemChange = (e) => setSystem(e.detail.selectedSystem);
+    const handleSystemChange = (e) => setSystem(e.detail.selected);
     document.addEventListener(
-      "vis-general-dropdown-system-changed",
+      "vis-general-filters-system-changed",
       handleSystemChange
     );
     return () => {
       document.removeEventListener(
-        "vis-general-dropdown-system-changed",
+        "vis-general-filters-system-changed",
         handleSystemChange
       );
     };
@@ -39,14 +38,14 @@ export function AdvertiserTrends() {
 
   // listen to change in general field dropdown
   useEffect(() => {
-    const handleFieldChange = (e) => setField(e.detail.selectedField);
+    const handleFieldChange = (e) => setField(e.detail.selected);
     document.addEventListener(
-      "vis-general-dropdown-field-changed",
+      "vis-general-filters-field-changed",
       handleFieldChange
     );
     return () => {
       document.removeEventListener(
-        "vis-general-dropdown-field-changed",
+        "vis-general-filters-field-changed",
         handleFieldChange
       );
     };
@@ -54,14 +53,14 @@ export function AdvertiserTrends() {
 
   // listen to change in general country dropdown
   useEffect(() => {
-    const handleCountryChange = (e) => setCountry(e.detail.selectedCountry);
+    const handleCountryChange = (e) => setCountry(e.detail.selected);
     document.addEventListener(
-      "vis-general-dropdown-country-changed",
+      "vis-general-filters-country-changed",
       handleCountryChange
     );
     return () => {
       document.removeEventListener(
-        "vis-general-dropdown-country-changed",
+        "vis-general-filters-country-changed",
         handleCountryChange
       );
     };

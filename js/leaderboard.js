@@ -1,5 +1,4 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
-import { getDropdownValue } from "./populateGeneralDropdowns.js";
 import { variableFormatting, isMobile, dataPullFromSheet } from "./helpers.js";
 import { fetchGoogleSheetCSV } from "./googleSheets.js";
 
@@ -8,20 +7,20 @@ const MAX_VISIBLE = 10;
 
 export function Leaderboard() {
   const [data, setData] = useState([]);
-  const [system, setSystem] = useState(getDropdownValue("system"));
+  const [system, setSystem] = useState("IOS");
   const [field, setField] = useState("Sportsbetting");
   const [showMore, setShowMore] = useState(false);
 
   // listen to change in general system dropdown
   useEffect(() => {
-    const handleSystemChange = (e) => setSystem(e.detail.selectedSystem);
+    const handleSystemChange = (e) => setSystem(e.detail.selected);
     document.addEventListener(
-      "vis-general-dropdown-system-changed",
+      "vis-general-filters-system-changed",
       handleSystemChange
     );
     return () => {
       document.removeEventListener(
-        "vis-general-dropdown-system-changed",
+        "vis-general-filters-system-changed",
         handleSystemChange
       );
     };

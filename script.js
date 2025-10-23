@@ -6,13 +6,17 @@ import { AdvertiserTable } from "./js/advertiserTable.js";
 import { Map } from "./js/map.js";
 import { Leaderboard } from "./js/leaderboard.js";
 import { LastDataUpdate } from "./js/lastDataUpdate.js";
-import { populateGeneralDropdowns } from "./js/populateGeneralDropdowns.js";
+import {
+  renderGeneralFilter,
+  prepPageForFilterAndAdvertiserTableChange,
+} from "./js/populateGeneralDropdowns.js";
 import renderButtonGroup from "./js/renderButtonGroup.js";
 import { renderCreativeFormats } from "./js/creativeFormat.js";
 import renderLineChartLegends from "./js/renderLineChartLegends.js";
 
 // add options to the general dropdowns
-populateGeneralDropdowns();
+prepPageForFilterAndAdvertiserTableChange();
+renderGeneralFilter();
 
 const Vis = async (props) => {
   console.log("Rendering Vis component with props:", props);
@@ -37,10 +41,10 @@ const visList = [
     id: "vis-advertiser-trends",
     component: AdvertiserTrends,
   },
-  // {
-  //   id: "vis-advertiser-table",
-  //   component: AdvertiserTable,
-  // },
+  {
+    id: "vis-advertiser-table",
+    component: AdvertiserTable,
+  },
   {
     id: "vis-map",
     component: Map,

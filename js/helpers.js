@@ -1,3 +1,6 @@
+export const ASSETS_URL =
+  "https://raw.githubusercontent.com/parabolestudio/molocormgcampaign/refs/heads/main/assets/icons/";
+
 // mapping from state name to state short id
 export const stateMapping = {
   Alabama: "AL",

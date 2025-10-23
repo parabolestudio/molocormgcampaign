@@ -1,6 +1,5 @@
 import { html, useState, useEffect, useRef } from "./utils/preact-htm.js";
 const geoPath = d3.geoPath();
-import { getDropdownValue } from "./populateGeneralDropdowns.js";
 import {
   stateMapping,
   buttonToVariableMapping,
@@ -13,8 +12,8 @@ import { fetchGoogleSheetCSV } from "./googleSheets.js";
 
 export function Map() {
   const [selectedVariable, setSelectedVariable] = useState("CPM");
-  const [system, setSystem] = useState(getDropdownValue("system"));
-  const [field, setField] = useState(getDropdownValue("field"));
+  const [system, setSystem] = useState("IOS");
+  const [field, setField] = useState("Sportsbetting");
   const [usGeoData, setUsGeoData] = useState(null);
   const [data, setData] = useState([]);
   const [selectedDate, setSelectedDate] = useState(null);
@@ -23,16 +22,16 @@ export function Map() {
   // listen to change in general system dropdown
   useEffect(() => {
     const handleSystemChange = (e) => {
-      setSystem(e.detail.selectedSystem);
+      setSystem(e.detail.selected);
     };
     document.addEventListener(
-      "vis-general-dropdown-system-changed",
+      "vis-general-filters-system-changed",
       handleSystemChange
     );
 
     return () => {
       document.removeEventListener(
-        "vis-general-dropdown-system-changed",
+        "vis-general-filters-system-changed",
         handleSystemChange
       );
     };
@@ -41,16 +40,16 @@ export function Map() {
   // listen to change in general field dropdown
   useEffect(() => {
     const handleFieldChange = (e) => {
-      setField(e.detail.selectedField);
+      setField(e.detail.selected);
     };
     document.addEventListener(
-      "vis-general-dropdown-field-changed",
+      "vis-general-filters-field-changed",
       handleFieldChange
     );
 
     return () => {
       document.removeEventListener(
-        "vis-general-dropdown-field-changed",
+        "vis-general-filters-field-changed",
         handleFieldChange
       );
     };

@@ -1,24 +1,24 @@
 import { html, useState, useEffect } from "./utils/preact-htm.js";
 import { fetchGoogleSheetCSV } from "./googleSheets.js";
-import { getDropdownValue } from "./populateGeneralDropdowns.js";
+import { isMobile } from "./helpers.js";
 
 export function AdvertiserTable() {
   const [data, setData] = useState([]);
-  const [system, setSystem] = useState(getDropdownValue("system"));
-  const [country, setCountry] = useState(getDropdownValue("country"));
-  const [field, setField] = useState(getDropdownValue("field"));
+  const [system, setSystem] = useState("IOS");
+  const [country, setCountry] = useState("USA");
+  const [field, setField] = useState("Sportsbetting");
   const [showMore, setShowMore] = useState(false);
 
   // listen to change in general system dropdown
   useEffect(() => {
-    const handleSystemChange = (e) => setSystem(e.detail.selectedSystem);
+    const handleSystemChange = (e) => setSystem(e.detail.selected);
     document.addEventListener(
-      "vis-general-dropdown-system-changed",
+      "vis-general-filters-system-changed",
       handleSystemChange
     );
     return () => {
       document.removeEventListener(
-        "vis-general-dropdown-system-changed",
+        "vis-general-filters-system-changed",
         handleSystemChange
       );
     };
@@ -26,14 +26,14 @@ export function AdvertiserTable() {
 
   // listen to change in general field dropdown
   useEffect(() => {
-    const handleFieldChange = (e) => setField(e.detail.selectedField);
+    const handleFieldChange = (e) => setField(e.detail.selected);
     document.addEventListener(
-      "vis-general-dropdown-field-changed",
+      "vis-general-filters-field-changed",
       handleFieldChange
     );
     return () => {
       document.removeEventListener(
-        "vis-general-dropdown-field-changed",
+        "vis-general-filters-field-changed",
         handleFieldChange
       );
     };
@@ -41,14 +41,14 @@ export function AdvertiserTable() {
 
   // listen to change in general country dropdown
   useEffect(() => {
-    const handleCountryChange = (e) => setCountry(e.detail.selectedCountry);
+    const handleCountryChange = (e) => setCountry(e.detail.selected);
     document.addEventListener(
-      "vis-general-dropdown-country-changed",
+      "vis-general-filters-country-changed",
       handleCountryChange
     );
     return () => {
       document.removeEventListener(
-        "vis-general-dropdown-country-changed",
+        "vis-general-filters-country-changed",
         handleCountryChange
       );
     };
@@ -67,6 +67,7 @@ export function AdvertiserTable() {
       d["system"] = d["os"];
       d["field"] = d["sub_genre"];
       d["month"] = d["Month"];
+      d["monthShort"] = d["Month"].substring(0, 3) + " " + d["Month"].slice(-4);
       d["country"] = d["country"];
       d["cpm"] =
         d["CPM"] && d["CPM"] !== "" ? +d["CPM"].replace("$", "") : null;
@@ -109,7 +110,7 @@ export function AdvertiserTable() {
     filteredData,
   });
 
-  const labelHeaderRow = [0, 2, 4].map((i) => {
+  const labelHeaderRowDesktop = [0, 2, 4].map((i) => {
     return html`
       <div
         style="grid-area: 2 / ${i + 2} / 3 / ${i + 3};"
@@ -121,32 +122,79 @@ export function AdvertiserTable() {
         style="grid-area: 2 / ${i + 3} / 3 / ${i + 4};"
         class="header-cell-label"
       >
-        Monthly growth
+        Monthly change
       </div>
     `;
   });
 
-  const monthsRows = filteredData.map((d, i) => {
+  const monthsRowsDesktop = filteredData.map((d, i) => {
     return html`
       <div style="grid-area: ${i + 3} / 1 / ${i + 4} / 2;" class="cell-month">
         ${d["month"]}
       </div>
       <div style="grid-area: ${i + 3} / 2 / ${i + 4} / 3;" class="cell-value">
-        $${d["cpm"]}
+        ${formatAverageValue(d["cpm"])}
       </div>
       <div style="grid-area: ${i + 3} / 3 / ${i + 4} / 4;" class="cell-growth">
         ${formatPercent(d["cpm_mom"])}
       </div>
       <div style="grid-area: ${i + 3} / 4 / ${i + 4} / 5;" class="cell-value">
-        $${d["cpi"]}
+        ${formatAverageValue(d["cpi"])}
       </div>
       <div style="grid-area: ${i + 3} / 5 / ${i + 4} / 6;" class="cell-growth">
         ${formatPercent(d["cpi_mom"])}
       </div>
       <div style="grid-area: ${i + 3} / 6 / ${i + 4} / 7;" class="cell-value">
-        $${d["cpftd"]}
+        ${formatAverageValue(d["cpftd"])}
       </div>
       <div style="grid-area: ${i + 3} / 7 / ${i + 4} / 8;" class="cell-growth">
+        ${formatPercent(d["cpftd_mom"])}
+      </div>
+    `;
+  });
+
+  const monthsRowsMobile = filteredData.map((d, i) => {
+    return html`
+      <div
+        style="grid-area: ${i * 2 + 2} / 1 / ${i * 2 + 4} / 2;"
+        class="cell-month"
+      >
+        ${d["monthShort"]}
+      </div>
+      <div
+        style="grid-area: ${i * 2 + 2} / 2 / ${i * 2 + 3} / 3;"
+        class="cell-value"
+      >
+        ${formatAverageValue(d["cpm"])}
+      </div>
+      <div
+        style="grid-area: ${i * 2 + 3} / 2 / ${i * 2 + 4} / 3;"
+        class="cell-growth"
+      >
+        ${formatPercent(d["cpm_mom"])}
+      </div>
+      <div
+        style="grid-area: ${i * 2 + 2} / 3 / ${i * 2 + 3} / 4;"
+        class="cell-value"
+      >
+        ${formatAverageValue(d["cpi"])}
+      </div>
+      <div
+        style="grid-area: ${i * 2 + 3} / 3 / ${i * 2 + 4} / 4;"
+        class="cell-growth"
+      >
+        ${formatPercent(d["cpi_mom"])}
+      </div>
+      <div
+        style="grid-area: ${i * 2 + 2} / 4 / ${i * 2 + 3} / 5;"
+        class="cell-value"
+      >
+        ${formatAverageValue(d["cpftd"])}
+      </div>
+      <div
+        style="grid-area: ${i * 2 + 3} / 4 / ${i * 2 + 4} / 5;"
+        class="cell-growth"
+      >
         ${formatPercent(d["cpftd_mom"])}
       </div>
     `;
@@ -163,7 +211,14 @@ export function AdvertiserTable() {
     return `${valueFormatted}%`;
   }
 
-  return html`<div
+  function formatAverageValue(value) {
+    if (value === null || isNaN(value)) {
+      return "-";
+    }
+    return `$${value.toFixed(2)}`;
+  }
+
+  const desktopTable = html`<div
     style="display: grid;
 grid-template-columns: 1.5fr repeat(6, 1fr);
 grid-template-rows: repeat(${filteredData.length + 2 + 1}, 1fr);
@@ -181,7 +236,7 @@ grid-row-gap: 6px;"
     >
       Month
     </div>
-    ${labelHeaderRow} ${monthsRows}
+    ${labelHeaderRowDesktop} ${monthsRowsDesktop}
     <div
       style="grid-area: ${filteredData.length + 3} / 1 / ${filteredData.length +
       4} / 2;"
@@ -191,5 +246,50 @@ grid-row-gap: 6px;"
         ${showMore ? "Show less" : "Show more"}
       </button>
     </div>
+  </div>`;
+
+  const mobileTable = html`<div
+    style="display: grid;
+grid-template-columns: repeat(4, 1fr);
+grid-template-rows: repeat(${filteredData.length * 2 + 2}, 1fr);
+grid-column-gap: 2px;
+grid-row-gap: 2px;"
+  >
+    <div style="grid-area: 1 / 2 / 2 / 3;" class="header-cell-metric">CPM</div>
+    <div style="grid-area: 1 / 3 / 2 / 4;" class="header-cell-metric">CPI</div>
+    <div style="grid-area: 1 / 4 / 2 / 5;" class="header-cell-metric">
+      CFTD<sub style="padding-left: 2px;">(D7)</sub>
+    </div>
+    ${monthsRowsMobile}
+    <div
+      style="grid-area: ${filteredData.length * 2 +
+      2} / 1 / ${filteredData.length * 2 + 3} / 3;"
+      class="show-more"
+    >
+      <button onClick=${() => setShowMore(!showMore)}>
+        ${showMore ? "Show less" : "Show more"}
+      </button>
+    </div>
+  </div>`;
+
+  const mobileLegend = html`<div
+    style="display: grid; grid-template-rows: repeat(2, 1fr); margin-bottom: 16px; width: fit-content;"
+  >
+    <div style="grid-area: 1 / 1 / 2 / 2; margin:0;" class="cell-value">
+      Average value
+    </div>
+    <div
+      style="grid-area: 2 / 1 / 3 / 2; margin:0; font-weight: 400; padding: 8px 24px;"
+      class="cell-growth"
+    >
+      Monthly change
+    </div>
+  </div>`;
+
+  return html`<div style="margin-top: ${isMobile ? "20px" : "65px"};">
+    <div class="rmg-filter-label" style="margin-bottom: 20px; font-size: 14px;">
+      How advertiser trends evolve each month
+    </div>
+    ${isMobile ? mobileLegend : null} ${isMobile ? mobileTable : desktopTable}
   </div>`;
 }
