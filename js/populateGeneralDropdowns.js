@@ -194,7 +194,7 @@ function GeneralFilter() {
                         setFixedMenuOpen(false);
                         setPageOverlayOpen(false);
                       }
-                    }, 250);
+                    }, 500);
 
                     // Dispatch custom event to notify other components
                     const customEventName = `${containerId}-${item.value}-changed`;
