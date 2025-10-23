@@ -258,7 +258,8 @@ grid-row-gap: 2px;"
     <div style="grid-area: 1 / 2 / 2 / 3;" class="header-cell-metric">CPM</div>
     <div style="grid-area: 1 / 3 / 2 / 4;" class="header-cell-metric">CPI</div>
     <div style="grid-area: 1 / 4 / 2 / 5;" class="header-cell-metric">
-      CFTD<sub style="padding-left: 2px;">(D7)</sub>
+      <span>CFTD</span>
+      <span style="padding-left: 2px; font-size: 10px;">(D7)</span>
     </div>
     ${monthsRowsMobile}
     <div
@@ -275,11 +276,14 @@ grid-row-gap: 2px;"
   const mobileLegend = html`<div
     style="display: grid; grid-template-rows: repeat(2, 1fr); margin-bottom: 16px; width: fit-content;"
   >
-    <div style="grid-area: 1 / 1 / 2 / 2; margin:0;" class="cell-value">
+    <div
+      style="grid-area: 1 / 1 / 2 / 2; margin: 0; font-size: 14px;"
+      class="cell-value"
+    >
       Average value
     </div>
     <div
-      style="grid-area: 2 / 1 / 3 / 2; margin:0; font-weight: 400; padding: 8px 24px;"
+      style="grid-area: 2 / 1 / 3 / 2; margin:0; font-weight: 400; padding: 8px 24px; font-size: 14px;"
       class="cell-growth"
     >
       Monthly change
