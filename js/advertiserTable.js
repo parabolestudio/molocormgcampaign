@@ -291,10 +291,7 @@ grid-row-gap: 2px;"
   </div>`;
 
   return html`<div style="margin-top: ${isMobile ? "20px" : "65px"};">
-    <div
-      class="rmg-filter-label"
-      style="margin-bottom: 20px; font-size: 14px; font-weight: 400;"
-    >
+    <div class="rmg-viz-subtitle" style="margin-bottom: 20px;">
       Monthly marketing metrics
     </div>
     ${isMobile ? mobileLegend : null} ${isMobile ? mobileTable : desktopTable}
