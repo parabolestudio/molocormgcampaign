@@ -291,8 +291,11 @@ grid-row-gap: 2px;"
   </div>`;
 
   return html`<div style="margin-top: ${isMobile ? "20px" : "65px"};">
-    <div class="rmg-filter-label" style="margin-bottom: 20px; font-size: 14px;">
-      How advertiser trends evolve each month
+    <div
+      class="rmg-filter-label"
+      style="margin-bottom: 20px; font-size: 14px; font-weight: 400;"
+    >
+      Monthly marketing metrics
     </div>
     ${isMobile ? mobileLegend : null} ${isMobile ? mobileTable : desktopTable}
   </div>`;

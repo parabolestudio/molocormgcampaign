@@ -329,7 +329,7 @@ Tooltip for multiple visualizations
 
     button {
       background: none;
-      text-transform: uppercase;
+      /* text-transform: uppercase; */
       padding: 0;
       cursor: pointer;
     }
