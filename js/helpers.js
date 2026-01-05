@@ -105,8 +105,8 @@ export const isMobile = window.innerWidth <= 480;
 export const dataPullFromSheet = true;
 
 // time scales
-const prevYear = new Date().getFullYear() - 1;
-const currentYear = new Date().getFullYear();
+const prevYear = 2024;
+const currentYear = 2025;
 
 // Create a time scale from Aug 1 to end of July the following year
 export const prevTimeScale = d3.scaleTime().domain([
