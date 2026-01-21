@@ -21,7 +21,7 @@ export function renderGeneralFilter() {
     renderComponent(html`<${GeneralFilter} />`, containerElement);
   } else {
     console.error(
-      `Could not find container element for general filter with id ${containerId}`
+      `Could not find container element for general filter with id ${containerId}`,
     );
   }
 }
@@ -29,7 +29,7 @@ export function renderGeneralFilter() {
 export function prepPageForFilterAndAdvertiserTableChange() {
   // hide old filter element
   const oldFilterElement = document.querySelector(
-    ".rmg-insider_filters--grid.centred-filter"
+    ".rmg-insider_filters--grid.centred-filter",
   );
   if (oldFilterElement) {
     oldFilterElement.style.display = "none";
@@ -41,7 +41,7 @@ export function prepPageForFilterAndAdvertiserTableChange() {
   if (oldFilterElement) {
     oldFilterElement.parentNode.insertBefore(
       newFilterContainer,
-      oldFilterElement.nextSibling
+      oldFilterElement.nextSibling,
     );
   }
 
@@ -53,7 +53,7 @@ export function prepPageForFilterAndAdvertiserTableChange() {
     newTableContainer.className = "rmg-viz";
     advertiserElement.parentNode.insertBefore(
       newTableContainer,
-      advertiserElement.nextSibling
+      advertiserElement.nextSibling,
     );
   }
 
@@ -126,15 +126,37 @@ function GeneralFilter() {
   }, []);
 
   const getFilterItems = (position) => {
+    // get URL query parameters to determine if new countries should be shown
+    const urlParams = new URLSearchParams(window.location.search);
+    const showNewCountries = urlParams.get("showNewCountries") === "true";
+
+    const countryFilterExisting = {
+      filterLabel: "Select country",
+      value: "country",
+      options: [
+        { label: "U.S.", value: "USA" },
+        { label: "U.K.", value: "GBR" },
+      ],
+    };
+    const countryFilterNew = {
+      filterLabel: "Select country",
+      value: "country",
+      options: [
+        { label: "U.S.", value: "USA" },
+        { label: "U.K.", value: "GBR" },
+        { label: "Canada", value: "CAN" },
+        { label: "Europe", value: "Europe" },
+      ],
+    };
+    let countryFilter;
+    if (showNewCountries) {
+      countryFilter = countryFilterNew;
+    } else {
+      countryFilter = countryFilterExisting;
+    }
+
     const filterSet = [
-      {
-        filterLabel: "Select country",
-        value: "country",
-        options: [
-          { label: "U.S.", value: "USA" },
-          { label: "U.K.", value: "GBR" },
-        ],
-      },
+      countryFilter,
       {
         filterLabel: "Select vertical",
         value: "field",
@@ -180,72 +202,153 @@ function GeneralFilter() {
         ${item.options && item.options.length > 0
           ? html`<ul>
               ${item.options.map(
-                (option) => html`<li
-                  class="filter-item ${getStateItem(item.value)[0] ===
-                  option.value
-                    ? "active"
-                    : "inactive"}"
-                  onClick="${() => {
-                    getStateItem(item.value)[1](option.value);
+                (option) =>
+                  html`<li
+                    class="filter-item ${getStateItem(item.value)[0] ===
+                    option.value
+                      ? "active"
+                      : "inactive"}"
+                    onClick="${() => {
+                      getStateItem(item.value)[1](option.value);
 
-                    // add small delay to allow user to see selection before menu closes
-                    setTimeout(() => {
-                      if (position === "fixed") {
-                        setFixedMenuOpen(false);
-                        setPageOverlayOpen(false);
+                      // add small delay to allow user to see selection before menu closes
+                      setTimeout(() => {
+                        if (position === "fixed") {
+                          setFixedMenuOpen(false);
+                          setPageOverlayOpen(false);
+                        }
+                      }, 500);
+
+                      // Dispatch custom event to notify other components
+                      const customEventName = `${containerId}-${item.value}-changed`;
+                      document.dispatchEvent(
+                        new CustomEvent(customEventName, {
+                          detail: { selected: option.value },
+                        }),
+                      );
+
+                      /**
+                       * Allow the following filter combinations
+                       * USA - Sportsbetting - IOS
+                       * USA - Sportsbetting - Android
+                       * USA - RMG - IOS
+                       * USA - RMG - Android
+                       * UK - RMG - IOS
+                       * new: UK - Sportsbetting - IOS
+                       * new: CAN - Sportsbetting - IOS
+                       * new: CAN - RMG - IOS
+                       * new: Europe - Sportsbetting - IOS
+                       * new: Europe - Sportsbetting - Android
+                       * new: Europe - RMG - IOS
+                       */
+                      // COUNTRY CHANGE LOGIC
+                      if (
+                        customEventName === `${containerId}-country-changed`
+                      ) {
+                        if (option.value === "USA") {
+                          showHideUsOnlySections(true);
+                          setIsFieldDisabled(false);
+                          setIsSystemDisabled(false);
+                          document.dispatchEvent(
+                            new CustomEvent(`${containerId}-field-changed`, {
+                              detail: { selected: "Sportsbetting" },
+                            }),
+                          );
+                          setField("Sportsbetting");
+                        } else if (option.value === "GBR") {
+                          // Country is GBR, setting system to IOS and default field to Sportsbetting but do allow change
+                          showHideUsOnlySections(false);
+
+                          document.dispatchEvent(
+                            new CustomEvent(`${containerId}-system-changed`, {
+                              detail: { selected: "IOS" },
+                            }),
+                          );
+                          setSystem("IOS");
+                          setIsSystemDisabled(true);
+
+                          document.dispatchEvent(
+                            new CustomEvent(`${containerId}-field-changed`, {
+                              detail: { selected: "Sportsbetting" },
+                            }),
+                          );
+                          setField("Sportsbetting");
+                          setIsFieldDisabled(false);
+                        } else if (option.value === "CAN") {
+                          // Country is CAN, setting system to IOS and default field to Sportsbetting but do allow change (same as UK)
+                          showHideUsOnlySections(false);
+
+                          document.dispatchEvent(
+                            new CustomEvent(`${containerId}-system-changed`, {
+                              detail: { selected: "IOS" },
+                            }),
+                          );
+                          setSystem("IOS");
+                          setIsSystemDisabled(true);
+
+                          document.dispatchEvent(
+                            new CustomEvent(`${containerId}-field-changed`, {
+                              detail: { selected: "Sportsbetting" },
+                            }),
+                          );
+                          setField("Sportsbetting");
+                          setIsFieldDisabled(false);
+                        } else if (option.value === "Europe") {
+                          // Country is Europe, setting system to IOS and default field to Sportsbetting but do allow change both
+                          showHideUsOnlySections(false);
+                          document.dispatchEvent(
+                            new CustomEvent(`${containerId}-system-changed`, {
+                              detail: { selected: "IOS" },
+                            }),
+                          );
+                          setSystem("IOS");
+                          setIsSystemDisabled(false);
+
+                          document.dispatchEvent(
+                            new CustomEvent(`${containerId}-field-changed`, {
+                              detail: { selected: "Sportsbetting" },
+                            }),
+                          );
+                          setField("Sportsbetting");
+                          setIsFieldDisabled(false);
+                        }
                       }
-                    }, 500);
 
-                    // Dispatch custom event to notify other components
-                    const customEventName = `${containerId}-${item.value}-changed`;
-                    document.dispatchEvent(
-                      new CustomEvent(customEventName, {
-                        detail: { selected: option.value },
-                      })
-                    );
-
-                    if (customEventName === `${containerId}-country-changed`) {
-                      // Country is GBR, setting field to RMG and system to IOS
-                      if (option.value === "GBR") {
-                        document.dispatchEvent(
-                          new CustomEvent(`${containerId}-field-changed`, {
-                            detail: { selected: "RMG" },
-                          })
-                        );
-                        setField("RMG");
-                        setIsFieldDisabled(true);
-                        document.dispatchEvent(
-                          new CustomEvent(`${containerId}-system-changed`, {
-                            detail: { selected: "IOS" },
-                          })
-                        );
-                        setSystem("IOS");
-                        setIsSystemDisabled(true);
-
-                        showHideUsOnlySections(false);
-                      } else {
-                        showHideUsOnlySections(true);
-                        setIsFieldDisabled(false);
-                        setIsSystemDisabled(false);
-                        document.dispatchEvent(
-                          new CustomEvent(`${containerId}-field-changed`, {
-                            detail: { selected: "Sportsbetting" },
-                          })
-                        );
-                        setField("Sportsbetting");
+                      // FIELD CHANGE LOGIC
+                      if (customEventName === `${containerId}-field-changed`) {
+                        // allow Europe Sportsbetting and RMG with IOS only
+                        if (country === "Europe" && option.value === "RMG") {
+                          document.dispatchEvent(
+                            new CustomEvent(`${containerId}-system-changed`, {
+                              detail: { selected: "IOS" },
+                            }),
+                          );
+                          setSystem("IOS");
+                          setIsSystemDisabled(true);
+                        } else if (
+                          country === "Europe" &&
+                          option.value === "Sportsbetting"
+                        ) {
+                          document.dispatchEvent(
+                            new CustomEvent(`${containerId}-system-changed`, {
+                              detail: { selected: "IOS" },
+                            }),
+                          );
+                          setSystem("IOS");
+                          setIsSystemDisabled(false);
+                        }
                       }
-                    }
-                  }}"
-                >
-                  <div
-                    class="filter-icon"
-                    dangerouslySetInnerHTML=${{
-                      __html:
-                        svgCache[option.value.toLowerCase() + ".svg"] || "",
-                    }}
-                  ></div>
-                  <span>${option.label}</span>
-                </li>`
+                    }}"
+                  >
+                    <div
+                      class="filter-icon"
+                      dangerouslySetInnerHTML=${{
+                        __html:
+                          svgCache[option.value.toLowerCase() + ".svg"] || "",
+                      }}
+                    ></div>
+                    <span>${option.label}</span>
+                  </li>`,
               )}
             </ul>`
           : ""}
@@ -259,7 +362,7 @@ function GeneralFilter() {
     "and field:",
     field,
     "and system:",
-    system
+    system,
   );
 
   function getFilterSet(position) {
