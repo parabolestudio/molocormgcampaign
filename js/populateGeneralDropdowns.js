@@ -143,8 +143,8 @@ function GeneralFilter() {
       value: "country",
       options: [
         { label: "U.S.", value: "USA" },
-        { label: "U.K.", value: "GBR" },
         { label: "Canada", value: "CAN" },
+        { label: "U.K.", value: "GBR" },
         { label: "Europe", value: "Europe" },
       ],
     };

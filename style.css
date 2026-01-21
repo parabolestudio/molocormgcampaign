@@ -378,6 +378,7 @@ Tooltip for multiple visualizations
       margin-bottom: 0px;
       list-style: none;
       padding: 0;
+      justify-content: center;
 
       @media (max-width: 590px) {
         gap: 36px;
@@ -400,6 +401,10 @@ Tooltip for multiple visualizations
           margin-bottom: 0;
           flex-wrap: wrap;
           justify-content: center;
+        }
+
+        &:first-child {
+          flex-basis: 100%;
         }
 
         &.disabled {
