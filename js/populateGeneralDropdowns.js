@@ -131,7 +131,7 @@ function GeneralFilter() {
     const showNewCountries = urlParams.get("showNewCountries") === "true";
 
     const countryFilterExisting = {
-      filterLabel: "Select country",
+      filterLabel: "Select region",
       value: "country",
       options: [
         { label: "U.S.", value: "USA" },
@@ -139,7 +139,7 @@ function GeneralFilter() {
       ],
     };
     const countryFilterNew = {
-      filterLabel: "Select country",
+      filterLabel: "Select region",
       value: "country",
       options: [
         { label: "U.S.", value: "USA" },
@@ -345,13 +345,7 @@ function GeneralFilter() {
                       class="filter-icon"
                       dangerouslySetInnerHTML=${{
                         __html:
-                          // TODO: remove CAN and Europe mapping to GBR svg when those svgs are added
-                          svgCache[
-                            option.value.toLowerCase() === "can" ||
-                            option.value.toLowerCase() === "europe"
-                              ? "gbr.svg"
-                              : option.value.toLowerCase() + ".svg"
-                          ] || "",
+                          svgCache[option.value.toLowerCase() + ".svg"] || "",
                       }}
                     ></div>
                     <span>${option.label}</span>
@@ -423,6 +417,9 @@ const icons = [
   },
   {
     icon: "gbr.svg",
+  },
+  {
+    icon: "europe.svg",
   },
   {
     icon: "can.svg",
