@@ -148,6 +148,7 @@ function GeneralFilter() {
         { label: "Europe", value: "Europe" },
       ],
     };
+
     let countryFilter;
     if (showNewCountries) {
       countryFilter = countryFilterNew;
@@ -344,7 +345,13 @@ function GeneralFilter() {
                       class="filter-icon"
                       dangerouslySetInnerHTML=${{
                         __html:
-                          svgCache[option.value.toLowerCase() + ".svg"] || "",
+                          // TODO: remove CAN and Europe mapping to GBR svg when those svgs are added
+                          svgCache[
+                            option.value.toLowerCase() === "can" ||
+                            option.value.toLowerCase() === "europe"
+                              ? "gbr.svg"
+                              : option.value.toLowerCase() + ".svg"
+                          ] || "",
                       }}
                     ></div>
                     <span>${option.label}</span>
@@ -416,6 +423,9 @@ const icons = [
   },
   {
     icon: "gbr.svg",
+  },
+  {
+    icon: "can.svg",
   },
   {
     icon: "sportsbetting.svg",
